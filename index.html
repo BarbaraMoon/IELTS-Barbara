@@ -874,15 +874,32 @@ const Dashboard={
     root.querySelector("#btn-import").addEventListener("click",()=>root.querySelector("#import-file").click());
     root.querySelector("#import-file").addEventListener("change",e=>Dashboard.import(e));
   },
-  export(){
-    const blob=new Blob([JSON.stringify(Store.data,null,2)],{type:"application/json"});
+  async export(){
+    await AudioStore.init();
+    const ids=new Set();
+    const walk=q=>{ if(q&&q.audioId) ids.add(q.audioId); };
+    Store.data.speaking.part1.topics.forEach(t=>t.questions.forEach(walk));
+    Store.data.speaking.part23.topics.forEach(t=>{ walk(t.part2); t.part3.forEach(walk); });
+    const audio={};
+    for(const id of ids){ try{ const b=await AudioStore.get(id); if(b) audio[id]=await blobToDataURL(b); }catch(_){} }
+    const payload=Object.assign({},Store.data,{_audio:audio});
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
     const url=URL.createObjectURL(blob); const a=document.createElement("a");
     a.href=url; a.download=`ielts-barbara-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
-    toast("数据已导出","success");
+    toast(`数据已导出（含 ${Object.keys(audio).length} 段录音）`,"success");
   },
-  import(e){
+  async import(e){
     const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
-    reader.onload=()=>{ try{ Store.data=Store._merge(Store.defaults(),JSON.parse(reader.result)); Store.save(); toast("数据导入成功","success"); Router.go("dashboard"); }catch(err){ toast("导入失败：文件格式错误","error"); } };
+    reader.onload=async ()=>{
+      try{
+        const parsed=JSON.parse(reader.result);
+        const audio=parsed._audio||{}; delete parsed._audio;
+        await AudioStore.init();
+        for(const id in audio){ try{ await AudioStore.save(id,dataURLToBlob(audio[id])); }catch(_){} }
+        Store.data=Store._merge(Store.defaults(),parsed); Store.save();
+        toast("数据导入成功","success"); Router.go("dashboard");
+      }catch(err){ toast("导入失败：文件格式错误","error"); }
+    };
     reader.readAsText(file);
   }
 };
@@ -1566,10 +1583,16 @@ const Listening=createPracticeModule("listening","听力",LISTENING_ERRORS);
 const Reading=createPracticeModule("reading","阅读",READING_ERRORS);
 
 /* WAV 编码：把 Web Audio 捕获的 Float32 PCM 转成 16bit PCM WAV，全平台可播放（含 iOS Safari） */
-function encodeWAV(samples,sampleRate){
+function encodeWAV(samples,sampleRate,targetRate){
   let len=0; for(const s of samples) len+=s.length;
   const data=new Float32Array(len); let off=0;
   for(const s of samples){ data.set(s,off); off+=s.length; }
+  // 降采样到目标采样率（语音用 16kHz 足够，体积约降 2/3），线性插值
+  if(targetRate&&targetRate!==sampleRate){
+    const ratio=sampleRate/targetRate, n=Math.max(1,Math.round(len/ratio)), out=new Float32Array(n);
+    for(let i=0;i<n;i++){ const p=i*ratio, i0=Math.floor(p), i1=Math.min(i0+1,len-1), f=p-i0; out[i]=data[i0]*(1-f)+data[i1]*f; }
+    data=out; sampleRate=targetRate; len=n;
+  }
   const buffer=new ArrayBuffer(44+len*2), view=new DataView(buffer);
   const writeStr=(o,str)=>{ for(let i=0;i<str.length;i++) view.setUint8(o+i,str.charCodeAt(i)); };
   writeStr(0,"RIFF"); view.setUint32(4,36+len*2,true); writeStr(8,"WAVE");
@@ -1580,6 +1603,9 @@ function encodeWAV(samples,sampleRate){
   for(let i=0;i<len;i++){ let s=Math.max(-1,Math.min(1,data[i])); view.setInt16(p,s<0?s*0x8000:s*0x7FFF,true); p+=2; }
   return new Blob([view],{type:"audio/wav"});
 }
+// 音频 blob <-> dataURL（base64）互转，用于导出/导入携带音频
+function blobToDataURL(blob){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(blob); }); }
+function dataURLToBlob(dataURL){ const idx=dataURL.indexOf(","); const mime=(dataURL.slice(5,idx).match(/[^;]+/)||["audio/wav"])[0]; const bin=atob(dataURL.slice(idx+1)); const arr=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return new Blob([arr],{type:mime}); }
 
 /* ============================================================ SPEAKING */
 const SPEAK_TAG_GROUPS=[
@@ -2199,7 +2225,7 @@ const Speaking={
         try{ source.disconnect(); processor.disconnect(); silent.disconnect(); }catch(_){}
         if(this._recStream){ this._recStream.getTracks().forEach(t=>t.stop()); this._recStream=null; }
         this._recording=false; this._stopRecording=null;
-        const blob=encodeWAV(chunks,sampleRate);
+        const blob=encodeWAV(chunks,sampleRate,16000);
         this._saveRecording(blob,tid,qid);
         try{ ctx.close(); }catch(_){}
       };
