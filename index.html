@@ -1585,7 +1585,7 @@ const Reading=createPracticeModule("reading","阅读",READING_ERRORS);
 /* WAV 编码：把 Web Audio 捕获的 Float32 PCM 转成 16bit PCM WAV，全平台可播放（含 iOS Safari） */
 function encodeWAV(samples,sampleRate,targetRate){
   let len=0; for(const s of samples) len+=s.length;
-  const data=new Float32Array(len); let off=0;
+  let data=new Float32Array(len); let off=0;
   for(const s of samples){ data.set(s,off); off+=s.length; }
   // 降采样到目标采样率（语音用 16kHz 足够，体积约降 2/3），线性插值
   if(targetRate&&targetRate!==sampleRate){
