@@ -1565,13 +1565,29 @@ function createPracticeModule(key,label,errorTypes){
 const Listening=createPracticeModule("listening","听力",LISTENING_ERRORS);
 const Reading=createPracticeModule("reading","阅读",READING_ERRORS);
 
+/* WAV 编码：把 Web Audio 捕获的 Float32 PCM 转成 16bit PCM WAV，全平台可播放（含 iOS Safari） */
+function encodeWAV(samples,sampleRate){
+  let len=0; for(const s of samples) len+=s.length;
+  const data=new Float32Array(len); let off=0;
+  for(const s of samples){ data.set(s,off); off+=s.length; }
+  const buffer=new ArrayBuffer(44+len*2), view=new DataView(buffer);
+  const writeStr=(o,str)=>{ for(let i=0;i<str.length;i++) view.setUint8(o+i,str.charCodeAt(i)); };
+  writeStr(0,"RIFF"); view.setUint32(4,36+len*2,true); writeStr(8,"WAVE");
+  writeStr(12,"fmt "); view.setUint32(16,16,true); view.setUint16(20,1,true); view.setUint16(22,1,true);
+  view.setUint32(24,sampleRate,true); view.setUint32(28,sampleRate*2,true); view.setUint16(32,2,true); view.setUint16(34,16,true);
+  writeStr(36,"data"); view.setUint32(40,len*2,true);
+  let p=44;
+  for(let i=0;i<len;i++){ let s=Math.max(-1,Math.min(1,data[i])); view.setInt16(p,s<0?s*0x8000:s*0x7FFF,true); p+=2; }
+  return new Blob([view],{type:"audio/wav"});
+}
+
 /* ============================================================ SPEAKING */
 const SPEAK_TAG_GROUPS=[
   {name:"type",label:"题型",tags:["必考题","新题","保留题"]},
   {name:"cat",label:"分类",tags:["事物类","事件类","人物类","地点类"]},
 ];
 const Speaking={
-  _recorder:null,_recChunks:[],_recStream:null,_recordCtx:{tid:null,qid:null},
+  _recording:false,_recStream:null,_recordCtx:{tid:null,qid:null},
   _filters:{type:"",cat:""},
   _collapsed:new Set(),
   _activeTab:"p1",
@@ -1914,7 +1930,7 @@ const Speaking={
   },
   async _loadAudios(root){
     const allQs=[...Store.data.speaking.part1.topics.flatMap(t=>t.questions), ...Store.data.speaking.part23.topics.flatMap(t=>[{...t.part2,id:t.id,audioId:t.part2.audioId},...t.part3])];
-    for(const q of allQs){ if(q.audioId){ try{ const blob=await AudioStore.get(q.audioId); if(blob){ const url=URL.createObjectURL(blob); const el=root.querySelector(`audio[data-audio="${q.audioId}"]`); if(el) el.src=url; } }catch(e){} } }
+    for(const q of allQs){ if(q.audioId){ try{ const blob=await AudioStore.get(q.audioId); if(blob){ const url=URL.createObjectURL(blob); const el=root.querySelector(`audio[data-audio="${q.audioId}"]`); if(el){ el.src=url; try{ el.load(); }catch(_){} } } }catch(e){} } }
   },
   // ---- P1 render ----
   _topicPreviewHTML(t,part){
@@ -2159,24 +2175,47 @@ const Speaking={
   },
   async _toggleRecord(tid,qid){
     const btn=document.querySelector(`[data-record="${tid}"][data-id="${qid}"]`);
-    if(this._recorder&&this._recorder.state==="recording"){ this._recorder.stop(); if(btn) btn.textContent="🎤 录音"; return; }
+    if(this._recording){ this._stopRecording(); if(btn) btn.textContent="🎤 录音"; return; }
     try{
       if(!this._recStream){
         this._recStream=await navigator.mediaDevices.getUserMedia({audio:true});
         // 页面关闭/离开时再统一释放麦克风，避免每次录音都要重新授权
         addEventListener("pagehide",()=>{ if(this._recStream) this._recStream.getTracks().forEach(t=>t.stop()); },{once:true});
       }
-      this._recordCtx={tid,qid}; this._recChunks=[]; this._recorder=new MediaRecorder(this._recStream);
-      const q=this._findQ(tid,qid);
-      this._recorder.ondataavailable=e=>{ if(e.data.size>0) this._recChunks.push(e.data); };
-      this._recorder.onstop=async ()=>{
-        const blob=new Blob(this._recChunks,{type:"audio/webm"}); const aid=Store.uid();
-        try{ await AudioStore.save(aid,blob); if(q.audioId) await AudioStore.delete(q.audioId); q.audioId=aid; Store.save(); toast("录音完成","success"); Router.go("speaking",true); }
-        catch(err){ toast("录音保存失败","error"); }
-        finally{ this._recordCtx={tid:null,qid:null}; }
+      // 用 Web Audio 直接捕获原始 PCM 并编码成 WAV：iOS Safari 无法播放 MediaRecorder 产出的 mp4，
+      // 而 WAV 在所有平台（含 iOS）都能用 <audio> 正常播放，故统一走 WAV。
+      const AC=window.AudioContext||window.webkitAudioContext;
+      const ctx=new AC();
+      if(ctx.state==="suspended") await ctx.resume();
+      const sampleRate=ctx.sampleRate;
+      const source=ctx.createMediaStreamSource(this._recStream);
+      const processor=ctx.createScriptProcessor(4096,1,1);
+      const chunks=[];
+      processor.onaudioprocess=e=>{ chunks.push(new Float32Array(e.inputBuffer.getChannelData(0))); };
+      const silent=ctx.createGain(); silent.gain.value=0;
+      source.connect(processor); processor.connect(silent); silent.connect(ctx.destination);
+      this._recording=true;
+      this._stopRecording=()=>{
+        try{ source.disconnect(); processor.disconnect(); silent.disconnect(); }catch(_){}
+        if(this._recStream){ this._recStream.getTracks().forEach(t=>t.stop()); this._recStream=null; }
+        this._recording=false; this._stopRecording=null;
+        const blob=encodeWAV(chunks,sampleRate);
+        this._saveRecording(blob,tid,qid);
+        try{ ctx.close(); }catch(_){}
       };
-      this._recorder.start(); if(btn) btn.innerHTML='<span class="recording-indicator"><span class="recording-dot"></span>停止</span>';
-    }catch(e){ toast("无法访问麦克风，请检查浏览器权限设置后重试","error"); }
+      if(btn) btn.innerHTML='<span class="recording-indicator"><span class="recording-dot"></span>停止</span>';
+    }catch(e){
+      console.error(e);
+      const msg=(e&&e.name==="NotAllowedError")?"无法访问麦克风，请在浏览器中允许麦克风权限":"录音初始化失败（"+(e&&e.name||"")+"），当前浏览器可能不支持录音";
+      toast(msg,"error");
+    }
+  },
+  _saveRecording(blob,tid,qid){
+    const q=this._findQ(tid,qid); const aid=Store.uid();
+    AudioStore.save(aid,blob).then(()=>{
+      if(q.audioId) AudioStore.delete(q.audioId);
+      q.audioId=aid; Store.save(); toast("录音完成","success"); Router.go("speaking",true);
+    }).catch(()=>toast("录音保存失败","error"));
   },
   unmount(){
     if(this._scrollSpy){ this._scrollSpy.disconnect(); this._scrollSpy=null; }
