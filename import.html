@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>导入口语Part1数据 - IELTS｜Barbara</title>
+<style>
+  body{font-family:-apple-system,"PingFang SC",sans-serif;max-width:780px;margin:40px auto;padding:0 24px;color:#1e293b;line-height:1.7;background:#f4f6fb}
+  .card{background:#fff;border:1px solid #e8ecf4;border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 2px 8px rgba(30,41,59,.06)}
+  h1{font-size:22px;margin:0 0 8px}
+  h2{font-size:16px;margin:16px 0 8px;color:#5b6ef5}
+  .desc{color:#64748b;font-size:14px;margin-bottom:16px}
+  button{background:linear-gradient(135deg,#5b6ef5,#7c8cf5);color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-right:10px}
+  button:hover{box-shadow:0 4px 14px rgba(91,110,245,.35)}
+  button.ghost{background:#fff;color:#64748b;border:1px solid #d4dae6}
+  #log{background:#0f172a;color:#e2e8f0;padding:14px;border-radius:8px;font-family:"SF Mono",monospace;font-size:12px;max-height:320px;overflow:auto;white-space:pre-wrap;margin-top:12px}
+  .stat{display:inline-block;background:#eef1fe;color:#5b6ef5;padding:4px 12px;border-radius:20px;font-size:13px;font-weight:600;margin:2px}
+  a{color:#5b6ef5}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>IELTS｜Barbara · 口语 Part 1 数据导入</h1>
+  <p class="desc">本工具会将整理好的 <b>口语话题/问题/答案</b> 和 <b>高频词汇</b> 写入浏览器本地存储（localStorage），供主站点使用。</p>
+  <div>
+    <span class="stat" id="s-topic">话题 0</span>
+    <span class="stat" id="s-q">问题 0</span>
+    <span class="stat" id="s-vocab">词汇 0</span>
+  </div>
+  <div style="margin-top:16px">
+    <button onclick="doImport()">🚀 一键导入</button>
+    <button class="ghost" onclick="doPreview()">👁️ 预览数据</button>
+    <button class="ghost" onclick="doReset()">↩️ 仅清除本工具导入的数据</button>
+  </div>
+  <div style="margin-top:14px;font-size:13px;color:#64748b">
+    导入后请打开 <a href="index.html" target="_blank">index.html</a> 查看。数据已存在于本浏览器，关闭后不丢失。
+  </div>
+  <div id="log"></div>
+</div>
+
+<script>
+const KEY = "ielts_barbara_v2";
+const MARK = "_p1pdf_import"; // 导入标记，便于重置
+
+/* ============== 数据：话题 + 问题 + 答案 ============== */
+const TOPICS = [
+  // 必考题
+  {name:"Work", cat:"必考题", questions:[
+    {q:"Where do you work?", a:"I work at an internet company in Shenzhen. It's a modern office with a friendly working environment. Also, the office is quite close to my home, so it's a really fast commute, only 10 minutes' ride. Overall, I enjoy working there because the atmosphere is comfortable and convenient."},
+    {q:"What kind of work do you do?", a:"I work as an overseas designer at an internet company. My main responsibility is creating advertisements for different international markets, such as short videos and promotional images. I enjoy this kind of work because it allows me to be creative."},
+    {q:"How do you usually spend your day at work?", a:"My typical workday starts with checking my tasks and discussing priorities with my teammates. Then I spend most of my time designing advertisements and revising them based on feedback. It's a pretty routine schedule, but I don't mind it."},
+    {q:"Have you found anything interesting at work recently?", a:"Not really. I'm the kind of person who needs a bit of personal space, so I don't usually chat a lot with my colleagues during work. Most of the time, I'm focused on getting my tasks done. I prefer spending my breaks quietly, like listening to music or playing on my phone."},
+    {q:"Is there anything you don't like about your job?", a:"Yes, some parts of my job can be a little repetitive because I often work on similar types of advertisements. However, that also makes the work easier to manage. I can finish my tasks smoothly without feeling too stressed. So overall, I'm quite satisfied with my job."},
+    {q:"What is the best thing about your job?", a:"The best thing is that my job allows me to be creative and gives me good work-life balance, which is really important to me. For example, I still have enough free time after work to enjoy my hobbies, like playing games or working out. That's one of the main reasons I enjoy this job."},
+    {q:"Do you think you will continue to do this job in the future?", a:"Probably not in the long term. I'm the kind of person who enjoys exploring new opportunities, so I'd like to step out of my comfort zone and maybe start my own business one day. I think trying something different would be more exciting for me."},
+    {q:"Do you miss being a student?", a:"Not really. I enjoy my current life more because I can make my own money and decide how to spend it. I feel more independent now compared with when I was a student. As a result, I don't miss being a student because I'm satisfied with my life right now, and I'm a kind of person who lives in the present."}
+  ]},
+  {name:"Home & Accommodation", cat:"必考题", questions:[
+    {q:"Where do you live now? / Do you live in an apartment or somewhere else?", a:"I live in an older apartment building in a residential neighborhood. Although it's on the eighth floor without an elevator, it gets plenty of natural sunlight and has a spacious layout. It's a place I carefully chose because it fits both my needs and my budget."},
+    {q:"How long have you lived there? / Have you lived in this area for a long time?", a:"I've been living there for about two years now. When I was looking for a place to live, I knew this was the one as soon as I saw it, especially because of the large balcony with plenty of sunlight. I've really enjoyed living there, so I'll probably stay there for a few more years."},
+    {q:"Do you think it is an interesting place to live? Are the transport facilities to your home very good?", a:"Yes, fortunately, they are. Because my apartment is located close to the city center, and there are several bus stops and subway stations within walking distance. I can easily get to places like shopping malls or my workplace, so commuting is pretty convenient. That's one of the main reasons why I chose to live there."},
+    {q:"What do you enjoy most about living in this place?", a:"My favorite part of this place is the quiet environment because my home is in a peaceful area but still close to the city center. For example, I can easily access shopping malls, restaurants and public transport, but I can still enjoy a peaceful atmosphere when I get home. I think this makes my daily life more comfortable and convenient."},
+    {q:"What part of your home do you like the most?", a:"My favorite part of my home is definitely the living room. I spend a lot of my free time there playing Nintendo Switch games on a large screen, especially after work or on weekends. It's the place where I can relax and take my mind off work."},
+    {q:"Is it a quiet or noisy place?", a:"Yes, I live in a quiet place. Noise really bothers me and makes me feel stressed and irritated, so having a quiet environment is one of the factors when I choose a place to live. I'm quite satisfied with it because I can relax better at home."},
+    {q:"Do you know many people in your area?", a:"To be honest, I hardly know them at all. Although I've met them a few times, we've never really talked. I think it's quite common in big cities because people are usually busy with work and tend to focus on their own lives. So, I don't really have many opportunities to get to know them."},
+    {q:"Who do you live with?", a:"I live with my partner. We share the apartment and spend a lot of time together at home, especially on weekends. For example, we usually cook meals together, watch movies, or just relax at home after a busy week. I really enjoy sharing my daily life with my partner."}
+  ]},
+  {name:"The area you live in", cat:"必考题", questions:[
+    {q:"Are the people in your neighborhood nice and friendly?", a:"To be honest, although we've run into each other a few times, we've never really talked. So I barely know them at all. But they seem polite enough. I think it's quite common in big cities because people are usually busy with work and prefer more personal privacy."},
+    {q:"Do you like the area that you live in?", a:"I wouldn't say I really like it. The weather here is usually hot and humid, which can be quite uncomfortable, especially during summer. However, there are plenty of job opportunities, so it's still a practical place to live."},
+    {q:"Where do you like to go in that area?", a:"I usually like going to the parks near my home. There are quite a few large and small parks in the area, and sometimes I take a walk there on weekends. It helps me clear my mind and recharge mentally after a busy week."},
+    {q:"Do you know any famous people in your area?", a:"Yes, I do. A well-known rapper called Vinida lives in this area. I really enjoy her music because lots of her songs tell stories about women and encourage them to be confident. That's why I admire her so much."},
+    {q:"What are some changes in the area recently?", a:"Recently one major change is that a new metro line has been built. It has made transportation much more convenient and reduced commuting time for some people. I think it's a very positive improvement."}
+  ]},
+  {name:"Hometown", cat:"必考题", questions:[
+    {q:"Where is your hometown? / Is it a big city or a small place?", a:"My hometown is a small village in Guangdong Province, China. It's not very developed economically, but it has beautiful scenery. For example, there are many fields and rivers around the village, and people usually live a simple and peaceful life there. I really enjoy the relaxed atmosphere because it helps me unwind."},
+    {q:"What do you like most about your hometown?", a:"What I value most is the close-knit community. Neighbors are friendly and often bring people together for chats or activities. For example, people might sit outside in the evening and chat with each other after dinner. It creates a warm and relaxed atmosphere, which is something I really miss."},
+    {q:"Is there anything you dislike about it?", a:"Yes. I don't really like that my hometown is not very developed economically, there are fewer entertainment options, and it has poor public transport. Without a car, it's quite difficult to get around, and that's actually why I don't live there anymore."},
+    {q:"Do you think you will continue living there for a long time?", a:"Honestly, no. It's hard to find a job as a designer there, so I don't think it would be a good place for my career development. Besides that, I prefer vibrant city life. There are more interesting things to do and more opportunities to meet different people. I think that lifestyle suits my personality better."}
+  ]},
+  // 事物类
+  {name:"Pets and Animals", cat:"事物类", questions:[
+    {q:"Are there many people keeping pets in your country?", a:"Yes, especially in big cities. Pet ownership is getting more and more popular these days because a lot of young people live alone and enjoy having animal companions, like cats or dogs. I actually have two cats myself, and most of my friends also have pets. I think this trend will continue in the future."},
+    {q:"Should schools teach students knowledge about pets or animals?", a:"Absolutely. I think incorporating animal-related knowledge into the curriculum can really help children understand the value of life and cultivate a sense of responsibility. From my perspective, it's a vital part of education."},
+    {q:"How often do you visit a zoo?", a:"Honestly, I never set foot in a zoo. I hold the view that animals should live freely in nature rather than be kept in enclosed spaces. So, I choose not to spend money on zoo tickets."},
+    {q:"Have you ever visited a zoo?", a:"Yes, I did when I was a child. My parents took me to a zoo, and I vaguely remember watching animal shows there. But to be totally frank, I didn't feel very comfortable because the animals looked like they were forced to perform."},
+    {q:"What's your favourite animal? Why?", a:"I'd have to say cats without a doubt. I'm a proud owner of two, so we hang out every single day. In my eyes, they're hands down the cutest creatures on the planet."},
+    {q:"Where do you prefer to keep your pet, indoors or outdoors?", a:"I strongly prefer indoor keeping. Because I live in a concrete jungle like a big city, it's way safer for my cats to stay inside. That said, if I had a yard in the countryside, I'd probably let them explore outside."},
+    {q:"Have you ever had a pet before?", a:"Well, I didn't grow up with pets, but I do have two cats now. So, yes, I currently have pets, even though I didn't own one in my childhood. Taking care of them has become a huge part of my daily routine."},
+    {q:"What is the most popular animal in China?", a:"I'd say cats and dogs take the crown. They are by far the most common pets in China. In fact, a lot of owners treat them as real family members rather than just animals."},
+    {q:"Did you want to have a pet when you were a child?", a:"Yes, I did. I always wanted to have a cat when I was a child, and that wish finally came true, because now I have two lovely cats. They are an important part of my life and bring me a lot of happiness every day."},
+    {q:"Do you see many birds and animals where you live?", a:"Yes, I do. There are quite a lot of stray cats in my neighborhood, so I see them almost every day when I go outside. Sometimes I give them some food, and I hope they can find a safe home someday."}
+  ]},
+  {name:"Gifts", cat:"事物类", questions:[
+    {q:"What gift have you received recently?", a:"Yes, I have. Recently, my girlfriend gave me a Nintendo Switch game cartridge because she knew I had wanted to play that game for a long time, but it was a bit expensive for me. I was pretty happy because it came as a surprise."},
+    {q:"Have you ever sent handmade gifts to others?", a:"Yes, I have. A few years ago, I made a small teddy bear by hand and gave it to my girlfriend on Chinese Valentine's Day to express my feelings for her. At that time, we weren't together yet, so it felt a bit like a confession gift."},
+    {q:"Have you ever received a great gift?", a:"Yes, definitely. One of the best gifts I've ever received was a painting from my close friend for my birthday. It was a hand-painted cartoon of me and my two cats, with both of them sitting on my shoulders. It felt so personal and unique that I still have it framed in my living room."},
+    {q:"What do you consider when choosing a gift?", a:"I usually think about the person's preferences first. For example, I consider whether they prefer something practical or something attractive, and I also pay attention to their current situation or hobbies. I think a thoughtful gift can make people feel understood and surprised."},
+    {q:"Do you think you are good at choosing gifts?", a:"Yes, I do. I think I'm quite observant, so I can usually notice what people like through daily conversations and small details. In fact, most of my friends seem to really like the gifts I give them. That brings me a lot of joy and a sense of accomplishment."},
+    {q:"What kinds of gifts do you like to receive?", a:"I especially like receiving practical gifts because I can use them in my daily life. Every time I use one, it reminds me of the friend who gave it to me, which makes the gift even more meaningful."},
+    {q:"What kinds of gifts did you like when you were younger?", a:"When I was younger, I especially liked handmade gifts because I felt they were more thoughtful. It made me feel that the person had spent time and effort on me, so I really appreciated that."},
+    {q:"Do you enjoy giving people gifts?", a:"Yes, I do. I think giving gifts is a lot of fun because I enjoy seeing people's happy reactions. That brings me a lot of joy and a sense of accomplishment."},
+    {q:"Do you think buying gifts online is a good idea?", a:"Yes, I do. I think shopping online is much more convenient because there are more choices, and I can even find gifts that aren't available in physical stores. That's why I usually buy gifts online."}
+  ]},
+  {name:"Hobby", cat:"事物类", questions:[
+    {q:"Do you have any hobbies?", a:"Yes, I do. I enjoy working out and playing games on my Switch in my free time. They help me take my mind off work and relax after a busy day."},
+    {q:"Did you have any hobbies when you were a child? (考察过去式)", a:"Yes, I did. I started enjoying singing when I was in primary school. I especially loved singing loudly in the shower because it was really relaxing. Although I enjoyed singing a lot, I wouldn't say I was pretty good at it."},
+    {q:"Do you have a hobby that you've had since childhood? (考察现在完成时)", a:"Yes, I do. Listening to music is a hobby I've had since childhood. I still listen to music every day, especially during my commute or while working out. It's something I've enjoyed for as long as I can remember."},
+    {q:"Do you have the same hobbies as your family members?", a:"No, not really. My family members and I have quite different interests. For example, I'm a big fan of working out, while my brother enjoys scrolling through short videos. Sometimes I wish we had more activities in common, but it's not a big deal."}
+  ]},
+  {name:"Memory", cat:"事物类", questions:[
+    {q:"Are you good at memorising things?", a:"Yes, I am, especially when it comes to remembering names. For example, I enjoy playing a Nintendo Switch game that has hundreds of animal characters with different names. In most cases, I can remember their names after seeing them just once. So I'd say I have a pretty good memory."},
+    {q:"Have you ever forgotten something important?", a:"No, I haven't. I do forget things from time to time, but fortunately they're usually quite minor. When it comes to important tasks or appointments, I always write them down in my notes app and set reminders, so I hardly miss anything important."},
+    {q:"What do you need to remember in your daily life?", a:"Mostly my everyday essentials, like my phone, headphones and keys. Before I head out, I always repeat \"keys, phone, headphones\" in my head, which has become a habit."},
+    {q:"How do you remember important things?", a:"If I have important tasks or appointments, I usually write them down in my notes app and set several reminders. That helps me stay organized and make sure I don't miss anything important."},
+    {q:"Do you think it is easy to remember people's names?", a:"Yes, I do. Remembering names has always been quite easy for me, and I don't really need to make a special effort. For example, I enjoy playing a game on my Switch that has hundreds of animal characters with different names. In most cases, I can remember their names after seeing them just once. So I'd say I'm pretty good at remembering names."},
+    {q:"Do you remember things easily when you're studying or working?", a:"Yes, I do. I'm the kind of person who picks up new things quite quickly, so I usually have no trouble remembering what I learn at work. However, when it comes to learning English, I often forget new words, so I have to review them again and again."},
+    {q:"Would you like to have a better memory?", a:"Of course. Although I'm quite good at remembering and understanding new things, I wouldn't say I have a great memory overall. For example, when I'm learning English, I often forget new words after a few days. If I had a better memory, it would definitely help me study more efficiently."}
+  ]},
+  {name:"Food", cat:"事物类", questions:[
+    {q:"What is your favourite food?", a:"I'd say beef is my favourite food. Because it's not only delicious but also a great source of protein, which is good for my fitness routine. So I enjoy eating it several times a week."},
+    {q:"What kind of food did you like when you were young? / What was your favourite food when...", a:"When I was young, I really enjoyed eating sweet food like candy and cookies because they made me feel happy. But eating too much sugar was bad for my teeth."},
+    {q:"Has your favourite food changed since you were a child?", a:"Yes, it has a clear difference. When I was young, I preferred sweet snacks, but these days I eat more beef and other high-protein foods because I work out regularly. I think my diet is much healthier now."},
+    {q:"Do you eat different foods at different times of the year?", a:"Yes, definitely. There are different fruits and vegetables in season at different times of the year, and seasonal produce is usually fresher and cheaper. So I always try to eat something in season."},
+    {q:"Do you like to eat with others?", a:"Not really. I'm the kind of person who enjoys having meals alone because eating is my personal time to relax and enjoy my food without being distracted. I find it much more peaceful, and I like scrolling through social media while I'm eating."},
+    {q:"In your country, is it very important to eat with other people?", a:"Yes, definitely. In my country, sharing a meal is an important way for people to chat in a relaxed atmosphere and get to know each other better. I think it helps build stronger relationships, whether it's with family, friends, or colleagues."}
+  ]},
+  {name:"Cars", cat:"事物类", questions:[
+    {q:"Will you buy an expensive car in the future?", a:"No, probably not. I only need a car that can meet my daily needs, like having enough space for my two cats and weekend trips. As long as it's practical and comfortable, I'd be happy with it."},
+    {q:"Do you prefer to drive a car or to be a passenger?", a:"I definitely prefer driving. I'm the kind of person who enjoys being in control, so having my hands on the steering wheel makes me feel more confident. I also find driving more enjoyable than just sitting in the passenger seat."},
+    {q:"Did you go on any long car journeys when you were a child?", a:"Yes, I did. I remember my dad once drove our family to another city, and the journey took almost ten hours. I slept for most of the trip, and I always felt safe falling asleep in the car when he was driving."},
+    {q:"Do you think there are too many cars in the area you live in?", a:"Yes, I do. There seem to be more and more cars on the road these days, so traffic jams are quite common, especially during rush hour. I can really feel that people tend to become more impatient when they're stuck in traffic."},
+    {q:"Do you think car colours are important?", a:"Not really. I pay more attention to a car's performance and design than its colour. Of course, it's always nice if I can choose my favourite colour."},
+    {q:"Did you enjoy traveling by car when you were a kid?", a:"Yes, I really did. I often fell asleep in the car while listening to my family's conversations and laughter. Those trips always made me feel safe and relaxed."},
+    {q:"What types of cars do you like?", a:"I like spacious cars. They have enough space for two people, my two cats, and some camping gear for weekend trips. I think they're much more practical for my lifestyle."},
+    {q:"What do you usually do when there is a traffic jam?", a:"I usually play my favourite music while waiting in traffic. It helps me relax instead of getting impatient. That way, the traffic jam doesn't feel so stressful."}
+  ]},
+  {name:"Sports team", cat:"事物类", questions:[
+    {q:"Have you ever been part of a sports team? / Have you ever played a sport in a team?", a:"Yes, I have. I used to be on a boxing team when I was at university. It was a great experience, and that's actually when I became interested in boxing. I still do boxing regularly as a way to keep fit."},
+    {q:"Are team sports popular in your culture?", a:"Yes, I'd say they are quite popular. These days, more and more people pay attention to their health, and many people enjoy playing team sports with their friends or colleagues after work or on weekends. I think it's a fun way to stay active and make friends."},
+    {q:"What are the differences between team sports and individual sports?", a:"I think the biggest difference is teamwork. Team sports require players to cooperate with each other, while individual sports focus more on challenging yourself. Personally, I think both are enjoyable in different ways."},
+    {q:"Do you like watching team games? Why?", a:"Yes, I do. I especially enjoy watching big events like the World Cup because every match is exciting and full of unexpected moments. Even if I don't support a particular team, I still enjoy the atmosphere, and it's a great way to relax in my free time."},
+    {q:"Is your sports team famous?", a:"Not really. Boxing isn't a very popular sport in my country, and sports like basketball and badminton are much more common because they're easier for people to play. That doesn't really matter to me because I enjoy boxing for the sport itself."},
+    {q:"Would you like to try a new team sport in the future?", a:"Not really. I'm the kind of person who prefers individual sports because they help me focus more on myself. If I were to try a new sport, I'd like to try rock climbing because I think it would be a fun and rewarding challenge."}
+  ]},
+  {name:"Building", cat:"事物类", questions:[
+    {q:"Do you take photos of buildings?", a:"Not really. I usually prefer taking photos of the sky or natural scenery because they make me feel more relaxed. So I don't often take pictures of buildings."},
+    {q:"Have you ever taken a photo of a building?", a:"Yes, I have. When I travelled to Thailand a few years ago, I took quite a few photos because there were a lot of temples with unique designs. Looking back at those photos always reminds me of the wonderful memories from the trip."},
+    {q:"Is there a building that you would like to visit?", a:"Yes, I'd love to visit some famous buildings in Europe. I don't know much about architecture, but I think many European buildings have a unique style and a long history. Hopefully, I'll be able to visit them one day."},
+    {q:"Do you want to live in a tall building?", a:"No, I don't. I don't think living in a tall building is very convenient, and I'd also worry about safety in case of a fire. I'd feel more comfortable living in a low-rise building."},
+    {q:"What kind of building would you like to live in?", a:"I'd like to live in a low-rise building. I think it's more convenient in daily life, and it would be safer in case of a fire. It's also important to have good natural light because sunshine always makes me feel more energetic."},
+    {q:"Are there tall buildings near your home?", a:"Yes, there are quite a lot of tall buildings near my home because I live in the city center. Most of them are office buildings, and sometimes they make me feel a little closed in. Personally, I'd prefer to live somewhere with more open space."},
+    {q:"What is the tallest building in your city?", a:"The tallest building in my city is a skyscraper that looks a bit like a bamboo shoot. It's one of the city's most famous landmarks and it's nearly 400 metres tall. I think it's a special building and it's easy to recognize."}
+  ]},
+  {name:"Free time activities", cat:"事物类", questions:[
+    {q:"What's your favourite free-time activity when you were a child?", a:"When I was a child, I loved playing outside with my friends. We'd spend hours running around and having fun after school. Looking back, those are some of my favorite childhood memories."},
+    {q:"Do you prefer to do free-time activities alone or with other people?", a:"I prefer to do free-time activities alone, like playing games, working out, and reading. I'm the kind of person who needs some personal time, so I always feel more comfortable and relaxed when I can do them at my own pace."},
+    {q:"What activities do you enjoy doing in your free time now? / What are your favorite activities?", a:"In my free time, I usually enjoy working out and playing games on my Switch because they help me take my mind off work and relax after a busy day."},
+    {q:"Is there an activity you would like to try in the future?", a:"Yes, I'd like to try rock climbing. I think it would be a fun and rewarding challenge because I enjoy challenging myself. I think it would give me a great sense of achievement."}
+  ]},
+  {name:"Childhood activities", cat:"事物类", questions:[
+    {q:"What are your favorite activities?", a:"I'd say playing games on my Switch is my favorite activity. There are lots of games I enjoy and it's a great way to relax after a busy day and helps me take my mind off work."},
+    {q:"What were your favorite activities when you were a child?", a:"When I was a child, I loved playing outdoor games with my friends. We would spend hours running around and having fun after school. Looking back, those are some of cherished childhood memories."},
+    {q:"Did you prefer to do activities alone or with a group of people when you were a child?", a:"I definitely preferred doing activities with my friends. It was much more fun because we could play games together and enjoy each other's company. It's one of my favorite childhood memories."},
+    {q:"Are there any differences between the activities you liked when you were a child and those you like now?", a:"Yes, there are. When I was younger, I preferred playing with my friends, but now I enjoy doing things on my own, like playing games, working out or reading. I feel more relaxed because I can do them at my own pace."}
+  ]},
+  {name:"Scenery / Views / Travelling", cat:"事物类", questions:[
+    {q:"Do you prefer the mountains or the sea? / Do you prefer to look at mountain views or ocean views?", a:"I'd say I prefer the sea because being near the sea always makes me feel relaxed and gives me a sense of peace. That's why I go to the beach for vacation several times a year."},
+    {q:"Do you like to take scenery pictures? / Do you like taking pictures of different views?", a:"Yes, I do. I enjoy taking pictures of any beautiful views, especially the sky and natural scenery. Looking back at those photos always makes me feel refreshed."},
+    {q:"Do you look out the window at the scenery when travelling by bus or car?", a:"Yes, definitely. I think it's one of the best parts of bus traveling because I can just sit back and enjoy the scenery. It makes the journey feel more relaxing and enjoyable."},
+    {q:"What are the most beautiful sights you have seen while travelling? / Have you seen an unforgettable and beautiful view or scenery?", a:"Yes, I have. The most unforgettable view I've ever seen was the snow-covered mountains in Japan. I travelled there a few years ago in winter just to see the snow. That was my first time seeing snow. I enjoyed it so much that I plan to go back next year."},
+    {q:"Do you prefer views in urban areas or rural areas?", a:"I'd definitely prefer views in rural areas because they're quieter and closer to nature, which helps me relax and recharge mentally. Actually, most of my trips are to the countryside. I always enjoy spending time in places like that."},
+    {q:"Do you prefer views in your own country or in other countries?", a:"I'd say I prefer views in other countries. Every time I travel abroad, I get to see something completely different from what I'm used to. I think that's what makes traveling so enjoyable and interesting."},
+    {q:"When you're travelling, do you usually look at the view?", a:"Yes, definitely. I think enjoying the views is one of the best parts of travelling because every place has its own unique scenery. I always feel relaxed when I can spend time appreciating the beauty around me."},
+    {q:"Did you ever travel to a faraway place when you were a child?", a:"Yes, I did. I remember my family and I once travelled to a faraway place by plane because none of us had ever taken a flight before, so we wanted to experience it. I don't remember exactly where we went, but I still remember that flying for the first time was really exciting."},
+    {q:"Would you like to hang a beautiful view picture on the wall at home?", a:"Not really. I'm not really interested in hanging view pictures on the wall. Instead, I have a hand-painted cartoon of me and my two cats hanging there, which was a birthday gift from one of my close friends. I really love it because it's meaningful and reminds me of our friendship."}
+  ]},
+  {name:"Jokes & Comedies", cat:"事物类", questions:[
+    {q:"Are you good at telling jokes?", a:"Not really. I'm not very good at telling jokes because I'm not a naturally funny person. I usually prefer listening to other people's jokes, and I really admire those who can make everyone laugh and make conversations more enjoyable with their sense of humor."},
+    {q:"Do you like your friends tell you jokes? / Do your friends like to tell jokes?", a:"Yes, I/they do. One of my close friends is really good at telling jokes. Whenever we hang out together, especially when we have dinner or chat after work, she can always make everyone laugh and create a relaxed atmosphere. So I really enjoy spending time with her."},
+    {q:"Do you like being joked about?", a:"It depends on the type of joke. I don't mind simple and friendly jokes between close friends or colleagues, but I don't really like jokes about appearance or body because they can make people feel offended. I think good humor should make people relaxed and happy instead of hurting their feelings."},
+    {q:"How popular are comedy shows in your country? / Are comedy shows popular in your country?", a:"They are quite popular in my country, especially comedy variety shows. Many clips from these shows go viral on social media these days. I think people enjoy them because they help people relax and laugh after a busy day. They're definitely a great way to reduce stress."},
+    {q:"Would you ever go to see a live comedy show? / Have you ever watched a live show?", a:"Yes, I would definitely like to try it in the future. I usually watch comedy shows online in my free time to unwind, so I think it would be interesting to see my favorite comedians perform on stage and interact with the audience. I'm sure it would be a more exciting experience."},
+    {q:"Do you like to watch comedies?", a:"Yes, I really enjoy watching comedies, whether they are comedy movies or stand-up shows, because they are entertaining and relaxing. I usually watch funny videos or comedy shows after work to help me relax. It's a simple way for me to take my mind off work and improve my mood."}
+  ]},
+  {name:"Clothing / Clothes", cat:"事物类", questions:[
+    {q:"Do you wear different styles of clothes on weekdays and weekends?", a:"Not really. I usually wear comfortable and casual clothes no matter whether it's a weekday or the weekend, such as a T-shirt and shorts in summer. I like this style because it's simple, comfortable, and easy to move around in."},
+    {q:"What kind of clothes do you like to wear? / Do you prefer to wear comfortable and casual clothes or smart clothes?", a:"Yes, I prefer wearing comfortable and casual clothes. They allow me to move around easily and make me feel relaxed, so I wear T-shirts most of the summer. I think comfort is more important than fashion."},
+    {q:"Do you like wearing T-shirts?", a:"Yes, I do. In summer, I wear T-shirts almost every day because they're comfortable, easy to move around in, and don't make me feel restricted. I have more T-shirts than any other type of clothing, so they're definitely my favourite to wear."},
+    {q:"Do you spend a lot of time choosing clothes?", a:"Not really. I usually rotate between a few outfits, so I don't need to spend much time deciding what to wear. It saves me time and makes my daily routine much easier."},
+    {q:"What color clothes do you like?", a:"I like wearing bright and light colours. Because they suit my personal style and my skin tone better. I think these colours make me feel cheerful and more confident."},
+    {q:"Are there any colours you don't like to wear?", a:"Yes, I don't really like wearing black. I think it looks a little too dull for my skin tone, so I usually choose bright and light colours instead. They suit me better and make me feel more cheerful."},
+    {q:"Would you ever buy clothes just because of the brand name?", a:"Yes, sometimes I would, but only if it's a brand I've usually bought from before. I know the clothes usually fit me well, and I can trust their quality and design. So buying from a familiar brand saves me time and gives me more confidence about my choice."}
+  ]},
+  {name:"Social media", cat:"事物类", questions:[
+    {q:"Do your friends and family use social media? / What do people often do on social media?", a:"Yes, almost everyone around me uses social media every day. They use social media for different purposes. For instance, they chat with friends and family on WeChat, watch short videos and share their daily lives on RedNote or Tiktok. I think it's a convenient way to communicate and stay connected with others."},
+    {q:"Do you think people in your country find social media useful?", a:"Yes, definitely. Many people use platforms like RedNote to search for information because they can find useful answers to many everyday questions there. I think social media has become a useful tool in our daily lives, especially when people need quick information or want to learn something new."},
+    {q:"Do you spend too much time on social media?", a:"Not really. I use social media every day, but I don't think I'm addicted to it because I can stop using it whenever I need to focus on work or other things. I think I have a good balance between spending time online and doing things in real life."},
+    {q:"When did you start using social media?", a:"I started using social media when I was in primary school. Once I had my own group of friends, almost everyone around me was using social media to stay in touch. Since then, I usually posted photos on WeChat Moments whenever I travel or something nice happens in my life. Social media has become a normal part of my daily life."},
+    {q:"Have you ever posted anything on social media?", a:"Yes, I have. Whenever I travel or something nice happens in my life, I usually post photos on WeChat Moments to share my happiness with my friends. I enjoy looking back at those posts because they remind me of my happy memories."}
+  ]},
+  {name:"Mirrors", cat:"事物类", questions:[
+    {q:"Do you like looking at yourself in the mirror? How often?", a:"Not particularly. Maybe once or twice a day. I usually look in the mirror before going out to make sure my clothes and hair look tidy, but I don't spend much time looking at myself. If I stay at home all day, I might not even look in the mirror at all."},
+    {q:"Have you ever bought mirrors?", a:"Yes, I have. I bought a standing mirror for my room because it's convenient whenever I need to check my appearance. It's simple and I use it almost every day."},
+    {q:"Do you usually take a mirror with you?", a:"No, I don't. I don't really have a reason to carry a mirror. If I need to check my appearance, I can always use the camera on my phone, so I don't think it's necessary for me."},
+    {q:"Would you use mirrors to decorate your room?", a:"Probably not. For me, a mirror is mainly something I use to check my appearance rather than a decoration. I'd prefer decorate my room with paintings because they make my room feel warmer and more personal."}
+  ]},
+  {name:"Websites", cat:"事物类", questions:[
+    {q:"Do you usually use websites?", a:"Yes, I use websites almost every day. I visit different websites to watch videos, search for information, and find inspiration for my design work. I'd say they've become an important part of both my work and daily life."},
+    {q:"Is there a website that you use a lot in your free time? / What is your favourite website? / What kinds of websites do you often visit?", a:"I often visit RedNote in my free time. I enjoy reading interesting posts, watching funny short videos, and seeing what other people share about their daily lives. I find it entertaining, and it helps me relax after a busy day."},
+    {q:"Do you prefer to search for information through websites or books?", a:"I definitely prefer getting information from websites. They are much more convenient, and the information is usually more up-to-date than what's in books. I think websites save me a lot of time, especially when I need an answer quickly."},
+    {q:"How have websites helped you in your work or studies?", a:"Websites have helped me a lot in my work. As a designer, I often use them to search for reference materials and design inspiration. I also watch online tutorials to improve my design skills. If I get stuck on something, I usually ask AI tools like ChatGPT for help. They save me a lot of time and help me work more efficiently."},
+    {q:"Would you like to have your own website?", a:"Yes, I would. As a designer, I'd love to have my own website to showcase my best design projects and introduce myself to potential employers. I think it would help me build a more professional image and create more job opportunities."},
+    {q:"Are there any changes to the websites you often visit?", a:"Yes, there have been some changes over the years. I've noticed that there are more advertisements than before, and sometimes they interrupt my browsing experience and it's a bit annoying, but I still use them because they offer a lot of useful content."},
+    {q:"What kinds of websites are popular in your country?", a:"I think short-video websites have become more and more popular in my country. Many people enjoy watching entertaining videos or sharing their daily lives on platforms like RedNote and TikTok. They're popular because they're entertaining and definitely a great way to relax in their free time."}
+  ]},
+  {name:"Watch", cat:"事物类", questions:[
+    {q:"Do you wear a watch? / What kind of watch do you have?", a:"Yes, I have an Apple Watch, and I wear it every day. It's a birthday gift that my girlfriend gave me a few years ago, so it means a lot to me. I wear it daily and take good care of it because it's both practical and meaningful."},
+    {q:"Have you ever got a watch as a gift?", a:"Yes, I have. My girlfriend gave me an Apple Watch as a birthday gift a few years ago. I wear it every day and take good care of it because it's both practical and meaningful. It's one of the most valuable gifts I've ever received."},
+    {q:"What kind of watch do the people around you like to wear?", a:"Actually, I haven't really paid much attention to other people's watches. But I think most of my friends wear smartwatches because they're much more practical than traditional watches. They can track your health, receive notifications, and do many other useful things instead of just telling the time."},
+    {q:"Would you spend a lot of money on a watch?", a:"Not really. As long as a watch meets my daily needs, like tracking my workouts and sleep, I don't think it has to be expensive. I'm not really into luxury items. I'd rather spend my money on experiences like travelling than on an expensive watch."},
+    {q:"Why do some people wear expensive watches?", a:"I'm not sure, but I think it's because some people regard expensive watches as a symbol of success or social status. Personally, I care more about whether a watch is practical rather than its price."},
+    {q:"Do you think it is important to wear a watch? Why?", a:"Yes, I do, because nowadays smartwatches can do much more than just tell the time. For example, my Apple Watch can track my health and record my workouts. I also use the \"Find My Phone\" feature almost every day because I often forget where I put my phone. I think it makes my life much more convenient."}
+  ]},
+  {name:"Music", cat:"事物类", questions:[
+    {q:"Do you like music?", a:"Yes, absolutely. Music is an important part of my daily life. I listen to it whenever I'm commuting or working out because it makes those activities much more enjoyable and It always puts me in a better mood. I can't really imagine going through a day without music."},
+    {q:"What kinds of music do you listen to? / Do you prefer sad or happy music?", a:"I definitely prefer happy/upbeat music, like rock and pop. I especially enjoy listening to upbeat songs during my commute because they help me wake up and get ready for the day. I think cheerful music gives me more energy, so I usually listen to happy songs in the morning."},
+    {q:"Does happy music make you feel more excited?", a:"Definitely. Upbeat music always gives me more energy, especially when I'm working out or needing to focus on my work. It always makes me feel more motivated to get things done."},
+    {q:"Is it easy to learn music?", a:"I don't think so. Learning music takes a lot of time and practice, especially if you want to play an instrument or understand music theory. For example, Some of my friends learned the piano for years to become good at it. So I really admire people who are good at music."},
+    {q:"Do you take music lessons at school? / Have you taken any music classes?", a:"Yes. I had music classes when I was in primary school, but the classes were quite simple and not very professional. However, they helped me become interested in music, and that's probably why I started to enjoy singing at that time."},
+    {q:"Do you listen to music while doing other things?", a:"Yes, quite often. I usually listen to music when I'm riding my bike, doing housework, or taking a walk. It always helps me relax and gives me more energy. I especially enjoy listening to upbeat songs during my commute because they help me wake up and get into a better mood before work."}
+  ]},
+  {name:"Singing", cat:"事物类", questions:[
+    {q:"Did you like singing when you were a child?", a:"Yes, I did. I started enjoying music and singing when I was in primary school. I especially loved singing loudly in the shower because it was really relaxing. Although I enjoyed singing a lot, I wouldn't say I was very good at it. My singing skills were pretty average."},
+    {q:"Do you like singing now? Why?", a:"Yes, I do. I still enjoy singing because it's a great way to relax and improves my mood. I often sing along to my favorite songs while riding my bike, doing housework, or taking a walk. It always puts me in a better mood and makes those activities much more enjoyable."},
+    {q:"Do you ever sing while you're doing other things, for example driving in a car?", a:"Yes, quite often. I usually sing along when I'm riding my bike, doing housework, or taking a walk. It helps me relax and gives me more energy. For example, I often sing along to upbeat songs during my commute. I think music makes those activities much more enjoyable."},
+    {q:"Do you like listening to others singing?", a:"Yes, definitely. I enjoy listening to other people singing, whether they are professional singers or just ordinary people. I especially enjoy live performances because the atmosphere make the experience much more memorable. It always makes me feel excited and relaxed after a busy day."},
+    {q:"Did you learn to sing when you were at school?", a:"Not really. Although I had music classes when I was in primary school, we didn't actually learn how to sing. The classes were quite simple and not very professional. However, they helped me become interested in music, and that's probably why I started to enjoy singing."},
+    {q:"Would you like to have singing lessons?", a:"Probably not. I've never really thought about improving my singing skills because I just enjoy music casually. I just sing for fun in my free time rather than trying to become a good singer. For me, enjoying music is much more important than singing well. So I don't think singing lessons are necessary for me."},
+    {q:"Who do you want to sing to?", a:"I'd probably sing for the people I care about. For example, I'd love to sing for my family or close friends on a special occasion, like a birthday. I think music is a great way to celebrate happy moments and express my happiness."},
+    {q:"Do you think singing can bring happiness to people?", a:"Yes, absolutely. Some songs can inspire people to face life's challenges or encourage them to stay positive. Whenever I feel sad or discouraged, listening to inspiring songs helps me gradually feel better. I think music is a great way to bring people happiness and make them feel more positive."}
+  ]},
+  {name:"Headphones", cat:"事物类", questions:[
+    {q:"When would you use headphones? / How often do you wear headphones?", a:"I wear headphones almost every day. I use them while exercising, during my commute, and when I'm editing videos at work. They've become an essential part of my daily routine, and I honestly use them for several hours every day."},
+    {q:"Do you think headphones are useful?", a:"Definitely. I think headphones are really useful because they help block out noise and allow people to enjoy their own audio without disturbing others. For instance, If everyone played music or videos out loud, public areas would get extremely noisy and uncomfortable."},
+    {q:"Do you find headphones comfortable to wear?", a:"Yes, but it depends on the type of headphones. I don't find in-ear headphones very comfortable because I have to wear them for work all day. So I prefer semi-in-ear ones because they're easier to wear for a long time, and I think they're put less pressure on my ears."},
+    {q:"How popular is it to wear headphones in your country?", a:"They're extremely popular in China. Almost everyone I know owns at least one pair because people often listen to music, watch videos, make calls on the go. For example, I can see most people wearing headphones on the subway. I think headphones have become a daily essential for many people."},
+    {q:"What type of headphones do you use?", a:"I mainly use bone-conduction headphones because they're waterproof, so I can even wear them while swimming. They're also really comfortable for long hours at work, and I think they're put less pressure on my ears. So they've become my favorite."},
+    {q:"In what conditions would you not use headphones?", a:"I usually take my headphones off when I'm talking to other people. For example, if I'm having a conversation with my colleagues or friends, I think it's more polite because it shows respect and helps me focus on the conversation."}
+  ]},
+  {name:"Science", cat:"事物类", questions:[
+    {q:"Do you like science?", a:"Not really. Science isn't something I come across very often in my daily life or at work, so I haven't developed a strong interest in it. I'd rather spend my time learning things that are more closely related to my job, like design skills or AI tools."},
+    {q:"Do you ever watch TV programs about science?", a:"Not very often. Most science programs are a bit too technical for me, and sometimes I find them difficult to follow. I usually enjoy watching travel videos or documentaries in my free time because they are more relaxing and easier to understand. They also help me learn about different cultures and places."},
+    {q:"Did you learn a lot about science at school?", a:"Yes, I did. When I was in secondary school, I started learning the basics of subjects like physics, chemistry and biology. Biology was my favorite. I enjoy learning about topics related to health, nutrition and the human body because they're useful in my daily life. I think they're much easier to understand than subjects like chemistry."},
+    {q:"Are you usually interested in new scientific developments?", a:"Yes, I am, but only if they affect my daily life or my work. For example, I pay attention to new AI tools because I use them at work almost every day, and they help me finish some tasks more efficiently. Apart from that, I don't really follow scientific news because I don't have much time."},
+    {q:"What area of science do you know about?", a:"Probably AI and computer technology. Since I use AI tools quite often at work, I've naturally learned a little about how they work and how they can improve efficiency. I wouldn't say I'm an expert, but it's probably the area of science I'm most familiar with."},
+    {q:"Do you think you could enjoy working as a scientist?", a:"Probably not. I don't think I'm patient enough to spend years doing research or experiments. I think a more creative job suits my personality better. For example, I enjoy designing things and trying new ideas, so I would prefer a career where I can create something rather than doing repeated experiments."},
+    {q:"What kinds of interesting things have you done with science?", a:"Nothing very special, to be honest. I only did some simple experiments in science classes at school, like observing chemical reactions. I remember doing these activities with my classmates, and it was quite interesting because we could see the results by ourselves. However, I've never done anything similar since then."},
+    {q:"Do Chinese people often visit science museums?", a:"Yes, I think so. Science museums are especially popular with families because parents like taking their children there during weekends or holidays. It's a fun way for kids to learn about science outside the classroom, and it also makes learning more interesting."}
+  ]},
+  {name:"Outer space and stars / Space travel", cat:"事物类", questions:[
+    {q:"Have you ever learnt about outer space and stars? / Did you learn about space and the stars at school?", a:"Not much. I remember learning a few basic facts in science class, but we didn't spend much time on this topic, so I don't know much about outer space. But recently, I have started playing a Switch game called Outer Wilds, and it's actually makes me a little more curious about space."},
+    {q:"Do you like science fiction movies? Why? / Do you enjoy watching movies that are about people travelling in space?", a:"Yes, I do. I enjoy science fiction movies because they're full of imagination and usually have amazing visual effects. I also like how they make me think about the future, so I always find them really interesting."},
+    {q:"Are you interested in space or space travel? / Do you want to know more about outer space?", a:"Not really. Space isn't something I come across in my daily life or at work, so I haven't developed much interest in it. I'd rather spend my time learning other things that are more relevant to my life or my job."},
+    {q:"Do you want to go into outer space in the future? / Would you ever think about having a holiday in space in the future?", a:"Yes, if I had the chance. I think it would be a once-in-a-lifetime experience because very few people get to see the Earth from space. Of course, I'd only do it if it was completely safe!"}
+  ]},
+  // 事件类
+  {name:"Life stages", cat:"事件类", questions:[
+    {q:"Do you enjoy being the age you are now?", a:"Yes, I do. I feel like I'm still young, full of energy, and I have lots of things I want to try. For example, I can spend time learning new skills or exploring new hobbies after work or on weekends. I also feel that I have many possibilities ahead of me, which makes me excited about the future."},
+    {q:"What did you often do with your friends in your childhood?", a:"When I was little, I usually played different kinds of games with my friends. Sometimes we'd play outdoor games, and other times we'd play computer games or board games at someone's home. Those was some of my cherished childhood memories."},
+    {q:"What do you think is the most important at the moment?", a:"For me, the most important thing at the moment is to make the most of each day. I try to focus on my work and personal growth instead of worrying too much about the future. For example, after work, I usually spend some time learning English or exercising. These small things make me feel productive and satisfied."},
+    {q:"Do you have any plans for the next five years? / What do you want to do 5 years later?", a:"Not really. I don't have a very specific plan for the next 5 years because I think everything can change quickly these days. But I do have some general goals, such as hopefully getting a chance to work overseas in the future. That's why I prefer to focus on small steps, like making daily plans to study English and improve my work skills."},
+    {q:"How do people remember each stage of their lives?", a:"I think most people remember different stages of their lives through photos and videos. For example, many people often take pictures at their birthdays, graduations, or trips. Looking back at those photos and videos always brings back good memories."},
+    {q:"At what age do you think people are the happiest? / At what age do you think people enjoy their lives most?", a:"I don't think happiness can really be compared across different ages because people have different needs at different stages of life. For example, children may be happy just playing with friends, while adults may feel happy when they achieve their goals or enjoy their work. So I think every stage of life has its own kind of happiness."},
+    {q:"What did you enjoy most about your childhood?", a:"I think my favourite part of childhood was spending time with my family during the holidays. We would watch TV together, chat, and laugh about little things. It was simple, but those moments always made me feel happy and relaxed."},
+    {q:"What's the most important thing you've done so far?", a:"I don't think there's one single thing that's the most important. I've always tried to do my best in everything, whether it's my studies, work, or daily life. I believe it's the small things I do consistently that have made the biggest difference."}
+  ]},
+  {name:"Spare time", cat:"事件类", questions:[
+    {q:"Do you have more free time on weekdays or at weekends?", a:"Yes, I definitely have more free time at weekends. On weekdays, I work full-time, so most of my day is taken up by work. However, at weekends, I have the whole day to do things I enjoy, such as sleeping in, playing games, or reading books at home. I really look forward to the weekend because it gives me a chance to relax and enjoy my own time."},
+    {q:"Do you often have free time?", a:"Yes, I do. I always make sure I have some free time every day because it's important for me to relax after work. For example, when I get home in the evening, I usually spend some time playing games or watching videos. It helps me clear my mind and stay energetic for the next day."},
+    {q:"What do you usually do in your spare time?", a:"I usually play casual games on my Nintendo Switch in my free time. For example, I usually play Animal Crossing with my roommate after dinner. Although it's a simple activity, it's definitely a good way to take my mind off work and unwind after a busy day."},
+    {q:"Which day do you have more free time on, Saturday or Sunday?", a:"I'd say Sunday. If I have something to do or any appointments, I usually arrange them for Saturday. That way, I can have a more relaxing Sunday. I usually stay at home, watch something interesting, or spend some time on my hobbies. It's a nice way for me to slow down before going back to work on Monday."},
+    {q:"Would you like to have more free time in the future?", a:"Definitely. Although I already have weekends off, I think having a three-day weekend would give me more time to enjoy life. I could spend more time on my hobbies, meet my friends, or simply stay at home and relax. I think having more personal time would help me feel happier and less stressed."}
+  ]},
+  {name:"Typing", cat:"事件类", questions:[
+    {q:"Do you prefer typing or handwriting? / Which do you find easier, typing on a keyboard or writing by hand?", a:"I definitely prefer typing. It's much easier to make changes, and I can save everything on my computer or phone to look at whenever I need it. It's much more convenient than handwriting."},
+    {q:"Do you type on a desktop or laptop keyboard every day? / How often do you type on a keyboard?", a:"Yes, I do. I use a desktop keyboard every day because my job involves working on a computer, and I also need to communicate with my colleagues online throughout the day. So typing has become a big part of my daily routine."},
+    {q:"When did you learn how to type on a keyboard? / Did you learn how to type at school when you were younger?", a:"I learned how to type when I was in primary school. That was around the time I first started using a computer, I gradually get used to typing. Now I don't even need to look at the keyboard when I type."},
+    {q:"How do you improve your typing?", a:"Actually, I haven't really practiced typing on purpose. I think the best way to improve is simply to type every day, whether it's for work or chatting with friends. That's how my typing has improved over time."},
+    {q:"Do you like to improve your typing skills?", a:"Not really. I think my typing skill is already good enough for my daily needs, so I don't think I need to practice it on purpose. I'd rather spend my time improving other skills that are more useful for my work."}
+  ]},
+  {name:"Walking / Long walks", cat:"事件类", questions:[
+    {q:"Do you walk a lot?", a:"Not really. I don't have many chances to walk in my daily life, and I usually ride my bike to work instead. I think cycling is more convenient and saves me a lot of time."},
+    {q:"Did you often go outside to have a walk / go for long walks when you were a child?", a:"Not very often. My parents were usually busy with work, so they didn't have much time to take me out for a walk when I was little. Most of the time, I just played around my home."},
+    {q:"Why do people like to walk in parks?", a:"I suppose it's because parks usually have walking trails and lots of green spaces. They also have a relaxing atmosphere, so people can enjoy some fresh air while walking. It's a nice way to relax and recharge mentally."},
+    {q:"Where would you like to take a long walk if you had the chance?", a:"If I have the chance, I'd love to go hiking in Tibet. The scenery there looks absolutely amazing, especially the mountains and lakes. I think it would be an unforgettable experience."},
+    {q:"Where did you go for a walk lately?", a:"I recently went hiking in the mountains during a company team-building event. We walked for about 12 kilometers, so it was quite a good workout. I was pretty tired afterwards, but I really enjoyed the experience."},
+    {q:"How often do you walk to the shops now?", a:"Not very often. I usually ride my e-bike to the shops because I only go there about once a month to buy some everyday essentials like tissues and shampoo. It saves me a lot of time and effort."}
+  ]},
+  {name:"Reading", cat:"事件类", questions:[
+    {q:"Do you like reading?", a:"Yes, I'm especially into imaginative stories because they allow me to escape from real life for a while. Besides that, I often learn a lot of life lessons from books, which help me handle different situations better."},
+    {q:"Do you prefer to read on paper or on a screen?", a:"I prefer reading on paper because I can focus much better without distractions like social media or messages on my phone. I also like the physical feeling of holding a book, which makes the reading experience more enjoyable and immersive."},
+    {q:"When do you need to read carefully, and when not? / What kinds of things do you have to read carefully in your language?", a:"I read carefully when I think the content is important or needs a deeper understanding. For example, I pay more attention to ideas that make me think or action scenes. Otherwise, I usually read more quickly to get the main idea."},
+    {q:"Do you prefer scanning or detailed reading?", a:"I prefer detailed reading because it helps me fully understand and absorb the content. For example, when I read novels or articles I'm interested in, I like to go through them carefully instead of just scanning. This way makes me feel more connected to the text."},
+    {q:"Why do you think some people don't read messages very carefully?", a:"I think it's because people are distracted by too much information nowadays. With the fast pace of modern life, many people are used to consuming short pieces of information, so they don't always have the patience to read messages carefully. Sometimes it can lead to mistakes or misunderstandings."}
+  ]},
+  {name:"Tidiness", cat:"事件类", questions:[
+    {q:"Did you keep your room tidy when you were a child?", a:"Yes, I did. My parents encouraged me to tidy my room when I was little. For example, they asked me to put away my toys and books after playing. I think it helped me develop a good habit of staying organized."},
+    {q:"Are you a tidy person now? / Do you keep your workspace tidy when you're working or studying?", a:"Yes, I do. I always try to keep my desk tidy when I'm working or studying because it helps me stay focused and work more efficiently. I just make sure to put everything back in place after I use it. That simple habit keeps my desk neat. It doesn't take much effort, but it makes a big difference."},
+    {q:"How do you feel if other people are not tidy?", a:"I don't usually judge other people's habits. As long as they don't make a mess, leave a bad smell, or affect me, I really don't mind them. I think it's normal to be a little untidy sometimes. But if they leave rubbish everywhere or make public spaces dirty, I'd probably feel annoyed."},
+    {q:"What do you think of those who are overly concerned about tidiness?", a:"I think everyone has different standards when it comes to tidiness. Some people simply feel more comfortable in a clean and organized environment, so I totally understand that. As long as they don't expect everyone else to be the same, I think it's fine."},
+    {q:"Do you think it's possible for people to be too tidy?", a:"Yes, definitely. If someone spends too much time cleaning or organizing everything, it can become stressful and even affect their daily life. For example, one of my friends always felt she had to keep her home perfectly clean, so she was always doing housework. I think that's too much. It's better to find a balance."},
+    {q:"Do you think that it is necessary to be tidy?", a:"Yes, I think so. For me, If everything is messy, it's easy to forget where I put things and waste time looking for them. That really frustrates me and makes it hard to focus on what I'm doing. I think staying organized makes my daily life much easier."}
+  ]},
+  {name:"Shopping", cat:"事件类", questions:[
+    {q:"Do you like shopping?", a:"It's just okay. I usually go shopping when I need to buy something, rather than shopping for fun. Getting what I need makes me happy, but shopping itself isn't something I particularly enjoy."},
+    {q:"How often do you go shopping?", a:"I usually go shopping about once a month. It mainly depends on what I need to buy, like household essentials. I don't shop very often because I prefer buying things only when I really need them."},
+    {q:"Do you prefer online shopping or in-store shopping?", a:"I definitely prefer online shopping. It usually offers more choices, better prices, and it's much more convenient because I don't even have to leave home. I think it saves me a lot of time and effort."},
+    {q:"Have you ever returned anything you bought online?", a:"Yes, I have. Most of the things I've returned were clothes because I couldn't try them on before buying them. It's a bit inconvenient, but that's one of the downsides of online shopping."},
+    {q:"Do you like to compare the prices in different shops?", a:"Yes, I usually do, especially when I'm buying something expensive. I like comparing prices online because it's convenient and helps me find a better deal. It makes me feel like I'm spending my money more wisely."}
+  ]},
+  {name:"Morning routines", cat:"事件类", questions:[
+    {q:"Do you like to get up early in the morning?", a:"Yes, I do. Waking up early gives me more time during the day, so I can get more things done without feeling rushed. I really enjoy that productive feeling because it puts me in a good mood to kick off my day efficiently."},
+    {q:"What is your morning routine? / What do you do every morning?", a:"I usually start my day by playing a 20- to 30-minute fitness boxing game on my Switch. Then I take a quick shower, which helps me feel refreshed and gives me more energy before I head to work."},
+    {q:"Is breakfast important?", a:"Yes, I think it's very important. A good breakfast gives me enough energy to focus on my work throughout the morning. If I skip it, I usually feel hungry and less productive."},
+    {q:"What do you do right after getting up in the morning?", a:"The first thing I do is brush my teeth and wash my face. It helps me wake up properly and feel more refreshed. After that, I'm ready to start my morning workout."},
+    {q:"Did you get up early in the morning when you were younger?", a:"Yes, I did. When I was younger, I had to get up early because I needed to go to school, and I usually woke up about 6 or 7 in the morning. Sometimes it was difficult to leave my warm bed, but I got used to this routine gradually."},
+    {q:"What's your favourite morning of the week?", a:"It is definitely Saturday morning because I don't have to wake up early for work, so I have enough time to sleep longer and do something I enjoy, like playing games or just relaxing at home. I really love this feeling because it helps me clear my mind and recharge mentally."}
+  ]},
+  // 地点类
+  {name:"The city you live in", cat:"地点类", questions:[
+    {q:"What city do you live in?", a:"I live in Shenzhen, a major city in Guangdong Province, China. It's known for its fast-paced lifestyle and plenty of job opportunities. I've been living here for two years since I graduated from university."},
+    {q:"How long have you lived in this city?", a:"I've lived in Shenzhen for about two years. I moved here right after graduating from university because I found a job here. Over time, I've become quite familiar with the city."},
+    {q:"Do you like this city? Why?", a:"Not really. The weather here is usually hot and humid, especially in summer, and we also get typhoons quite often. On top of that, sometimes, the fast pace of life here makes me feel a bit stressed."},
+    {q:"Would you recommend your city to others?", a:"Not really, at least not to everyone. The weather can be quite uncomfortable because the summers are long, hot, and humid, we sometimes get a series of typhoons as well. Personally, that's one of the biggest downsides to living here."},
+    {q:"What's the weather like where you live?", a:"The weather is generally warm throughout the year. We hardly have a real winter, while the summers are long, humid, and quite hot, we sometimes experience several typhoons as well. To be honest, it's not the most comfortable climate for me."},
+    {q:"Are there people of different ages living in this city?", a:"Yes, definitely. People of all age groups live here, but young adults make up a large part of the population because of the many job opportunities. It gives the city a very energetic atmosphere."},
+    {q:"Are the people friendly in the city?", a:"I'd say it depends. There are certainly many friendly and helpful people here, but compared with smaller cities, people tend to be busier and a bit more distant. That's probably because of the fast pace of life here."},
+    {q:"Is the city friendly to children and old people?", a:"It's quite friendly to children because the city has plenty of educational resources, as well as lots of parks where children can play and spend time outdoors. However, I think it could do more to improve accessibility for older people."},
+    {q:"Do you often see your neighbors?", a:"No, not very often. In fact, we've never even spoken to each other. I think it's quite common in big cities because people are usually busy with work and prefer to have their own privacy."},
+    {q:"Are there big changes in this city?", a:"Recently one major change is that a new metro line has been built. It has made transportation much more convenient and reduced commuting time for some people. I think it's a very positive improvement."},
+    {q:"Is this city your permanent residence?", a:"Probably not. Although there are many career opportunities here, I'm not a big fan of the weather or the fast-paced lifestyle. In the future, I'd prefer to live in a city with a milder climate and a slower pace of life."}
+  ]},
+  {name:"Crowded place", cat:"地点类", questions:[
+    {q:"Is the city where you live crowded?", a:"Yes, it is. I live in a large city with plenty of companies and job opportunities, so it attracts a large number of people every year. As a result, it's usually quite crowded, especially in commercial areas and on public transport."},
+    {q:"Is there a crowded place near where you live?", a:"Of course. There's a metro station near my home, and it gets extremely crowded during rush hour. After work, huge numbers of people pass through the station, and sometimes I can hardly move an inch, which makes me feel quite stressed."},
+    {q:"Do you like crowded places?", a:"Not really. I'm the type of person who needs a bit of personal space, and too much noise can make me feel anxious and stressed. That's why I hardly attend large events unless there's something I'm genuinely interested in."},
+    {q:"Do most people like crowded places?", a:"I think it depends on the situation. Most people probably don't enjoy crowded places in their daily lives. However, crowded places like concerts, festivals, or night markets are often popular since they create an exciting atmosphere and help people unwind."},
+    {q:"When was the last time you were in a crowded place?", a:"That was about a month ago when I attended a game exhibition. It was extremely crowded, and I had to wait in line for ages to try almost every game, so I didn't enjoy the experience very much."}
+  ]},
+  {name:"Public gardens and parks", cat:"地点类", questions:[
+    {q:"Was there a park or garden you liked to play in when you were a child?", a:"Yes, I did. When I was a child, I often went to a park near my home with my family on weekends. We usually played badminton, rode bikes, or just walked around together. I think it was a great way to spend time with my family, so I still have a lot of happy memories of those days."},
+    {q:"Do you enjoy visiting parks and gardens now? / What do you like to do when visiting a park?", a:"Yes, I do. Nowadays, I often go to parks with my friends, especially on weekends or after work. We usually take a walk, chat with each other, and sometimes have a small picnic. I think parks are wonderful for me to recharge mentally because I can enjoy fresh air and forget about daily stress. I always feel refreshed afterward."},
+    {q:"Do you think there should be more parks and gardens in the area where you live? / Would you like to see more parks in your city?", a:"Yes, definitely. The city where I live is quite crowded, and many people spend most of their time indoors because of busy work. Having more parks would give people more space to exercise, take a walk, or simply relax after a busy day. I think it would make the city a more pleasant place to live."},
+    {q:"Is there a famous park or garden that you want to visit in the future? / Are there any parks you want to go to in the future?", a:"Not really. To be honest, I don't know many famous parks, and I'm usually satisfied with local parks near my home because they are convenient and relaxing. I can take a walk, listen to music, and enjoy some peaceful time by myself. Visiting local parks has already become part of my daily life."},
+    {q:"Would you prefer to play in a personal garden or public garden?", a:"I'd definitely prefer a personal garden. Public gardens can sometimes get crowded and noisy, especially on weekends or holidays. Having my own garden would be much more peaceful and comfortable because I could relax better and spend some quiet time by myself after a busy day."},
+    {q:"Would you like to play in a public garden or park?", a:"I'd prefer a park. Parks are usually much larger and offer more space for outdoor activities, such as playing badminton, jogging, or riding a bike. For example, I sometimes go to a park near my home with my friends on weekends, and we usually walk around and chat with each other. I think it's a better way to unwind."},
+    {q:"How are the parks today different from those you visited as a kid?", a:"I think parks nowadays are much better equipped than before. Many of them have modern playgrounds, fitness facilities, and beautiful designs. In comparison, the parks I visited as a child were much simpler, with only basic playground equipment."}
+  ]},
+  // 人物类
+  {name:"Teachers", cat:"人物类", questions:[
+    {q:"Do you have a favorite teacher at school? / Which teacher do you prefer, your teachers from primary school or from high school?", a:"Yes, I do. My favorite teacher was a young female lecturer at university. She made her classes really interesting and always encouraged us to think about different perspectives in design. I really liked her teaching style because it inspired me to become more creative and more confident when sharing my own ideas."},
+    {q:"Are you still in contact with your former teachers?", a:"Not really. We don't keep in touch anymore because we are both busy with our own lives, but I still follow my favorite teacher on social media and sometimes like her posts. It's nice to see her updates online, and they always remind me of my university days and the time I spent in her classes."},
+    {q:"Do you think being a teacher is a good job?", a:"Yes, I do. I think teaching is a great job because teachers can have a positive influence on their students. They don't just share knowledge, but also encourage students to think independently and become more confident. That's why I think teaching is a meaningful and rewarding job."}
+  ]}
+];
+
+/* ============== 数据：高频词汇 ==============
+   word: 英文（可含短语）
+   translation: 中文
+   note: 备注（评论中的语境/同义替换说明）
+   source: 来源
+*/
+const VOCAB = [
+  // ---- Work ----
+  {word:"absorb information", translation:"吸收信息", note:"Work话题词汇", source:"口语Part1·Work"},
+  {word:"enter the workforce", translation:"进入职场", note:"Work话题词汇", source:"口语Part1·Work"},
+  {word:"apply what I've learned to...", translation:"把学到的知识应用到...", note:"Work话题词汇", source:"口语Part1·Work"},
+  {word:"challenging and rewarding", translation:"有挑战性，又让人有成就感", note:"Work话题词汇", source:"口语Part1·Work"},
+  {word:"step out of my comfort zone", translation:"走出舒适圈", note:"评论(黄少彤7月22日)：Work话题补充词汇", source:"口语Part1·Work评论"},
+  // ---- Home & Accommodation ----
+  {word:"have been living here/there for ... year(s)", translation:"在这里/那里住了几年", note:"Home话题词汇", source:"口语Part1·Home"},
+  {word:"everyday stuff", translation:"日常琐事", note:"= everyday routine", source:"口语Part1·Home"},
+  {word:"everyday routine", translation:"日常事务/日常琐事", note:"everyday stuff 的同义表达", source:"口语Part1·Home"},
+  {word:"transport facilities", translation:"交通设施", note:"Home话题词汇", source:"口语Part1·Home"},
+  {word:"relax and recharge", translation:"放松并充电", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"feel refreshed", translation:"感到焕然一新", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"take my mind off work", translation:"把工作抛在脑后", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"clear my mind", translation:"清空思绪", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"unwind after a busy day", translation:"忙碌一天后放松", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"escape from my daily routine", translation:"逃离日常琐事", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"relieve stress", translation:"缓解压力", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"get away from the pressure of daily life", translation:"逃离日常生活中的压力", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"calm myself down", translation:"让自己平静下来", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"slow down and relax", translation:"放慢节奏并放松", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"enjoy a moment of peace", translation:"享受片刻宁静", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"enjoy my personal time", translation:"享受个人时间", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"have a break from my busy schedule", translation:"从忙碌的日程中休息一下", note:"表示放松的词汇", source:"口语Part1·Home评论"},
+  {word:"older apartment", translation:"老小区", note:"评论(黄少彤7月27日)", source:"口语Part1·Home评论"},
+  {word:"residential neighborhood", translation:"居民区", note:"评论(黄少彤7月27日)", source:"口语Part1·Home评论"},
+  {word:"within walking distance", translation:"步行即可到达", note:"评论(黄少彤7月27日)", source:"口语Part1·Home评论"},
+  // ---- Hometown ----
+  {word:"picturesque", translation:"风景如画的", note:"Hometown话题词汇", source:"口语Part1·Hometown"},
+  {word:"close-knit community", translation:"亲密的社区", note:"Hometown话题词汇", source:"口语Part1·Hometown"},
+  {word:"bring people together", translation:"让人们聚在一起", note:"Hometown话题词汇", source:"口语Part1·Hometown"},
+  {word:"laid-back lifestyle", translation:"轻松的生活方式", note:"Hometown话题词汇", source:"口语Part1·Hometown"},
+  {word:"foodie paradise", translation:"美食天堂", note:"Hometown话题词汇", source:"口语Part1·Hometown"},
+  {word:"bustling", translation:"热闹的", note:"Hometown话题词汇", source:"口语Part1·Hometown"},
+  {word:"get around", translation:"四处走动", note:"评论(黄少彤7月31日)", source:"口语Part1·Hometown评论"},
+  // Hometown 同义替换
+  {word:"underdeveloped → less developed / economically disadvantaged", translation:"欠发达的（同义替换）", note:"Hometown同义替换词", source:"口语Part1·Hometown同义替换"},
+  {word:"convenient → accessible", translation:"便利的（同义替换）", note:"Hometown同义替换词", source:"口语Part1·Hometown同义替换"},
+  {word:"hospitable → welcoming / warm-hearted", translation:"好客的（同义替换）", note:"Hometown同义替换词", source:"口语Part1·Hometown同义替换"},
+  {word:"limited → insufficient / short", translation:"有限的（同义替换）", note:"Hometown同义替换词", source:"口语Part1·Hometown同义替换"},
+  {word:"vibrant → dynamic", translation:"充满活力的（同义替换，如city life）", note:"Hometown同义替换词", source:"口语Part1·Hometown同义替换"},
+  {word:"cherish → value", translation:"珍惜（同义替换）", note:"Hometown同义替换词", source:"口语Part1·Hometown同义替换"},
+  {word:"abundant = plentiful = generous", translation:"大量的/丰富的", note:"Hometown同义替换词", source:"口语Part1·Hometown同义替换"},
+  {word:"personality = character = temperament", translation:"性格", note:"Hometown同义替换词", source:"口语Part1·Hometown同义替换"},
+  // ---- Pets and Animals ----
+  {word:"pet ownership", translation:"宠物饲养", note:"Pets话题词汇；评论补充", source:"口语Part1·Pets"},
+  {word:"without a doubt = hands down", translation:"毫无疑问", note:"评论(黄少彤7月29日)", source:"口语Part1·Pets评论"},
+  {word:"vaguely", translation:"依稀地/隐约地", note:"评论(黄少彤7月29日)", source:"口语Part1·Pets评论"},
+  {word:"concrete jungle", translation:"水泥丛林", note:"评论(黄少彤7月22日)", source:"口语Part1·Pets评论"},
+  {word:"That said", translation:"话虽如此", note:"评论(黄少彤7月22日)", source:"口语Part1·Pets评论"},
+  {word:"take the crown", translation:"赢得冠军", note:"评论(黄少彤7月22日)", source:"口语Part1·Pets评论"},
+  {word:"by far the most", translation:"迄今为止最", note:"评论(黄少彤7月22日)", source:"口语Part1·Pets评论"},
+  {word:"stray cats", translation:"流浪猫", note:"评论(黄少彤7月29日)", source:"口语Part1·Pets评论"},
+  {word:"came as a surprise", translation:"出乎意料", note:"评论(黄少彤7月22日)", source:"口语Part1·Pets评论"},
+  {word:"confession gift", translation:"表白礼物（坦白/表白）", note:"评论(黄少彤7月22日)", source:"口语Part1·Pets评论"},
+  // Pets 同义替换
+  {word:"keep pets = raise pets / own pets", translation:"养宠物（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"more and more = an increasing number of", translation:"越来越多（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"big cities = large cities / urban areas", translation:"大城市（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"trend = tendency", translation:"趋势（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"nature = the wild", translation:"自然（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"enclosed spaces = cages / confined areas", translation:"封闭空间（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"teach = educate", translation:"教（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"knowledge about animals = animal-related knowledge", translation:"动物相关知识（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"important = valuable / meaningful", translation:"重要（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"when I was a child = during my childhood", translation:"当我是孩子时（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"animal shows = animal performances", translation:"动物表演（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"comfortable = at ease", translation:"舒适（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"every day = on a daily basis", translation:"每天（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"popular = well-liked", translation:"受欢迎（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"commonly = frequently", translation:"通常（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"especially = particularly", translation:"尤其（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"family members = part of the family", translation:"家庭成员（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"daily life = everyday routine", translation:"日常生活（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"safer = more secure", translation:"更安全（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"countryside = rural area", translation:"乡村（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"garden = yard", translation:"花园/院子（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"in the past = previously", translation:"过去（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"now = currently", translation:"现在（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  {word:"important part = significant part", translation:"重要部分（同义替换）", note:"Pets同义替换", source:"口语Part1·Pets同义替换"},
+  // ---- Gifts ----
+  {word:"frame", translation:"v.给…装框；n.相框、画框；have sth done 让别人帮自己做某事", note:"Gifts话题词汇", source:"口语Part1·Gifts"},
+  {word:"everyday essentials", translation:"日常必需品", note:"评论(黄少彤7月22日)；head out 出门", source:"口语Part1·Gifts评论"},
+  {word:"head out", translation:"出门", note:"评论(黄少彤7月22日)", source:"口语Part1·Gifts评论"},
+  {word:"it means a lot to me", translation:"这对我意义重大/很重要", note:"评论(黄少彤7月23日)", source:"口语Part1·Gifts评论"},
+  {word:"be not really into..", translation:"不太感兴趣", note:"评论(黄少彤8月4日)", source:"口语Part1·Gifts评论"},
+  {word:"luxury items", translation:"奢侈品", note:"评论(黄少彤8月4日)", source:"口语Part1·Gifts评论"},
+  {word:"going through a day", translation:"度过一天", note:"评论(黄少彤7月26日)", source:"口语Part1·Gifts评论"},
+  // ---- Memory ----
+  {word:"picks up new things", translation:"掌握新事物", note:"评论(黄少彤7月22日)", source:"口语Part1·Memory评论"},
+  {word:"steering wheel", translation:"方向盘", note:"评论(黄少彤7月22日)", source:"口语Part1·Memory评论"},
+  {word:"passenger seat", translation:"副驾驶", note:"评论(黄少彤7月22日)", source:"口语Part1·Memory评论"},
+  // ---- Cars ----
+  {word:"in case of", translation:"如果发生…… / 万一发生…… / 在……情况下", note:"评论(黄少彤7月22日)", source:"口语Part1·Cars评论"},
+  {word:"camping gear = camping equipment", translation:"露营装备", note:"Cars话题词汇", source:"口语Part1·Cars"},
+  // ---- Sports team ----
+  {word:"at my own pace", translation:"根据我自己的节奏", note:"评论(黄少彤7月22日)", source:"口语Part1·Sports team评论"},
+  {word:"for + 名词", translation:"表动机、原因", note:"评论(黄少彤7月22日)", source:"口语Part1·Sports team评论"},
+  // ---- Building ----
+  {word:"appreciate the beauty around me", translation:"欣赏周围的美景", note:"评论(黄少彤7月22日)", source:"口语Part1·Building评论"},
+  {word:"bamboo shoot", translation:"竹笋", note:"Building话题： tallest building like bamboo shoot; 地标=landmark", source:"口语Part1·Building"},
+  {word:"landmark", translation:"地标", note:"Building话题词汇", source:"口语Part1·Building"},
+  // ---- Childhood activities ----
+  {word:"hang out together", translation:"一起闲逛、一起玩、聚在一起", note:"评论(黄少彤 昨天)", source:"口语Part1·Childhood评论"},
+  {word:"offended", translation:"被冒犯的（简单可修改为 uncomfortable）", note:"评论(黄少彤 昨天)", source:"口语Part1·Childhood评论"},
+  {word:"comedy variety shows", translation:"喜剧综艺节目", note:"评论(黄少彤 昨天)", source:"口语Part1·Childhood评论"},
+  {word:"go viral", translation:"在网络疯传", note:"评论(黄少彤 昨天)", source:"口语Part1·Childhood评论"},
+  // ---- Jokes & Comedies ----
+  {word:"get stuck on something", translation:"卡在...了", note:"评论(黄少彤7月26日)", source:"口语Part1·Jokes评论"},
+  // ---- Websites ----
+  {word:"on the go", translation:"随时随地/在路上", note:"评论(黄少彤7月27日)", source:"口语Part1·Websites评论"},
+  {word:"daily essential", translation:"日常必需品", note:"评论(黄少彤7月27日)", source:"口语Part1·Websites评论"},
+  // ---- Watch ----
+  {word:"follow", translation:"同义词 understand", note:"评论(黄少彤 昨天)", source:"口语Part1·Watch评论"},
+  {word:"secondary school", translation:"初高中", note:"评论(黄少彤 昨天)", source:"口语Part1·Watch评论"},
+  // ---- Music ----
+  {word:"ahead of me", translation:"摆在我前方、未来、今后的人生道路上", note:"评论(黄少彤8月1日)", source:"口语Part1·Music评论"},
+  {word:"make the most of sth", translation:"（高频）充分利用；好好珍惜；尽情享受", note:"同义：make full use of", source:"口语Part1·Music评论"},
+  // ---- Singing ----
+  {word:"Looking back at", translation:"回顾，回看", note:"评论(黄少彤7月28日)", source:"口语Part1·Singing评论"},
+  {word:"brings back good memories", translation:"勾起好的回忆", note:"评论(黄少彤7月28日)", source:"口语Part1·Singing评论"},
+  {word:"do my best in everything", translation:"尽我所能做最好", note:"评论(黄少彤7月28日)", source:"口语Part1·Singing评论"},
+  {word:"it's the small things I do consistently that...", translation:"强调句型；从句时态：have made = 现在完成时", note:"评论(黄少彤7月28日)", source:"口语Part1·Singing评论"},
+  {word:"work full-time", translation:"全职工作", note:"评论(黄少彤7月28日)", source:"口语Part1·Singing评论"},
+  {word:"taken up by work", translation:"被工作占据", note:"评论(黄少彤7月28日)", source:"口语Part1·Singing评论"},
+  // ---- Headphones ----
+  {word:"going back to work", translation:"复工", note:"评论(黄少彤8月2日)", source:"口语Part1·Headphones评论"},
+  {word:"have weekends off", translation:"周末休息、双休", note:"评论(黄少彤7月28日)", source:"口语Part1·Headphones评论"},
+  {word:"make changes", translation:"修改", note:"评论(黄少彤7月28日)", source:"口语Part1·Headphones评论"},
+  {word:"look at whenever I need it", translation:"随时查看", note:"评论(黄少彤7月28日)", source:"口语Part1·Headphones评论"},
+  {word:"around the time", translation:"大约在……时候；用法：around the time (that) + 完整句子", note:"评论(黄少彤7月28日)", source:"口语Part1·Headphones评论"},
+  {word:"get used to", translation:"习惯做某事 + doing sth", note:"评论(黄少彤7月28日)", source:"口语Part1·Headphones评论"},
+  {word:"on purpose", translation:"刻意/故意", note:"评论(黄少彤7月28日)", source:"口语Part1·Headphones评论"},
+  // ---- Science ----
+  {word:"over time", translation:"随着时间的推移", note:"评论(黄少彤7月28日)", source:"口语Part1·Science评论"},
+  {word:"good enough for my daily needs", translation:"足够满足我的日常需求", note:"万能表达", source:"口语Part1·Science评论"},
+  {word:"I don't feel the need to...", translation:"不觉得有必要……", note:"万能表达", source:"口语Part1·Science评论"},
+  {word:"I'd rather spend my time doing...", translation:"我宁愿把时间花在……", note:"万能表达", source:"口语Part1·Science评论"},
+  {word:"around my home", translation:"家附近", note:"评论(黄少彤7月28日)", source:"口语Part1·Science评论"},
+  {word:"for + 距离 / for + 时长", translation:"表示持续一段路程 / 一段时间", note:"评论(黄少彤7月28日)", source:"口语Part1·Science评论"},
+  {word:"immersive", translation:"沉浸的", note:"评论(黄少彤7月28日)", source:"口语Part1·Science评论"},
+  {word:"Otherwise", translation:"否则", note:"评论(黄少彤7月28日)", source:"口语Part1·Science评论"},
+  {word:"get the main idea", translation:"理解主要内容", note:"评论(黄少彤7月28日)", source:"口语Part1·Science评论"},
+  // ---- Outer space ----
+  {word:"once-in-a-lifetime experience", translation:"一生一次的经历", note:"Outer space话题词汇", source:"口语Part1·Outer space"},
+  // ---- Life stages ----
+  {word:"household essentials", translation:"家居用品；tissues or shampoo 纸巾或洗发水", note:"评论(黄少彤7月28日)", source:"口语Part1·Life stages评论"},
+  {word:"find a better deal", translation:"找到划算商品", note:"评论(黄少彤7月28日)", source:"口语Part1·Life stages评论"},
+  // ---- Morning routines ----
+  {word:"get up early = wake up early", translation:"早起", note:"评论(黄少彤7月22日)", source:"口语Part1·Morning评论"},
+  {word:"feel energized = feel refreshed = feel full of energy", translation:"感到精力充沛", note:"评论(黄少彤7月22日)", source:"口语Part1·Morning评论"},
+  {word:"get more things done = accomplish more = be more productive", translation:"做更多事", note:"评论(黄少彤7月22日)", source:"口语Part1·Morning评论"},
+  {word:"during the day = in the daytime", translation:"在白天/一天中（in the daytime 更正式）", note:"评论(黄少彤7月22日)", source:"口语Part1·Morning评论"},
+  {word:"kick off my day", translation:"开启一天（常用地道搭配）", note:"评论(黄少彤7月22日)", source:"口语Part1·Morning评论"},
+  {word:"puts me in a good mood", translation:"让某人处于某种心情", note:"评论(黄少彤7月22日)", source:"口语Part1·Morning评论"},
+  {word:"head to work", translation:"投入工作", note:"评论(黄少彤7月22日)", source:"口语Part1·Morning评论"},
+  {word:"clear my mind and recharge mentally", translation:"清空思绪 恢复精神", note:"评论(黄少彤7月22日)", source:"口语Part1·Morning评论"},
+  // ---- Crowded place ----
+  {word:"wait in line for ages", translation:"排队等了很久", note:"Crowded place话题词汇", source:"口语Part1·Crowded place"}
+];
+
+/* ============== 工具函数 ============== */
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function log(msg){ const el=document.getElementById("log"); el.textContent += msg+"\n"; el.scrollTop=el.scrollHeight; }
+function load(){
+  try{ return JSON.parse(localStorage.getItem(KEY)||"null"); }catch(e){ return null; }
+}
+function save(d){ localStorage.setItem(KEY, JSON.stringify(d)); }
+
+function stats(){
+  const tq = TOPICS.reduce((s,t)=>s+t.questions.length,0);
+  document.getElementById("s-topic").textContent = `话题 ${TOPICS.length}`;
+  document.getElementById("s-q").textContent = `问题 ${tq}`;
+  document.getElementById("s-vocab").textContent = `词汇 ${VOCAB.length}`;
+}
+
+function doPreview(){
+  log("\n=== 预览 ===");
+  let byCat={};
+  TOPICS.forEach(t=>{ byCat[t.cat]=(byCat[t.cat]||0)+1; });
+  Object.entries(byCat).forEach(([c,n])=>log(`${c}: ${n} 个话题`));
+  log(`话题总数: ${TOPICS.length}`);
+  log(`问题总数: ${TOPICS.reduce((s,t)=>s+t.questions.length,0)}`);
+  log(`词汇总数: ${VOCAB.length}`);
+  log("\n话题列表:");
+  TOPICS.forEach((t,i)=>log(`  ${i+1}. [${t.cat}] ${t.name} (${t.questions.length}问)`));
+}
+
+function doImport(){
+  let d = load();
+  if(!d){
+    d = {
+      listening:{synonyms:[],wrongQuestions:[]},
+      reading:{synonyms:[],wrongQuestions:[]},
+      speaking:{part1:{topics:[]},part23:{topics:[]}},
+      writing:{task1:[],task2:[]},
+      vocabulary:{words:[],sentences:[]}
+    };
+    log("未找到现有数据，创建新数据结构。");
+  }
+  if(!d.speaking) d.speaking={part1:{topics:[]},part23:{topics:[]}};
+  if(!d.speaking.part1) d.speaking.part1={topics:[]};
+  if(!d.speaking.part1.topics) d.speaking.part1.topics=[];
+  if(!d.vocabulary) d.vocabulary={words:[],sentences:[]};
+  if(!d.vocabulary.words) d.vocabulary.words=[];
+
+  log("\n=== 开始导入 ===");
+
+  // 1) 导入话题与问题
+  let addT=0, addQ=0;
+  TOPICS.forEach(t=>{
+    // 按话题名称去重：若已存在则合并问题
+    let exist = d.speaking.part1.topics.find(x=>x.name===t.name);
+    if(!exist){
+      exist = {id:uid(), name:t.name, questions:[], _cat:t.cat, _mark:MARK};
+      d.speaking.part1.topics.push(exist);
+      addT++;
+    }
+    t.questions.forEach(qi=>{
+      // 按问题文本去重
+      if(!exist.questions.some(x=>x.question===qi.q)){
+        exist.questions.push({
+          id:uid(),
+          question:qi.q,
+          answer:qi.a,
+          note:"",
+          audioId:"",
+          _mark:MARK,
+          createdAt:Date.now()
+        });
+        addQ++;
+      }
+    });
+  });
+  log(`话题: 新增 ${addT} 个（已存在的话题合并问题）`);
+  log(`问题: 新增 ${addQ} 个`);
+
+  // 2) 导入词汇
+  let addV=0, skipV=0;
+  VOCAB.forEach(v=>{
+    const wordLow = v.word.toLowerCase();
+    if(d.vocabulary.words.some(w=>w.word.toLowerCase()===wordLow)){
+      skipV++;
+      // 若已存在，补充备注（若原备注为空）
+      const ex = d.vocabulary.words.find(w=>w.word.toLowerCase()===wordLow);
+      if(!ex.note && v.note) ex.note = v.note;
+      if(!ex.translation && v.translation) ex.translation = v.translation;
+    } else {
+      d.vocabulary.words.push({
+        id:uid(),
+        word:v.word,
+        translation:v.translation,
+        phonetic:"",
+        note:v.note,
+        source:v.source,
+        audioUrl:"",
+        _mark:MARK,
+        createdAt:Date.now()
+      });
+      addV++;
+    }
+  });
+  log(`词汇: 新增 ${addV} 个，跳过(已存在) ${skipV} 个`);
+
+  save(d);
+  log("\n✅ 导入完成！数据已保存到 localStorage。");
+  log(`现在可以打开 <a href="index.html">index.html</a> 查看口语 Part 1 和生词本。`);
+  log(`\n统计：`);
+  log(`  口语 Part1 话题: ${d.speaking.part1.topics.length}`);
+  log(`  口语 Part1 问题: ${d.speaking.part1.topics.reduce((s,t)=>s+t.questions.length,0)}`);
+  log(`  生词本词汇: ${d.vocabulary.words.length}`);
+}
+
+function doReset(){
+  if(!confirm("确定要清除本工具导入的口语Part1话题和词汇吗？\n（只会移除带导入标记的数据，手动添加的不会受影响）")) return;
+  const d = load(); if(!d){ log("无数据"); return; }
+  let rmT=0, rmQ=0, rmV=0;
+  if(d.speaking&&d.speaking.part1&&d.speaking.part1.topics){
+    d.speaking.part1.topics.forEach(t=>{
+      if(t._mark===MARK){ rmT++; rmQ+=t.questions.length; }
+      else if(t.questions){
+        const before=t.questions.length;
+        t.questions=t.questions.filter(q=>q._mark!==MARK);
+        rmQ+=before-t.questions.length;
+      }
+    });
+    d.speaking.part1.topics=d.speaking.part1.topics.filter(t=>!(t._mark===MARK&&t.questions.length===0));
+  }
+  if(d.vocabulary&&d.vocabulary.words){
+    const before=d.vocabulary.words.length;
+    d.vocabulary.words=d.vocabulary.words.filter(w=>w._mark!==MARK);
+    rmV=before-d.vocabulary.words.length;
+  }
+  save(d);
+  log(`\n已清除: 话题 ${rmT}, 问题 ${rmQ}, 词汇 ${rmV}`);
+}
+
+stats();
+log("准备就绪。点击「一键导入」开始写入数据。");
+log(`待导入：${TOPICS.length} 个话题，${TOPICS.reduce((s,t)=>s+t.questions.length,0)} 个问题，${VOCAB.length} 个词汇。`);
+</script>
+</body>
+</html>

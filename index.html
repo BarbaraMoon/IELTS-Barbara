@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS｜Barbara</title>
+<style>
+:root{
+  --bg:#faf9f7;
+  --bg-grad:none;
+  --surface:#ffffff;
+  --surface-2:#faf9f7;
+  --surface-hover:#f0eee9;
+  --text:#141414;
+  --text-2:#73716c;
+  --text-3:#8f8c86;
+  --border:#e6e3dd;
+  --border-2:#d9d5ce;
+  --primary:#141414;
+  --primary-hover:#000000;
+  --primary-light:#eceae6;
+  --primary-grad:#141414;
+  --emerald:#3d7a52;
+  --emerald-light:#e4ede6;
+  --amber:#8a6d2f;
+  --amber-light:#f0e9da;
+  --rose:#a8433c;
+  --rose-light:#f2e3e1;
+  --violet:#6b5b7a;
+  --violet-light:#eae5ee;
+  --teal:#4a7a72;
+  --teal-light:#e2ebe9;
+  --sky:#4a6a8a;
+  --sky-light:#e3eaf1;
+  --orange:#8a5a2f;
+  --orange-light:#f0e6da;
+  --shadow-sm:none;
+  --shadow:none;
+  --shadow-md:none;
+  --shadow-lg:0 16px 48px rgba(20,20,20,.12),0 4px 12px rgba(20,20,20,.06);
+  --radius:4px;
+  --radius-sm:4px;
+  --radius-xs:3px;
+  --max-w:1000px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:auto}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);background-image:var(--bg-grad);background-repeat:no-repeat;
+  color:var(--text);line-height:1.7;font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-weight:700;line-height:1.35;letter-spacing:-.01em;color:var(--text)}
+a{color:var(--primary);text-decoration:none}
+a:hover{color:var(--primary-hover)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:14px;color:var(--text)}
+textarea{resize:vertical;line-height:1.75}
+.hidden{display:none!important}
+
+/* Layout */
+#app{min-height:100vh;display:flex;flex-direction:column}
+header.app-header{
+  background:rgba(250,249,247,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+}
+.header-inner{max-width:var(--max-w);margin:0 auto;padding:0 28px;display:flex;align-items:center;gap:28px;height:68px}
+.logo-area{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.logo-svg{width:34px;height:24px;flex-shrink:0}
+.logo-svg path{stroke:#141414}
+.logo-svg path:nth-child(1){opacity:.9}
+.logo-svg path:nth-child(2){opacity:.75}
+.logo-svg path:nth-child(3){opacity:.6}
+.logo-svg path:nth-child(4){opacity:.45}
+.logo-svg path:nth-child(5){opacity:.3}
+.logo-svg path:nth-child(6){opacity:.16}
+.logo-text{font-size:17px;font-weight:700;letter-spacing:.02em;white-space:nowrap;color:#141414}
+nav.app-nav{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+nav.app-nav::-webkit-scrollbar{display:none}
+.nav-item{padding:8px 14px;border-radius:var(--radius-xs);font-size:14px;color:var(--text-2);white-space:nowrap;transition:.2s;font-weight:500}
+.nav-item:hover{background:transparent;color:var(--text)}
+.nav-item.active{background:transparent;color:var(--text);font-weight:600;box-shadow:inset 0 -2px 0 var(--text)}
+main#content{flex:1;max-width:var(--max-w);width:100%;margin:0 auto;padding:36px 28px 100px}
+
+/* Components */
+.page-title{font-size:30px;font-weight:600;color:var(--text);letter-spacing:-.02em;margin-bottom:28px}
+.page-desc{color:var(--text-2);font-size:14px;margin-bottom:28px}
+.section-title{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:.14em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:none;transition:border-color .2s ease}
+.card:hover{box-shadow:none;border-color:var(--border)}
+.card+.card{margin-top:16px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;transition:.2s;border:1px solid transparent;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:none}
+.btn-primary:hover{background:var(--primary-hover);box-shadow:none;transform:none}
+.btn-outline{border-color:var(--border-2);color:var(--text);background:var(--surface)}
+.btn-outline:hover{border-color:var(--text);color:var(--text);background:var(--surface)}
+.btn-ghost{color:var(--text-2);background:transparent}
+.btn-ghost:hover{background:var(--surface-hover);color:var(--text)}
+.btn-danger{background:var(--rose);color:#fff}
+.btn-danger:hover{background:#8f352f}
+.btn-sm{padding:6px 12px;font-size:13px;border-radius:var(--radius-xs)}
+.btn-icon{padding:6px 8px;font-size:15px;border-radius:var(--radius-xs);line-height:1;color:var(--text-2)}
+.btn-icon:hover{background:var(--surface-hover);color:var(--text)}
+
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:22px}
+.tab{padding:11px 20px;font-size:14px;font-weight:600;color:var(--text-3);border-bottom:1px solid transparent;margin-bottom:-1px;transition:.2s;border-radius:var(--radius-xs) var(--radius-xs) 0 0}
+.tab:hover{color:var(--text-2)}
+.tab.active{color:var(--text);border-bottom-color:var(--text)}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;color:var(--text-2);margin-bottom:6px;font-weight:600}
+.field input,.field textarea,.field select{width:100%;padding:10px 14px;border:1.5px solid var(--border-2);border-radius:var(--radius-sm);background:var(--surface-2);transition:.2s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px var(--primary-light)}
+.field select{cursor:pointer}
+
+/* Entry cards */
+.entry{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm);transition:.25s;position:relative}
+.entry+.entry{margin-top:14px}
+.entry:hover{box-shadow:var(--shadow);border-color:var(--border-2)}
+.entry-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.entry-title{font-weight:700;font-size:15px;flex:1;line-height:1.5}
+.entry-meta{font-size:12px;color:var(--text-3);white-space:nowrap}
+.entry-body{font-size:14px;color:var(--text-2);line-height:1.75;white-space:pre-wrap;word-break:break-word}
+.entry-actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.empty-state{text-align:center;padding:56px 20px;color:var(--text-3)}
+.empty-state-icon{font-size:44px;margin-bottom:14px;opacity:.4}
+.empty-state-text{font-size:14px}
+
+/* Note tooltip */
+.note-tip{position:relative;cursor:help;border-bottom:2px dotted var(--primary);display:inline-block}
+.note-tip::after{content:attr(data-note);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#141414;color:#fff;padding:8px 14px;border-radius:var(--radius-sm);font-size:13px;line-height:1.6;white-space:pre-wrap;max-width:300px;min-width:140px;z-index:9999;opacity:0;pointer-events:none;transition:.18s;box-shadow:var(--shadow-lg)}
+.note-tip:hover::after{opacity:1}
+.note-tip::before{content:"";position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#141414;z-index:9999;opacity:0;transition:.18s}
+.note-tip:hover::before{opacity:1}
+
+/* Tags & badges */
+.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:3px;font-weight:600;vertical-align:middle;letter-spacing:.02em}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:4px 12px;border-radius:3px;font-weight:600}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:48px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 22px 20px;text-align:left;box-shadow:none;cursor:pointer;transition:border-color .2s ease;position:relative;overflow:hidden}
+.stat-card::before{display:none}
+.stat-card:hover{box-shadow:none;transform:none;border-color:var(--text)}
+.stat-num{font-family:Georgia,"Times New Roman",serif;font-size:34px;font-weight:400;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.stat-label{font-size:13px;color:var(--text-2);margin-top:10px;font-weight:500;letter-spacing:.02em}
+
+/* Quick links */
+.quick-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.quick-link{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;transition:border-color .2s ease;box-shadow:none;cursor:pointer}
+.quick-link:hover{box-shadow:none;transform:none;border-color:var(--text)}
+.quick-link::after{content:"→";color:var(--text-3);font-size:15px;transition:color .2s ease,transform .2s ease}
+.quick-link:hover::after{color:var(--text);transform:translateX(3px)}
+.quick-link-icon{font-size:24px}
+.quick-link-title{font-weight:600;font-size:16px;color:var(--text)}
+.quick-link-desc{font-size:12px;color:var(--text-3)}
+
+/* Error type chips */
+.err-type-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.err-chip{padding:6px 14px;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;border:1px solid var(--border-2);background:var(--surface);color:var(--text-2)}
+.err-chip:hover{border-color:var(--text)}
+.err-chip.active{color:#fff;border-color:transparent}
+.err-type-badge{font-size:11px;padding:3px 10px;border-radius:3px;font-weight:700;letter-spacing:.02em}
+
+/* Synonym pair */
+.syn-pair{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.syn-word{font-weight:700;font-size:15px}
+.syn-arrow{color:var(--primary);font-size:16px;font-weight:700}
+
+/* Selection popup */
+#translate-popup{position:fixed;z-index:10000;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:0;min-width:280px;max-width:360px;font-size:14px;overflow:hidden}
+.popup-loading{padding:18px;text-align:center;color:var(--text-3)}
+.popup-header{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+.popup-word{font-weight:800;font-size:17px;color:var(--text)}
+.popup-phonetic{color:var(--primary);font-size:13px;font-style:italic;font-weight:600}
+.popup-body{padding:12px 16px}
+.popup-trans{color:var(--text);line-height:1.65;font-weight:500}
+.popup-def{color:var(--text-2);font-size:13px;margin-top:6px;line-height:1.55}
+.popup-footer{display:flex;gap:6px;padding:10px 16px;border-top:1px solid var(--border);background:var(--surface-2)}
+.popup-footer .btn{flex:1;justify-content:center}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(20,20,20,.35);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:540px;max-height:86vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:18px;font-weight:700}
+.modal-close{font-size:24px;color:var(--text-3);line-height:1;padding:4px;border-radius:var(--radius-xs)}
+.modal-close:hover{color:var(--text);background:var(--surface-hover)}
+.modal-body{padding:24px}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:18px 24px;border-top:1px solid var(--border)}
+
+/* Toast */
+#toast-container{position:fixed;top:80px;right:28px;z-index:10001;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;box-shadow:var(--shadow-md);font-size:14px;animation:slideIn .3s ease;border-left:4px solid var(--primary);min-width:220px;font-weight:500}
+.toast.success{border-left-color:var(--emerald)}
+.toast.error{border-left-color:var(--rose)}
+.toast.info{border-left-color:var(--sky)}
+@keyframes slideIn{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Floating translate */
+#float-translate{position:fixed;bottom:28px;right:28px;z-index:500}
+.ft-toggle{width:54px;height:54px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;box-shadow:var(--shadow-lg);transition:.25s}
+.ft-toggle:hover{transform:scale(1.08);box-shadow:var(--shadow-lg)}
+#back-to-top{position:fixed;bottom:28px;left:28px;z-index:500;width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--text-2);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:none;cursor:pointer;transition:.25s;opacity:0;pointer-events:none;transform:translateY(10px)}
+#back-to-top.show{opacity:1;pointer-events:auto;transform:translateY(0)}
+#back-to-top:hover{background:var(--primary);color:#fff;border-color:var(--primary);transform:none}
+.ft-panel{position:absolute;bottom:64px;right:0;width:350px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);overflow:hidden}
+.ft-panel-head{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.ft-panel-body{padding:16px 18px}
+.ft-panel-body textarea{width:100%;border:1.5px solid var(--border-2);border-radius:var(--radius-sm);padding:10px 14px;min-height:72px;margin-bottom:10px;background:var(--surface-2);transition:.2s}
+.ft-panel-body textarea:focus{outline:none;border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px var(--primary-light)}
+.ft-result{min-height:54px;padding:12px 14px;background:var(--surface-2);border-radius:var(--radius-sm);font-size:14px;line-height:1.65;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.ft-actions{display:flex;gap:8px;margin-top:10px}
+
+/* Speaking */
+.speak-answer{white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.85;color:var(--text);padding:14px 16px;background:var(--surface-2);border-radius:var(--radius-sm);border-left:3px solid var(--primary)}
+.audio-player{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 14px;background:var(--surface-2);border-radius:var(--radius-sm)}
+.audio-player audio{flex:1;height:38px}
+.recording-indicator{display:inline-flex;align-items:center;gap:6px;color:var(--rose);font-size:13px;font-weight:600}
+.recording-dot{width:8px;height:8px;border-radius:50%;background:var(--rose);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Topic card */
+.topic-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:visible;transition:.25s;position:relative;z-index:1}
+.topic-card+.topic-card{margin-top:16px}
+.topic-card:hover{box-shadow:var(--shadow)}
+/* 当 head 或 预览被 hover 时，提升整张卡的层级（不管卡是展开还是折叠），确保预览浮在所有卡/导航之上 */
+.topic-card:has(> .topic-head:hover),
+.topic-card:has(> .topic-preview:hover){z-index:200}
+.topic-head{display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
+.topic-head:hover{background:var(--surface-hover)}
+.topic-chevron{font-size:14px;color:var(--text-3);transition:.25s;flex-shrink:0}
+.topic-chevron.open{transform:rotate(90deg)}
+.topic-name{font-weight:700;font-size:16px;flex:1}
+.topic-count{font-size:12px;color:var(--text-3);font-weight:500}
+.topic-body{padding:0 20px 20px;border-top:1px solid var(--border)}
+.topic-actions{display:flex;gap:6px;flex-shrink:0}
+.part-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:3px;margin-bottom:10px}
+.part2-label{background:var(--text);color:#fff}
+.part3-label{background:transparent;color:var(--text);border:1px solid var(--border-2)}
+
+/* Speaking layout */
+.speak-layout{display:flex;gap:22px;align-items:flex-start}
+.speak-nav{flex-shrink:0;width:208px;position:sticky;top:84px;max-height:calc(100vh - 110px);overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px;box-shadow:var(--shadow-sm)}
+.speak-nav-title{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;padding:6px 8px 8px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.speak-nav-item{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:var(--radius-xs);font-size:13px;color:var(--text-2);cursor:pointer;border:none;background:none;transition:.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.speak-nav-item:hover{background:var(--surface-hover);color:var(--primary)}
+.speak-nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.speak-main{flex:1;min-width:0}
+.speak-filters{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
+.filter-group{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.filter-group:last-child{margin-bottom:0}
+.filter-label{font-size:12px;font-weight:700;color:var(--text-3);margin-right:4px;min-width:34px}
+.filter-chip{padding:4px 12px;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border-2);background:var(--surface);color:var(--text-2);transition:.18s}
+.filter-chip:hover{border-color:var(--text);color:var(--text)}
+.filter-chip.active{background:var(--text);color:#fff;border-color:transparent}
+.filter-clear{font-size:11px;color:var(--text-3);cursor:pointer;margin-left:6px;text-decoration:underline}
+.filter-clear:hover{color:var(--rose)}
+.topic-tags{display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0}
+.topic-tag-badge{font-size:11px;padding:2px 9px;border-radius:3px;font-weight:600}
+.topic-tag-badge.g-type{background:var(--text);color:#fff}
+.topic-tag-badge.g-cat{background:transparent;color:var(--text-2);border:1px solid var(--border-2)}
+.topic-drag{cursor:grab;color:var(--text-3);font-size:16px;padding:2px 4px;flex-shrink:0;line-height:1}
+.topic-drag:active{cursor:grabbing}
+.topic-drag:hover{color:var(--text)}
+.topic-card{scroll-margin-top:88px}
+.topic-card.dragging{opacity:.4}
+.topic-card.drop-before{box-shadow:0 -3px 0 0 var(--text) inset;background:var(--surface-hover)}
+.topic-card.drop-after{box-shadow:0 3px 0 0 var(--text) inset;background:var(--surface-hover)}
+.topic-card.flash{animation:flashFrame .4s ease-out}
+@keyframes flashFrame{0%{box-shadow:0 0 0 1.5px var(--text);background:var(--surface-hover)}60%{box-shadow:0 0 0 1.5px var(--text);background:var(--surface-hover)}100%{box-shadow:0 0 0 1.5px rgba(20,20,20,0);background:transparent}}
+/* Topic hover preview: absolute-floated above topic-card, does NOT push topic-body */
+.topic-head{position:relative;z-index:2}
+.topic-preview{
+  position:absolute;z-index:50;
+  min-width:420px;max-width:560px;max-height:56vh;overflow:auto;
+  padding:14px 16px;background:var(--surface);
+  border:1px solid var(--border-2);border-radius:10px;
+  box-shadow:0 20px 40px -16px rgba(20,20,20,.22),0 4px 12px -6px rgba(20,20,20,.12);
+  line-height:1.6;opacity:0;visibility:hidden;transform:translateY(-4px);
+  transition:opacity .16s ease,transform .16s ease,visibility 0s linear .16s;
+  pointer-events:none;
+}
+.topic-card:has(> .topic-head:hover) > .topic-preview,
+.topic-preview:hover{
+  opacity:1;visibility:visible;transform:translateY(0);
+  transition-delay:0s;pointer-events:auto;
+}
+/* Arrow pointing up to the topic-head (left side, ~22px from left aligns with drag handle) */
+.topic-preview:before{content:"";position:absolute;top:-6px;left:22px;border:6px solid transparent;border-top-color:transparent;border-bottom-color:var(--surface);filter:drop-shadow(0 -1px 0 var(--border-2))}
+/* Edge override attributes: JS will set these based on viewport collision */
+.topic-preview[data-edge~="right"]{left:auto;right:0}
+.topic-preview[data-edge~="right"]:before{left:auto;right:22px}
+.topic-preview[data-edge~="bottom"]:before{top:auto;bottom:-6px;transform:rotate(180deg)}
+.tp-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px}
+.tp-note{font-size:13px;color:var(--text-2);padding:8px 10px;background:var(--surface-2);border-radius:6px;border-left:2px solid var(--text);white-space:pre-wrap;word-break:break-word}
+.tp-sep{font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;margin:10px 0 4px}
+.tp-q{display:flex;gap:6px;font-size:12.5px;color:var(--text-2);padding:3px 0}
+.tp-q .tp-num,.tp-q .tp-label{flex-shrink:0;font-weight:700;color:var(--text-3)}
+.tp-q .tp-label{color:var(--text);font-size:11px;padding:1px 6px;background:var(--surface-2);border-radius:3px;margin-right:2px;align-self:flex-start}
+.tp-q .tp-qt{flex:1}
+.tag-editor{display:flex;flex-direction:column;gap:10px}
+.tag-editor-group{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.tag-editor-label{font-size:12px;font-weight:700;color:var(--text-3);min-width:34px}
+.tag-check{display:inline-flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;padding:5px 13px;border:1px solid var(--border-2);border-radius:3px;user-select:none;background:var(--surface);color:var(--text-2);transition:.18s;font-family:inherit}
+.tag-check:hover{border-color:var(--text);color:var(--text)}
+.tag-check.active{background:var(--text);border-color:var(--text);color:#fff;font-weight:600}
+@media(max-width:880px){
+  .speak-layout{flex-direction:column}
+  .speak-nav{position:static;width:100%;max-height:none;display:flex;gap:6px;overflow-x:auto;padding:10px}
+  .speak-nav-title{display:none}
+  .speak-nav-item{white-space:nowrap}
+  .speak-nav [data-act="collapse-all"]{width:auto;flex-shrink:0;margin-bottom:0}
+}
+
+/* Vocabulary */
+.vocab-item{display:flex;gap:14px;align-items:flex-start}
+.vocab-word{font-weight:800;font-size:17px;color:var(--text)}
+.vocab-phonetic{color:var(--primary);font-size:13px;font-style:italic;margin-left:8px;font-weight:600}
+.vocab-trans{color:var(--text-2);font-size:14px;margin-top:3px}
+.vocab-sentence{font-size:15px;font-style:italic;color:var(--text);line-height:1.65;font-weight:500}
+.vocab-source{font-size:11px;color:var(--text-3);margin-top:5px}
+.vocab-actions{display:flex;gap:4px;flex-shrink:0}
+
+/* Data table */
+.data-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);font-size:13px;table-layout:fixed}
+.data-table thead th{position:sticky;top:68px;z-index:10;background:var(--surface-2);padding:8px 10px;text-align:left;font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table td{padding:4px 8px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table tbody tr{transition:.15s}
+.data-table tbody tr:hover{background:var(--surface-hover)}
+.data-table .cell-word{font-weight:700;color:var(--text);font-size:14px}
+.data-table .cell-trans{color:var(--text-2)}
+.data-table .cell-sentence{color:var(--text);font-size:13px;line-height:1.6;max-width:340px}
+.data-table .cell-source{color:var(--text-3);font-size:11px;white-space:nowrap}
+.data-table .cell-actions{white-space:nowrap;text-align:right;width:70px}
+.data-table .cell-actions button{padding:4px 6px;font-size:14px}
+.data-table .tag-sm{font-size:10px;padding:2px 7px;border-radius:3px;font-weight:600;background:var(--primary-light);color:var(--text)}
+.data-table .cell-q .q-text{font-weight:600;color:var(--text);font-size:13px;line-height:1.55;word-break:break-word;white-space:pre-wrap}
+.data-table .cell-q .q-ans{font-size:11px;color:var(--text-3);margin-top:3px;line-height:1.5}
+.data-table .cell-analysis{color:var(--text-2);font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.data-table .cell-editor{width:100%}
+.wrong-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.err-filter-grid{display:flex;flex-wrap:wrap;gap:6px}
+.cell-editor{display:block;width:100%;border:1px solid transparent;background:transparent;border-radius:4px;padding:2px 4px;font-size:13px;color:inherit;line-height:1.5;resize:none;transition:.1s;overflow:hidden;height:24px;white-space:pre-wrap;word-break:break-word}
+.cell-editor:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 2px var(--primary-light)}
+.cell-editor:empty:before{content:attr(data-placeholder);color:var(--text-3);font-weight:400}
+.cell-editor mark{color:var(--rose);background:transparent;font-weight:inherit}
+.cell-err-wrap{display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:24px;position:relative;cursor:pointer;padding:2px 4px;border-radius:4px;border:1px dashed transparent;transition:.1s}
+.cell-err-wrap:hover{border-color:var(--border-2);background:var(--surface-2)}
+.cell-err-wrap .err-chip{padding:2px 8px;font-size:11px;border-width:1px;cursor:pointer}
+.cell-err-wrap .err-chip-placeholder{color:var(--text-3);font-size:11px}
+.cell-err-popup{position:absolute;z-index:200;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);padding:8px;display:flex;flex-wrap:wrap;gap:4px;max-width:280px}
+.cell-err-popup .err-chip{padding:4px 12px;font-size:12px;cursor:pointer}
+.cell-err-picker{position:absolute;top:calc(100% + 4px);left:0;z-index:300;min-width:260px;background:var(--surface);border:1px solid var(--border-2);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:10px}
+.cep-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:baseline;gap:6px}
+.cep-sub{font-size:10px;color:var(--text-3);font-weight:400}
+.cep-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.cep-grid .cep-chip{cursor:pointer;padding:4px 12px;font-size:12px;user-select:none}
+.cep-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px dashed var(--border);padding-top:6px}
+.data-table tr.is-new{background:var(--primary-light)}
+.data-table tr.is-new:hover{background:var(--primary-light)}
+
+/* Writing */
+.write-content{white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.9;color:var(--text)}
+.write-content-edit{width:100%;min-height:320px;font-size:14px;line-height:1.9;padding:14px;border:1.5px solid var(--border-2);border-radius:var(--radius-sm);background:var(--surface-2)}
+.write-content-edit:focus{outline:none;border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px var(--primary-light)}
+
+/* Search input */
+.search-input{width:100%;padding:10px 16px 10px 38px;border:1.5px solid var(--border-2);border-radius:var(--radius-sm);background:var(--surface-2);transition:.2s}
+.search-input:focus{outline:none;border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px var(--primary-light)}
+.search-wrap{position:relative;margin-bottom:18px}
+.search-wrap::before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.5}
+
+@media(max-width:680px){
+  .header-inner{padding:0 16px;gap:14px}
+  .logo-text{display:none}
+  main#content{padding:24px 16px 100px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .ft-panel{width:calc(100vw - 32px);right:-4px}
+  .modal{max-width:100%}
+  .entry-actions{gap:4px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo-area">
+        <svg class="logo-svg" viewBox="0 0 40 28" fill="none">
+          <path d="M3 25 A17 17 0 0 1 37 25" fill="none" stroke="#f87171" stroke-width="3" stroke-linecap="round"/>
+          <path d="M6 25 A14 14 0 0 1 34 25" fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+          <path d="M9 25 A11 11 0 0 1 31 25" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>
+          <path d="M12 25 A8 8 0 0 1 28 25" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+          <path d="M15 25 A5 5 0 0 1 25 25" fill="none" stroke="#a78bfa" stroke-width="3" stroke-linecap="round"/>
+          <path d="M18 25 A2 2 0 0 1 22 25" fill="none" stroke="#f472b6" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <span class="logo-text">IELTS｜Barbara</span>
+      </div>
+      <nav class="app-nav" id="nav"></nav>
+    </div>
+  </header>
+  <main id="content"></main>
+</div>
+<div id="translate-popup" class="hidden"></div>
+<div id="modal-root"></div>
+<div id="toast-container"></div>
+<div id="float-translate"></div>
+<button id="back-to-top" title="回到顶部">↑</button>
+
+<script>
+"use strict";
+
+/* ============================================================ LOCAL DICT */
+const DICT = {
+  academic:"adj. 学术的；学院的",curriculum:"n. 课程体系",syllabus:"n. 教学大纲",
+  tuition:"n. 学费；教学",scholarship:"n. 奖学金",faculty:"n. 院系；全体教员",
+  lecture:"n. 讲座；讲课 v. 讲课",seminar:"n. 研讨会",tutorial:"n. 辅导课",
+  assignment:"n. 作业；任务",dissertation:"n. 学位论文",thesis:"n. 论文；论点",
+  plagiarism:"n. 抄袭；剽窃",graduate:"v. 毕业 n. 毕业生",undergraduate:"n. 本科生",
+  enrollment:"n. 注册；入学",pedagogy:"n. 教育学；教学法",literacy:"n. 读写能力",
+  numeracy:"n. 计算能力",assessment:"n. 评估；考核",competence:"n. 能力；胜任",
+  diploma:"n. 文凭",discipline:"n. 学科；纪律 v. 约束",enlighten:"v. 启发；启蒙",
+  prerequisite:"n. 先决条件 adj. 前提的",memorize:"v. 记忆；背诵",comprehension:"n. 理解力",
+  pollution:"n. 污染",emission:"n. 排放；排放物",greenhouse:"n. 温室",
+  carbon:"n. 碳",renewable:"adj. 可再生的",sustainable:"adj. 可持续的",
+  conservation:"n. 保护；节约",biodiversity:"n. 生物多样性",ecosystem:"n. 生态系统",
+  habitat:"n. 栖息地",deforestation:"n. 森林砍伐",extinction:"n. 灭绝",
+  recycling:"n. 回收利用",biodegradable:"adj. 可生物降解的",contamination:"n. 污染；玷污",
+  drought:"n. 干旱",erosion:"n. 侵蚀",ozone:"n. 臭氧",ecology:"n. 生态学",
+  climate:"n. 气候",atmosphere:"n. 大气层；气氛",fossil:"n. 化石 adj. 化石的",
+  innovation:"n. 创新；革新",device:"n. 设备；装置",gadget:"n. 小器具",
+  software:"n. 软件",hardware:"n. 硬件",database:"n. 数据库",
+  artificial:"adj. 人造的；人工的",digital:"adj. 数字的",virtual:"adj. 虚拟的",
+  automate:"v. 自动化",algorithm:"n. 算法",satellite:"n. 卫星",
+  bandwidth:"n. 带宽",processor:"n. 处理器",wireless:"adj. 无线的",
+  breakthrough:"n. 突破",obsolete:"adj. 废弃的；过时的",
+  integrate:"v. 整合；融合",interface:"n. 界面；接口",simulation:"n. 模拟",
+  nutrition:"n. 营养",diet:"n. 饮食",immune:"adj. 免疫的",
+  virus:"n. 病毒",bacteria:"n. 细菌",infection:"n. 感染",
+  symptom:"n. 症状",treatment:"n. 治疗",therapy:"n. 疗法",
+  chronic:"adj. 慢性的",acute:"adj. 急性的",vaccination:"n. 疫苗接种",
+  prescription:"n. 处方",diagnosis:"n. 诊断",epidemic:"n. 流行病",
+  hygiene:"n. 卫生",mental:"adj. 心理的；精神的",wellness:"n. 健康",
+  demographic:"adj. 人口统计的 n. 人口特征",urban:"adj. 城市的",rural:"adj. 农村的",
+  community:"n. 社区；社群",welfare:"n. 福利",poverty:"n. 贫困",
+  inequality:"n. 不平等",discrimination:"n. 歧视",immigration:"n. 移民",
+  diversity:"n. 多样性",generation:"n. 代；一代人",heritage:"n. 遗产；传统",
+  tradition:"n. 传统",custom:"n. 习俗",cultural:"adj. 文化的",
+  citizen:"n. 公民",migration:"n. 迁徙",population:"n. 人口",
+  career:"n. 职业；事业",profession:"n. 专业；职业",occupation:"n. 职业",
+  employee:"n. 员工",employer:"n. 雇主",salary:"n. 薪水",
+  promotion:"n. 晋升；推广",retirement:"n. 退休",interview:"n. 面试",
+  qualification:"n. 资格；资质",colleague:"n. 同事",workplace:"n. 工作场所",
+  productivity:"n. 生产力",redundant:"adj. 多余的；被裁减的",entrepreneur:"n. 企业家",
+  significant:"adj. 重大的；有意义的",contribute:"v. 贡献；促成",establish:"v. 建立；确立",
+  demonstrate:"v. 证明；展示",illustrate:"v. 说明；阐明",emphasize:"v. 强调",
+  indicate:"v. 表明；指示",require:"v. 需要；要求",obtain:"v. 获得",
+  maintain:"v. 维持；保养",generate:"v. 产生；生成",modify:"v. 修改",
+  substitute:"n. 替代品 v. 替代",adequate:"adj. 充足的；适当的",
+  inevitable:"adj. 不可避免的",substantial:"adj. 大量的；实质的",
+  comprehensive:"adj. 全面的；综合的",fundamental:"adj. 基本的；根本的",
+  consequently:"adv. 因此",furthermore:"adv. 此外",nevertheless:"adv. 然而",
+  whereas:"conj. 而；然而",although:"conj. 尽管",despite:"prep. 尽管",
+  achieve:"v. 达到；实现",adapt:"v. 适应",adopt:"v. 采纳；收养",
+  analyze:"v. 分析",approach:"n. 方法 v. 接近",assist:"v. 协助",
+  benefit:"n. 益处 v. 受益",calculate:"v. 计算",classify:"v. 分类",
+  compare:"v. 比较",compose:"v. 组成；创作",consider:"v. 考虑",
+  construct:"v. 建造",consume:"v. 消耗",convert:"v. 转换",
+  convince:"v. 说服",deliver:"v. 交付；递送",derive:"v. 源于；获得",
+  distribute:"v. 分配；分布",eliminate:"v. 消除",encourage:"v. 鼓励",
+  enhance:"v. 增强；提升",ensure:"v. 确保",examine:"v. 检查；考查",
+  expand:"v. 扩大",explore:"v. 探索",facilitate:"v. 促进；使便利",
+  fluctuate:"v. 波动",focus:"v. 集中 n. 焦点",guarantee:"v. 保证",
+  identify:"v. 识别",improve:"v. 改善",incorporate:"v. 包含；合并",
+  influence:"v./n. 影响",investigate:"v. 调查",involve:"v. 涉及；包含",
+  justify:"v. 证明...正当",launch:"v. 发起；推出",limit:"v. 限制 n. 限度",
+  maximize:"v. 最大化",minimize:"v. 最小化",monitor:"v. 监控",
+  negotiate:"v. 谈判",observe:"v. 观察",participate:"v. 参与",
+  perform:"v. 执行；表演",prevent:"v. 预防；阻止",proceed:"v. 继续进行",
+  propose:"v. 提议",provide:"v. 提供",publish:"v. 出版；发表",
+  pursue:"v. 追求",recognize:"v. 认出；认可",reduce:"v. 减少",
+  reflect:"v. 反映；反思",regulate:"v. 管理；调节",reject:"v. 拒绝",
+  relate:"v. 联系；有关",release:"v. 释放；发布",resolve:"v. 解决",
+  respond:"v. 回应",restrict:"v. 限制",reveal:"v. 揭示",
+  satisfy:"v. 满足",select:"v. 选择",solve:"v. 解决",
+  succeed:"v. 成功",suffer:"v. 遭受",summarize:"v. 总结",
+  support:"v. 支持",survive:"v. 生存",sustain:"v. 维持",
+  tackle:"v. 处理；应对",tendency:"n. 倾向",transform:"v. 转变",
+  transport:"v. 运输 n. 交通工具",trigger:"v. 触发",undergo:"v. 经历",
+  utilize:"v. 利用",vary:"v. 变化",verify:"v. 核实",
+  abundant:"adj. 丰富的",accurate:"adj. 准确的",advanced:"adj. 先进的",
+  alternative:"adj. 替代的 n. 选择",apparent:"adj. 明显的",appropriate:"adj. 适当的",
+  authentic:"adj. 真实的",beneficial:"adj. 有益的",capable:"adj. 有能力的",
+  complex:"adj. 复杂的",constant:"adj. 恒定的",crucial:"adj. 关键的",
+  current:"adj. 当前的",declining:"adj. 衰退的",dense:"adj. 密集的",
+  distinct:"adj. 明显的；不同的",dominant:"adj. 占主导的",effective:"adj. 有效的",
+  efficient:"adj. 高效的",essential:"adj. 必要的",excessive:"adj. 过度的",
+  expensive:"adj. 昂贵的",extensive:"adj. 广泛的",familiar:"adj. 熟悉的",
+  feasible:"adj. 可行的",frequent:"adj. 频繁的",global:"adj. 全球的",
+  identical:"adj. 完全相同的",immediate:"adj. 立即的",initial:"adj. 最初的",
+  intense:"adj. 强烈的",limited:"adj. 有限的",major:"adj. 主要的",
+  minor:"adj. 次要的",mutual:"adj. 相互的",notable:"adj. 显著的",
+  numerous:"adj. 众多的",obvious:"adj. 明显的",particular:"adj. 特定的",
+  permanent:"adj. 永久的",plausible:"adj. 貌似合理的",potential:"adj. 潜在的",
+  previous:"adj. 先前的",primary:"adj. 首要的",profound:"adj. 深刻的",
+  prominent:"adj. 杰出的",rapid:"adj. 迅速的",relevant:"adj. 相关的",
+  remarkable:"adj. 显著的",remote:"adj. 遥远的",scarce:"adj. 稀缺的",
+  severe:"adj. 严重的",similar:"adj. 相似的",sufficient:"adj. 充足的",
+  suitable:"adj. 合适的",superficial:"adj. 肤浅的",tough:"adj. 困难的",
+  typical:"adj. 典型的",unique:"adj. 独特的",valid:"adj. 有效的",
+  widespread:"adj. 广泛的",vital:"adj. 至关重要的",
+};
+
+/* ============================================================ ERROR TYPES */
+const LISTENING_ERRORS = ["拼写","改写","词音","句音","逻辑","单复数","格式","生词","定位"];
+const READING_ERRORS = ["同义词","词性转换","上下义词","解释/描述型替换","句式/语法替换","否定+反义替换","生词"];
+const ERR_COLORS = {
+  "拼写":{c:"#f59e0b",b:"#fef3c7"},"改写":{c:"#3b82f6",b:"#dbeafe"},
+  "词音":{c:"#8b5cf6",b:"#ede9fe"},"句音":{c:"#a855f7",b:"#f3e8ff"},
+  "逻辑":{c:"#f43f5e",b:"#ffe4e6"},"单复数":{c:"#f97316",b:"#ffedd5"},
+  "格式":{c:"#14b8a6",b:"#ccfbf1"},"生词":{c:"#10b981",b:"#d1fae5"},
+  "定位":{c:"#6366f1",b:"#e0e7ff"},
+  "同义词":{c:"#3b82f6",b:"#dbeafe"},"词性转换":{c:"#8b5cf6",b:"#ede9fe"},
+  "上下义词":{c:"#14b8a6",b:"#ccfbf1"},"解释/描述型替换":{c:"#f59e0b",b:"#fef3c7"},
+  "句式/语法替换":{c:"#f97316",b:"#ffedd5"},"否定+反义替换":{c:"#f43f5e",b:"#ffe4e6"},
+};
+function errBadge(type){
+  const cl = ERR_COLORS[type]||{c:"#64748b",b:"#f1f5f9"};
+  return `<span class="err-type-badge" style="background:${cl.b};color:${cl.c}">${type}</span>`;
+}
+
+/* ============================================================ STORE */
+const Store = {
+  KEY: "ielts_barbara_v2",
+  data: null,
+  load(){
+    let parsed = null;
+    try{ const raw = localStorage.getItem(this.KEY); if(raw) parsed = JSON.parse(raw); }catch(e){}
+    // try migrate from v1
+    if(!parsed){
+      try{
+        const oldRaw = localStorage.getItem("ielts_g_data_v1");
+        if(oldRaw){ parsed = this._migrateV1(JSON.parse(oldRaw)); }
+      }catch(e){}
+    }
+    this.data = this._merge(this.defaults(), parsed || {});
+    this._migratePhrases();
+    this._fixDupIds();
+    return this.data;
+  },
+  save(){
+    try{ localStorage.setItem(this.KEY, JSON.stringify(this.data)); }
+    catch(e){ toast("存储空间不足，请导出数据后清理","error"); }
+  },
+  defaults(){
+    return {
+      listening:{ synonyms:[], wrongQuestions:[], wrongWords:[] },
+      reading:{ synonyms:[], wrongQuestions:[] },
+      speaking:{ part1:{topics:[]}, part23:{topics:[]} },
+      writing:{ task1:[], task2:[] },
+      vocabulary:{ words:[], sentences:[] },
+    };
+  },
+  _merge(base, target){
+    if(typeof base!=="object"||base===null||Array.isArray(base)) return target!==undefined?target:base;
+    const out = {...base};
+    for(const k in base){ out[k] = target&&target[k]!==undefined ? this._merge(base[k],target[k]) : base[k]; }
+    return out;
+  },
+  _migrateV1(old){
+    const d = this.defaults();
+    if(old.listening){
+      d.listening.synonyms = old.listening.synonyms||[];
+      d.listening.wrongQuestions = (old.listening.wrongQuestions||[]).map(q=>({...q,errorType:""}));
+    }
+    if(old.reading){
+      d.reading.synonyms = old.reading.synonyms||[];
+      d.reading.wrongQuestions = (old.reading.wrongQuestions||[]).map(q=>({...q,errorType:""}));
+    }
+    if(old.speaking){
+      // migrate flat arrays to topic structure
+      if(old.speaking.part1&&old.speaking.part1.length){
+        d.speaking.part1.topics = [{id:this.uid(),name:"导入的题目",questions:old.speaking.part1.map(q=>({...q,createdAt:q.createdAt||Date.now()}))}];
+      }
+      if((old.speaking.part2&&old.speaking.part2.length)||(old.speaking.part3&&old.speaking.part3.length)){
+        d.speaking.part23.topics = [{
+          id:this.uid(), name:"导入的话题",
+          part2: old.speaking.part2[0]||{question:"",answer:"",audioId:"",note:""},
+          part3: (old.speaking.part3||[]).map(q=>({...q})),
+          createdAt: Date.now()
+        }];
+      }
+    }
+    if(old.writing&&old.writing.essays){
+      old.writing.essays.forEach(e=>{
+        const item = {id:this.uid(),title:e.title,content:e.content,note:e.note,createdAt:e.createdAt||Date.now()};
+        if(e.type==="task1") d.writing.task1.push(item); else d.writing.task2.push(item);
+      });
+    }
+    if(old.vocabulary){ d.vocabulary = old.vocabulary; }
+    return d;
+  },
+  _migratePhrases(){
+    const v=this.data.vocabulary; if(!v||!v.words) return;
+    const toMove=[]; const keep=[];
+    v.words.forEach(w=>{
+      const wc=w.word.trim().split(/\s+/).length;
+      if(wc>=4) toMove.push(w); else keep.push(w);
+    });
+    if(!toMove.length) return;
+    v.words=keep;
+    toMove.forEach(w=>{
+      v.sentences.push({
+        id:this.uid(), sentence:w.word, translation:w.translation||"",
+        note:w.note||"", source:w.source||"", audioUrl:"", createdAt:w.createdAt||Date.now()
+      });
+    });
+    this.save();
+  },
+  _fixDupIds(){
+    const fixList=(arr)=>{
+      if(!Array.isArray(arr)) return;
+      const seen=new Set(); let fixed=0;
+      arr.forEach(item=>{
+        if(!item.id||seen.has(item.id)){ item.id=this.uid(); fixed++; }
+        seen.add(item.id);
+      });
+      if(fixed>0){ console.log("[Store] Fixed "+fixed+" duplicate IDs"); this.save(); }
+    };
+    if(this.data.listening){ fixList(this.data.listening.wrongQuestions); fixList(this.data.listening.synonyms); }
+    if(this.data.reading){ fixList(this.data.reading.wrongQuestions); fixList(this.data.reading.synonyms); }
+    if(this.data.vocabulary){ fixList(this.data.vocabulary.words); fixList(this.data.vocabulary.sentences); }
+  },
+  uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+};
+
+/* ============================================================ AUDIO STORE */
+const AudioStore = {
+  db:null,
+  init(){
+    return new Promise(resolve=>{
+      try{
+        const req = indexedDB.open("ielts_barbara_audio",1);
+        req.onupgradeneeded = e=>{ e.target.result.createObjectStore("audio",{keyPath:"id"}); };
+        req.onsuccess = e=>{ this.db=e.target.result; resolve(); };
+        req.onerror = ()=>resolve();
+      }catch(e){ resolve(); }
+    });
+  },
+  save(id,blob){ return new Promise((resolve,reject)=>{ if(!this.db)return reject("no db"); const tx=this.db.transaction("audio","readwrite"); tx.objectStore("audio").put({id,blob}); tx.oncomplete=()=>resolve(id); tx.onerror=()=>reject(tx.error); }); },
+  get(id){ return new Promise((resolve,reject)=>{ if(!this.db)return reject("no db"); const tx=this.db.transaction("audio","readonly"); const req=tx.objectStore("audio").get(id); req.onsuccess=()=>resolve(req.result?req.result.blob:null); req.onerror=()=>reject(req.error); }); },
+  delete(id){ return new Promise(resolve=>{ if(!this.db)return resolve(); try{ const tx=this.db.transaction("audio","readwrite"); tx.objectStore("audio").delete(id); tx.oncomplete=()=>resolve(); tx.onerror=()=>resolve(); }catch(e){ resolve(); } }); }
+};
+
+/* ============================================================ TRANSLATOR */
+const Translator = {
+  async lookup(text){
+    const t = text.trim(); if(!t) return null;
+    const isWord = /^[a-zA-Z][a-zA-Z'-]*$/.test(t) && t.length<=35;
+    let result = {text:t,translation:"",phonetic:"",definition:"",audioUrl:"",isWord};
+    if(isWord){
+      const lower = t.toLowerCase();
+      if(DICT[lower]) result.translation = DICT[lower];
+      const dr = await this._dictApi(lower).catch(()=>null);
+      if(dr){ result.phonetic=dr.phonetic; result.audioUrl=dr.audioUrl; if(!result.translation&&dr.definition) result.translation="（在线释义）"+dr.definition; }
+      if(!result.translation){ const on=await this._translateApi(t).catch(()=>null); if(on) result.translation=on; }
+    } else {
+      const on = await this._translateApi(t).catch(()=>null);
+      if(on) result.translation = on;
+    }
+    return result;
+  },
+  _dictApi(word){
+    return new Promise((resolve,reject)=>{
+      fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`).then(r=>r.json()).then(data=>{
+        if(!Array.isArray(data)||!data[0]) return reject("nf");
+        const e=data[0]; let phonetic=e.phonetic||"",audioUrl="";
+        if(e.phonetics){ const wa=e.phonetics.find(p=>p.audio&&p.audio.length>0); if(wa) audioUrl=wa.audio.startsWith("//")?"https:"+wa.audio:wa.audio; if(!phonetic) phonetic=(e.phonetics.find(p=>p.text)||{}).text||""; }
+        let def=""; if(e.meanings&&e.meanings[0]&&e.meanings[0].definitions&&e.meanings[0].definitions[0]) def=e.meanings[0].definitions[0].definition||"";
+        resolve({phonetic,audioUrl,definition:def});
+      }).catch(reject);
+    });
+  },
+  _translateApi(text){
+    const isZh=/[\u4e00-\u9fa5]/.test(text);
+    const sl=isZh?"zh-CN":"en", tl=isZh?"en":"zh-CN";
+    return fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sl}|${tl}`).then(r=>r.json()).then(d=>{ if(d&&d.responseData&&d.responseData.translatedText) return d.responseData.translatedText; throw new Error("nf"); }).catch(()=>{
+      return fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(text)}`).then(r=>r.json()).then(d=>{ if(d&&d[0]&&d[0][0]&&d[0][0][0]) return d[0].map(x=>x[0]).join(""); throw new Error("nf"); });
+    });
+  },
+  pronounce(text,opts={}){
+    if(opts.audioUrl){ try{ new Audio(opts.audioUrl).play(); return; }catch(e){} }
+    if("speechSynthesis" in window){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang=opts.lang||"en-GB"; u.rate=opts.rate||0.9; speechSynthesis.speak(u); }
+  }
+};
+
+/* ============================================================ UI HELPERS */
+function toast(msg,type="info"){
+  const c=document.getElementById("toast-container"); const el=document.createElement("div");
+  el.className="toast "+type; el.textContent=msg; c.appendChild(el);
+  setTimeout(()=>{ el.style.opacity="0"; el.style.transition=".3s"; setTimeout(()=>el.remove(),300); },2600);
+}
+function showModal(title,bodyHTML,onSave,opts={}){
+  const root=document.getElementById("modal-root"); const saveText=opts.saveText||"保存"; const wide=opts.wide?"max-width:680px":"";
+  root.innerHTML=`<div class="modal-overlay"><div class="modal" style="${wide}"><div class="modal-header"><span class="modal-title">${title}</span><button class="modal-close" data-act="cancel">&times;</button></div><div class="modal-body">${bodyHTML}</div><div class="modal-footer"><button class="btn btn-outline" data-act="cancel">取消</button><button class="btn btn-primary" data-act="save">${saveText}</button></div></div></div>`;
+  const ov=root.querySelector(".modal-overlay");
+  ov.addEventListener("click",e=>{ if(e.target===ov||e.target.dataset.act==="cancel") hideModal(); if(e.target.dataset.act==="save") onSave(root.querySelector(".modal-body")); });
+  setTimeout(()=>{ const inp=root.querySelector("input,textarea,select"); if(inp) inp.focus(); },50);
+}
+function hideModal(){ document.getElementById("modal-root").innerHTML=""; }
+function confirmDialog(msg,onYes){ showModal("确认",`<p style="font-size:14px;line-height:1.7">${msg}</p>`,()=>{ hideModal(); onYes(); },{saveText:"确认"}); }
+function fmtDate(ts){ if(!ts) return ""; const d=new Date(ts); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; }
+function esc(s){ if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function initTabs(container){
+  container.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      const target=tab.dataset.tab;
+      container.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); tab.classList.add("active");
+      container.querySelectorAll(".tab-panel").forEach(p=>p.classList.add("hidden"));
+      const panel=container.querySelector(`[data-panel="${target}"]`); if(panel) panel.classList.remove("hidden");
+    });
+  });
+}
+
+/* ============================================================ SELECTION POPUP */
+const SelectionPopup = {
+  popup:null,
+  init(){
+    this.popup=document.getElementById("translate-popup");
+    let mdi=false;
+    this.popup.addEventListener("mousedown",()=>{ mdi=true; });
+    document.addEventListener("mouseup",e=>{
+      if(mdi){ mdi=false; return; }
+      if(this.popup.contains(e.target)) return;
+      const sel=window.getSelection(); const text=sel.toString().trim();
+      if(text&&text.length>0&&text.length<500){
+        const range=sel.getRangeAt(0); const content=document.getElementById("content");
+        if(content.contains(range.commonAncestorContainer)||range.commonAncestorContainer===content) this.show(e.clientX,e.clientY,text);
+      }
+    });
+    document.addEventListener("mousedown",e=>{ if(mdi) return; if(!this.popup.contains(e.target)) this.hide(); });
+  },
+  async show(x,y,text){
+    this.popup.innerHTML='<div class="popup-loading">查询中…</div>'; this._position(x,y); this.popup.classList.remove("hidden");
+    const r=await Translator.lookup(text); if(!r){ this.hide(); return; } this._render(r); this._position(x,y);
+  },
+  _render(r){
+    let h=`<div class="popup-header"><span class="popup-word">${esc(r.text)}</span>`;
+    if(r.phonetic) h+=`<span class="popup-phonetic">/${esc(r.phonetic)}/</span>`;
+    h+=`<button class="btn-icon" data-act="speak" title="发音">🔊</button></div><div class="popup-body">`;
+    if(r.translation) h+=`<div class="popup-trans">${esc(r.translation)}</div>`;
+    if(r.definition) h+=`<div class="popup-def">${esc(r.definition)}</div>`;
+    if(!r.translation&&!r.definition) h+=`<div class="popup-def">暂无结果（可能网络不可用）</div>`;
+    h+=`</div><div class="popup-footer"><button class="btn btn-outline btn-sm" data-act="collect">${r.isWord?"⭐ 收藏生词":"⭐ 收藏句子"}</button><button class="btn btn-outline btn-sm" data-act="note">📝 备注</button></div>`;
+    this.popup.innerHTML=h;
+    this.popup.querySelector('[data-act="speak"]').addEventListener("click",()=>Translator.pronounce(r.text,{audioUrl:r.audioUrl}));
+    this.popup.querySelector('[data-act="collect"]').addEventListener("click",()=>this._collect(r));
+    this.popup.querySelector('[data-act="note"]').addEventListener("click",()=>this._addNote(r));
+  },
+  _collect(r){
+    if(r.isWord){
+      if(Store.data.vocabulary.words.find(w=>w.word.toLowerCase()===r.text.toLowerCase())){ toast("该生词已在收藏库中","info"); return; }
+      Store.data.vocabulary.words.push({id:Store.uid(),word:r.text,translation:r.translation,phonetic:r.phonetic||"",note:"",source:"划词",audioUrl:r.audioUrl||"",createdAt:Date.now()});
+      Store.save(); toast("已收藏到生词本","success");
+    } else {
+      Store.data.vocabulary.sentences.push({id:Store.uid(),sentence:r.text,translation:r.translation,note:"",source:"划词",createdAt:Date.now()});
+      Store.save(); toast("已收藏到高频句子","success");
+    }
+  },
+  _addNote(r){
+    let item = r.isWord ? Store.data.vocabulary.words.find(w=>w.word.toLowerCase()===r.text.toLowerCase()) : Store.data.vocabulary.sentences.find(s=>s.sentence===r.text);
+    if(!item){ this._collect(r); item = r.isWord ? Store.data.vocabulary.words.find(w=>w.word.toLowerCase()===r.text.toLowerCase()) : Store.data.vocabulary.sentences.find(s=>s.sentence===r.text); }
+    const oldNote = item?item.note:"";
+    showModal("添加备注",`<div class="field"><label>${r.isWord?"生词":"句子"}：${esc(r.text)}</label><textarea id="note-input" rows="3" placeholder="输入备注内容…">${esc(oldNote)}</textarea></div>`,body=>{
+      const v=body.querySelector("#note-input").value.trim(); if(item){ item.note=v; Store.save(); }
+      toast("备注已保存","success"); hideModal();
+    });
+  },
+  _position(x,y){
+    this.popup.style.visibility="hidden"; this.popup.classList.remove("hidden");
+    const rect=this.popup.getBoundingClientRect(); const vw=window.innerWidth,vh=window.innerHeight;
+    let left=x+12,top=y+12;
+    if(left+rect.width>vw-10) left=x-rect.width-12;
+    if(top+rect.height>vh-10) top=y-rect.height-12;
+    if(left<10) left=10; if(top<10) top=10;
+    this.popup.style.left=left+"px"; this.popup.style.top=top+"px"; this.popup.style.visibility="visible";
+  },
+  hide(){ this.popup.classList.add("hidden"); }
+};
+
+/* ============================================================ FAVORITES */
+function collectWord(word,translation,phonetic,source){
+  word=word.trim(); if(!word) return;
+  if(Store.data.vocabulary.words.find(w=>w.word.toLowerCase()===word.toLowerCase())){ toast("该生词已收藏","info"); return; }
+  Store.data.vocabulary.words.push({id:Store.uid(),word,translation:translation||"",phonetic:phonetic||"",note:"",source:source||"",audioUrl:"",createdAt:Date.now()});
+  Store.save(); toast("已收藏到生词本","success");
+}
+function collectSentence(sentence,translation,source){
+  sentence=sentence.trim(); if(!sentence) return;
+  if(Store.data.vocabulary.sentences.find(s=>s.sentence===sentence)){ toast("该句子已收藏","info"); return; }
+  Store.data.vocabulary.sentences.push({id:Store.uid(),sentence,translation:translation||"",note:"",source:source||"",createdAt:Date.now()});
+  Store.save(); toast("已收藏到高频句子","success");
+}
+
+/* ============================================================ ROUTER */
+const NAV=[
+  {key:"dashboard",label:"首页"},{key:"listening",label:"听力"},{key:"reading",label:"阅读"},
+  {key:"speaking",label:"口语"},{key:"writing",label:"写作"},{key:"vocabulary",label:"生词本"},
+];
+let _cur=null;
+const Router={
+  go(name,preserveScroll){
+    const mod=MODULES[name]; if(!mod) return;
+    if(_cur&&_cur.unmount) _cur.unmount();
+    _cur=mod; const c=document.getElementById("content"); c.innerHTML=mod.render(); c.dataset.page=name; document.body.dataset.page=name;
+    if(mod.mount) mod.mount(c);
+    document.querySelectorAll(".nav-item").forEach(el=>el.classList.toggle("active",el.dataset.route===name));
+    try{ localStorage.setItem("__lastRoute",name); }catch(e){}
+    if(!preserveScroll) window.scrollTo(0,0);
+  }
+};
+
+/* ============================================================ DASHBOARD */
+const Dashboard={
+  render(){
+    const d=Store.data;
+    const stats=[
+      {num:d.listening.synonyms.length+d.reading.synonyms.length,label:"同义替换"},
+      {num:d.listening.wrongQuestions.length+d.reading.wrongQuestions.length,label:"错题记录"},
+      {num:d.speaking.part1.topics.reduce((s,t)=>s+t.questions.length,0)+d.speaking.part23.topics.length,label:"口语话题"},
+      {num:d.writing.task1.length+d.writing.task2.length,label:"作文"},
+      {num:d.vocabulary.words.length,label:"收藏生词"},
+      {num:d.vocabulary.sentences.length,label:"收藏句子"},
+    ];
+    const links=[
+      {icon:"🎧",title:"听力",desc:"同义替换与错题",route:"listening"},
+      {icon:"📖",title:"阅读",desc:"同义替换与错题",route:"reading"},
+      {icon:"🗣️",title:"口语",desc:"Part 1/2/3 答案",route:"speaking"},
+      {icon:"✍️",title:"写作",desc:"大作文与小作文",route:"writing"},
+      {icon:"📚",title:"生词本",desc:"收藏的生词与句子",route:"vocabulary"},
+    ];
+    return `<h1 class="page-title">欢迎回来，Barbara</h1>
+      <h3 class="section-title">学习总览</h3>
+      <div class="stats-grid">${stats.map(s=>`<div class="stat-card"><div class="stat-num">${s.num}</div><div class="stat-label">${s.label}</div></div>`).join("")}</div>
+      <h3 class="section-title">快捷入口</h3>
+      <div class="quick-links">${links.map(l=>`<div class="quick-link" data-go="${l.route}"><span class="quick-link-title">${l.title}</span></div>`).join("")}</div>
+      <div style="margin-top:56px"><h3 class="section-title">数据管理</h3>
+        <div class="card" style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-outline" id="btn-export">导出数据</button>
+          <button class="btn btn-outline" id="btn-import">导入数据</button>
+          <input type="file" id="import-file" accept=".json" class="hidden">
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px"><h4 style="margin-bottom:12px;font-size:14px;font-weight:600;color:#141414">使用提示</h4>
+        <ul style="font-size:13px;color:#73716c;line-height:2.1;padding-left:18px">
+          <li>在任何内容区域<b>选中文字</b>即可弹出翻译，支持发音和收藏</li>
+          <li>右下角浮动按钮是<b>快速翻译</b>小工具，随时可用</li>
+          <li>听力<b>改写</b>类错题会自动加入同义替换库</li>
+          <li>阅读<b>同义词</b>类错题自动加入同义替换，<b>生词</b>类自动加入生词本</li>
+          <li>收藏的生词/句子可添加<b>备注</b>，鼠标悬停即可查看</li>
+        </ul>
+      </div>`;
+  },
+  mount(root){
+    root.querySelectorAll("[data-go]").forEach(el=>el.addEventListener("click",()=>Router.go(el.dataset.go)));
+    root.querySelector("#btn-export").addEventListener("click",()=>Dashboard.export());
+    root.querySelector("#btn-import").addEventListener("click",()=>root.querySelector("#import-file").click());
+    root.querySelector("#import-file").addEventListener("change",e=>Dashboard.import(e));
+  },
+  export(){
+    const blob=new Blob([JSON.stringify(Store.data,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob); const a=document.createElement("a");
+    a.href=url; a.download=`ielts-barbara-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
+    toast("数据已导出","success");
+  },
+  import(e){
+    const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
+    reader.onload=()=>{ try{ Store.data=Store._merge(Store.defaults(),JSON.parse(reader.result)); Store.save(); toast("数据导入成功","success"); Router.go("dashboard"); }catch(err){ toast("导入失败：文件格式错误","error"); } };
+    reader.readAsText(file);
+  }
+};
+
+/* ============================================================ LISTENING & READING */
+function createPracticeModule(key,label,errorTypes){
+  return {
+    _key:key,_label:label,_errors:errorTypes,_wrongFilter:"",
+    render(){
+      const m=Store.data[key];
+      const isL=key==="listening";
+      const wordTab=isL?`<button class="tab" data-tab="words">错词 (${m.wrongWords.length})</button>`:"";
+      return `<h1 class="page-title">${label}练习</h1>
+        <div class="tabs"><button class="tab active" data-tab="syn">同义替换 (${m.synonyms.length})</button><button class="tab" data-tab="wrong">错题记录 (${m.wrongQuestions.length})</button>${wordTab}</div>
+        <div class="tab-panel" data-panel="syn">${this._renderSyn(m.synonyms)}</div>
+        <div class="tab-panel hidden" data-panel="wrong"><div class="wrong-toolbar"><div class="err-filter-grid">${this._renderFilterChips()}</div><button class="btn btn-outline btn-sm" data-act="batch-import-wrong" style="margin-left:auto">批量导入</button></div>${this._renderWrong(m.wrongQuestions)}</div>${isL?`<div class="tab-panel hidden" data-panel="words">${this._renderWrongWords()}</div>`:""}`;
+    },
+    _renderFilterChips(){
+      const all=Store.data[key].wrongQuestions.length;
+      const counts={};
+      Store.data[key].wrongQuestions.forEach(q=>{ (q.errorType?q.errorType.split(","):[]).forEach(t=>{ if(t) counts[t]=(counts[t]||0)+1; }); });
+      const chip=(txt,val,cl)=>{
+        const active=this._wrongFilter===val;
+        const style=active?`background:${cl};color:#fff;border-color:transparent`:"";
+        return `<span class="err-chip ${active?"active":""}" data-filter="${val}" style="${style}">${txt}</span>`;
+      };
+      return chip(`全部 (${all})`,"","var(--primary)")+errorTypes.filter(t=>counts[t]).map(t=>chip(`${t} (${counts[t]})`,t,ERR_COLORS[t].c)).join("");
+    },
+    mount(root){
+      initTabs(root);
+      const self=this;
+      this._root=root;
+      const errPickerEl=()=>{
+        const t=document.createElement("div");
+        t.id="cell-err-picker";
+        t.className="cell-err-picker";
+        t.innerHTML=`<div class="cep-title">选择错误类型<span class="cep-sub">（最多2个）</span></div><div class="cep-grid">${errorTypes.map(et=>`<span class="err-chip cep-chip" data-cep="${et}">${et}</span>`).join("")}</div><div class="cep-foot"><button class="btn btn-link cep-clear">清空</button><button class="btn btn-sm btn-primary cep-done">完成</button></div>`;
+        return t;
+      };
+      const closePicker=()=>{
+        const p=document.getElementById("cell-err-picker");
+        if(!p) return;
+        const row=p._row;
+        const wrap=p.parentElement;
+        const cur=[];
+        p.querySelectorAll(".cep-chip.active").forEach(c=>cur.push(c.dataset.cep));
+        const joined=cur.join(",");
+        const id=row?row.dataset.wrongRow:null;
+        p.remove();
+        if(!row||id===null) return;
+        if(id==="NEW"){
+          const proto=self._getProtoRow();
+          proto.errorType=joined;
+          self._setProtoRow(proto);
+        } else {
+          self._saveWrongRow(id,"errorType",joined);
+        }
+        if(wrap){
+          wrap.innerHTML=self._errBadgesFor(joined);
+        }
+      };
+      this._clickHandler=function(e){
+        const bi=e.target.closest('[data-act="batch-import-wrong"]');
+        if(bi){ self._batchImportWrong(); return; }
+        const iw=e.target.closest('[data-act="import-words"]');
+        if(iw){ self._importWrongWords(); return; }
+        const wsort=e.target.closest("[data-wsort]");
+        if(wsort){ self._wordSort=wsort.dataset.wsort; self._rerenderWrongWords(); return; }
+        const addBtn=e.target.closest("[data-add]");
+        if(addBtn){
+          // add wrong: focus the NEW row at bottom
+          const newRow=root.querySelector('tr[data-wrong-row="NEW"]');
+          if(newRow){ const f=newRow.querySelector(".cell-editor"); if(f){ f.focus(); self._autoHeight(f); } }
+          else { window.__protoWrongRow=null; self._rerenderWrong("NEW","question"); }
+          return;
+        }
+        const delSyn=e.target.closest("[data-del-syn]");
+        if(delSyn){ return; }
+        const delWrong=e.target.closest("[data-del-wrong]");
+        if(delWrong){ return; }
+        const saveNewSyn=e.target.closest('[data-act="save-new-syn"]');
+        if(saveNewSyn){
+          const proto=self._getProtoSynRow();
+          const stripTags=s=>(s||"").replace(/<[^>]+>/g,"").trim();
+          if(!stripTags(proto.word1)||!stripTags(proto.word2)){ toast("请填写两个词/短语","error"); return; }
+          const list=Store.data[key].synonyms;
+          const ns={id:Store.uid(),word1:proto.word1,word2:proto.word2,note:proto.note||"",createdAt:Date.now()};
+          list.push(ns); Store.save();
+          window.__protoSynRow=null;
+          toast("已添加同义替换","success");
+          self._rerenderSyn();
+          return;
+        }
+        const insertBelowSyn=e.target.closest('[data-act="insert-below-syn"]');
+        if(insertBelowSyn){ self._insertSynAfter(insertBelowSyn.dataset.insertAfter); return; }
+        const saveNew=e.target.closest('[data-act="save-new"]');
+        if(saveNew){
+          const proto=self._getProtoRow();
+          const stripTags=s=>(s||"").replace(/<[^>]+>/g,"").trim();
+          const hasContent=stripTags(proto.question)||stripTags(proto.analysis)||proto.errorType||stripTags(proto.note);
+          if(!hasContent){ toast("请至少填写一项内容","error"); return; }
+          const list=Store.data[key].wrongQuestions;
+          proto.id=Store.uid(); proto.createdAt=Date.now();
+          list.push(proto);
+          // Auto-extract synonym pairs from 改写 errors (Listening only)
+          if(key==="listening"&&proto.errorType&&proto.errorType.split(",").includes("改写")&&proto.analysis){
+            self._extractSynonyms(proto.analysis, proto.question);
+          }
+          Store.save();
+          window.__protoWrongRow=null;
+          toast("已添加新错题","success");
+          self._rerenderWrong();
+          return;
+        }
+        const insertBelow=e.target.closest('[data-act="insert-below"]');
+        if(insertBelow){
+          self._insertRowAfter(insertBelow.dataset.insertAfter);
+          return;
+        }
+        // Error type picker
+        const errWrap=e.target.closest(".cell-err-wrap");
+        if(errWrap){
+          e.stopPropagation();
+          const row=errWrap.closest("tr[data-wrong-row]"); if(!row) return;
+          const id=row.dataset.wrongRow;
+          let curTypes=[];
+          if(id==="NEW"){ const proto=self._getProtoRow(); curTypes=proto.errorType?proto.errorType.split(",").filter(Boolean):[]; }
+          else { const q=Store.data[key].wrongQuestions.find(x=>x.id===id); if(q) curTypes=q.errorType?q.errorType.split(",").filter(Boolean):[]; }
+          const existing=document.getElementById("cell-err-picker");
+          if(existing) existing.remove();
+          const picker=errPickerEl();
+          picker._row=row;
+          picker.querySelectorAll(".cep-chip").forEach(c=>{
+            if(curTypes.includes(c.dataset.cep)){
+              c.classList.add("active");
+              const cl=ERR_COLORS[c.dataset.cep]; if(cl){ c.style.background=cl.c; c.style.color="#fff"; }
+            }
+          });
+          errWrap.appendChild(picker);
+          picker.querySelectorAll(".cep-chip").forEach(c=>{
+            c.addEventListener("click",function(ev){
+              ev.stopPropagation();
+              const isActive=c.classList.contains("active");
+              if(isActive){ c.classList.remove("active"); c.style.background=""; c.style.color=""; }
+              else {
+                const act=picker.querySelectorAll(".cep-chip.active").length;
+                if(act>=2){ toast("最多选择 2 个错误类型","error"); return; }
+                c.classList.add("active");
+                const cl=ERR_COLORS[c.dataset.cep]; if(cl){ c.style.background=cl.c; c.style.color="#fff"; }
+              }
+            });
+          });
+          picker.querySelector(".cep-clear").addEventListener("click",function(ev){
+            ev.stopPropagation();
+            picker.querySelectorAll(".cep-chip.active").forEach(c=>{ c.classList.remove("active"); c.style.background=""; c.style.color=""; });
+          });
+          picker.querySelector(".cep-done").addEventListener("click",function(ev){ ev.stopPropagation(); closePicker(); });
+          return;
+        }
+        const filter=e.target.closest("[data-filter]");
+        if(filter){ self._wrongFilter=filter.dataset.filter; self._rerenderWrong(); return; }
+        const speak=e.target.closest("[data-speak]");
+        if(speak){ Translator.pronounce(speak.dataset.speak); return; }
+        const collectW=e.target.closest("[data-collect-w]");
+        if(collectW){ collectWord(collectW.dataset.collectW,collectW.dataset.trans||"","",label); return; }
+      };
+      root.addEventListener("click",this._clickHandler);
+      this._dblclickHandler=function(e){
+        const delSyn=e.target.closest("[data-del-syn]");
+        if(delSyn){ self._delSyn(delSyn.dataset.delSyn); return; }
+        const delWrong=e.target.closest("[data-del-wrong]");
+        if(delWrong){ self._delWrong(delWrong.dataset.delWrong); return; }
+        const wwd=e.target.closest("[data-ww-del]");
+        if(wwd){ self._delWrongWord(wwd.dataset.wwDel); return; }
+      };
+      root.addEventListener("dblclick",this._dblclickHandler);
+      // Close picker on outside click
+      this._docClickHandler=function(e){
+        const p=document.getElementById("cell-err-picker");
+        if(!p) return;
+        if(p.contains(e.target)) return;
+        if(e.target.closest(".cell-err-wrap")===p.parentElement) return;
+        closePicker();
+      };
+      document.addEventListener("click",this._docClickHandler);
+      // Blur: save data WITHOUT rebuilding DOM
+      this._blurHandler=function(e){
+        const ta=e.target;
+        if(!ta.classList||!ta.classList.contains("cell-editor")) return;
+        const value=ta.innerHTML;
+        const field=ta.dataset.field;
+        // Synonym rows
+        const synRow=ta.closest("tr[data-syn-row]");
+        if(synRow){
+          const sid=synRow.dataset.synRow;
+          self._saveSynRow(sid, field, value);
+          self._autoHeight(ta);
+          return;
+        }
+        // Wrong question rows
+        const row=ta.closest("tr[data-wrong-row]");
+        if(!row) return;
+        const rowId=row.dataset.wrongRow;
+        if(rowId==="NEW"){
+          const proto=self._getProtoRow();
+          if(field==="question") proto.question=value;
+          else if(field==="analysis") proto.analysis=value;
+          else if(field==="note") proto.note=value;
+          self._setProtoRow(proto);
+        } else {
+          self._saveWrongRow(rowId, field, value);
+        }
+        // Re-adjust height after blur (content may have changed via autofill etc)
+        self._autoHeight(ta);
+      };
+      // Input: auto-resize textarea
+      this._inputHandler=function(e){
+        const ta=e.target;
+        if(ta.classList&&ta.classList.contains("cell-editor")){
+          self._autoHeight(ta);
+        }
+      };
+      // Keydown: Enter to move next, Shift+Enter for newline, Cmd+B to toggle red highlight
+      this._keydownHandler=function(e){
+        const ta=e.target;
+        // Wrong word spelling input handling
+        if(ta.classList&&ta.classList.contains("ww-input")){
+          if(e.key==="Tab"){
+            e.preventDefault();
+            self._speakWord(ta.dataset.word);
+            return;
+          }
+          if(e.key==="Enter"){
+            e.preventDefault();
+            const word=ta.dataset.word;
+            const wEl=ta.closest("tr").querySelector(".ww-word");
+            const isWrong=ta.dataset.wrong==="1";
+            const isCorrect=ta.dataset.correct==="1";
+            if(isWrong){
+              // Wrong -> retry: reset and re-spell same word
+              ta.dataset.wrong="0";
+              ta.value="";
+              ta.style.color="";
+              ta.style.borderColor="";
+              if(wEl) wEl.style.opacity="0";
+              return;
+            }
+            if(isCorrect){
+              // Correct -> jump to next word and clear input
+              ta.dataset.correct="0";
+              ta.value="";
+              ta.style.color="";
+              ta.style.borderColor="";
+              if(wEl) wEl.style.opacity="0";
+              self._wwMoveNext(ta);
+              return;
+            }
+            const val=ta.value.trim();
+            // Show word
+            if(wEl) wEl.style.opacity="1";
+            if(val.toLowerCase()===word.toLowerCase()){
+              // Correct
+              ta.dataset.correct="1";
+              ta.style.color="var(--emerald)";
+              ta.style.borderColor="var(--emerald)";
+              const w=Store.data.listening.wrongWords.find(x=>x.id===ta.dataset.wwid);
+              if(w){ w.correctCount=(w.correctCount||0)+1; Store.save(); }
+              const cEl=ta.closest("tr").querySelector(".ww-count");
+              if(cEl) cEl.textContent=w?w.correctCount:1;
+            } else {
+              // Wrong
+              ta.dataset.wrong="1";
+              ta.style.color="var(--rose)";
+              ta.style.borderColor="var(--rose)";
+            }
+            return;
+          }
+          return;
+        }
+        if(!ta.classList||!ta.classList.contains("cell-editor")) return;
+        if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="b"){
+          e.preventDefault();
+          const sel=window.getSelection();
+          if(sel&&sel.rangeCount>0&&!sel.isCollapsed){
+            const range=sel.getRangeAt(0);
+            // Check if selection is entirely within a <mark>
+            let node=range.commonAncestorContainer;
+            const inMark=node.nodeType===3?(node.parentNode&&node.parentNode.tagName==="MARK"):(node.tagName==="MARK");
+            if(inMark){
+              // Unwrap: replace mark with its children
+              const markEl=node.nodeType===3?node.parentNode:node;
+              const parent=markEl.parentNode;
+              while(markEl.firstChild) parent.insertBefore(markEl.firstChild,markEl);
+              parent.removeChild(markEl);
+            } else {
+              const mark=document.createElement("mark");
+              try{ range.surroundContents(mark); }catch(err){
+                mark.appendChild(range.extractContents()); range.insertNode(mark);
+              }
+            }
+            sel.removeAllRanges(); ta.focus(); self._autoHeight(ta);
+          }
+          return;
+        }
+        if(e.key==="Enter"&&!e.shiftKey){
+          e.preventDefault();
+          ta.blur();
+          // Find next editable element
+          const all=Array.from(root.querySelectorAll("tr[data-wrong-row] .cell-editor, tr[data-syn-row] .cell-editor"));
+          const idx=all.indexOf(ta);
+          if(idx>=0&&idx<all.length-1){
+            const nx=all[idx+1];
+            nx.focus();
+            self._autoHeight(nx);
+          }
+          return;
+        }
+      };
+      root.addEventListener("blur",this._blurHandler,true);
+      root.addEventListener("input",this._inputHandler);
+      root.addEventListener("keydown",this._keydownHandler,true);
+      // Initialize textarea heights for existing content
+      root.querySelectorAll(".cell-editor").forEach(el=>self._autoHeight(el));
+    },
+    unmount(){
+      if(this._root&&this._clickHandler){ this._root.removeEventListener("click",this._clickHandler); }
+      if(this._root&&this._dblclickHandler){ this._root.removeEventListener("dblclick",this._dblclickHandler); }
+      if(this._root&&this._blurHandler){ this._root.removeEventListener("blur",this._blurHandler,true); }
+      if(this._root&&this._inputHandler){ this._root.removeEventListener("input",this._inputHandler); }
+      if(this._root&&this._keydownHandler){ this._root.removeEventListener("keydown",this._keydownHandler,true); }
+      if(this._docClickHandler){ document.removeEventListener("click",this._docClickHandler); }
+      const p=document.getElementById("cell-err-picker"); if(p) p.remove();
+      this._root=null; this._clickHandler=null; this._dblclickHandler=null; this._blurHandler=null; this._inputHandler=null; this._keydownHandler=null; this._docClickHandler=null;
+    },
+    _renderSyn(list){
+      const renderContent=s=>{ if(!s) return ""; const str=String(s); return /<[a-z][^>]*>/i.test(str)&&/&lt;|&gt;|&amp;/.test(str)===false ? str : esc(str).replace(/\n/g,"<br>"); };
+      const renderRow=(s,isNew)=>{
+        const sid=isNew?'NEW':s.id;
+        return `<tr data-syn-row="${sid}"${isNew?' class="is-new"':''}>
+          <td class="cell-word"><div class="cell-editor" contenteditable="true" data-field="word1" data-syn="${sid}">${renderContent(s.word1)}</div></td>
+          <td style="text-align:center;color:var(--primary);font-weight:700">⇄</td>
+          <td class="cell-word"><div class="cell-editor" contenteditable="true" data-field="word2" data-syn="${sid}">${renderContent(s.word2)}</div></td>
+          <td class="cell-trans"><div class="cell-editor" contenteditable="true" data-field="note" data-syn="${sid}">${renderContent(s.note||"")}</div></td>
+          <td class="cell-actions">
+            ${isNew?'<button class="btn-icon" title="保存新行" data-act="save-new-syn">💾</button>':`<button class="btn-icon" title="在下方插入一行" data-act="insert-below-syn" data-insert-after="${s.id}">➕</button>`}
+            <button class="btn-icon" data-speak="${esc(s.word1)}" title="发音">🔊</button>
+            <button class="btn-icon" data-speak="${esc(s.word2)}" title="发音">🔊</button>
+            <button class="btn-icon" data-del-syn="${sid}" title="双击删除">🗑️</button>
+          </td>
+        </tr>`;
+      };
+      const newProto=this._getProtoSynRow();
+      return `<table class="data-table"><thead><tr><th>词/短语 1</th><th></th><th>词/短语 2</th><th>备注</th><th style="text-align:right">操作</th></tr></thead><tbody>`+
+        list.map(s=>renderRow(s,false)).join("")+renderRow(newProto,true)+`</tbody></table>`;
+    },
+    _rerenderSyn(preserveId, preserveField){
+      const panel=document.querySelector('[data-panel="syn"]');
+      if(!panel) return;
+      const sy=window.scrollY;
+      panel.innerHTML=this._renderSyn(Store.data[key].synonyms);
+      window.scrollTo(0,sy);
+      const self=this;
+      panel.querySelectorAll(".cell-editor").forEach(el=>self._autoHeight(el));
+      if(preserveId){
+        const row=panel.querySelector(`[data-syn-row="${preserveId}"]`);
+        if(row&&preserveField){
+          const el=row.querySelector(`[data-field="${preserveField}"]`);
+          if(el){ el.focus(); self._autoHeight(el); }
+        }
+      }
+    },
+    _getProtoSynRow(){
+      const p=window.__protoSynRow=window.__protoSynRow||{word1:"",word2:"",note:""};
+      return p;
+    },
+    _setProtoSynRow(q){ window.__protoSynRow=q; },
+    _saveSynRow(id, field, value){
+      const list=Store.data[key].synonyms;
+      if(id==="NEW"){ const p=this._getProtoSynRow(); p[field]=value; this._setProtoSynRow(p); return; }
+      const s=list.find(x=>x.id===id); if(!s) return;
+      s[field]=value; Store.save();
+    },
+    _insertSynAfter(afterId){
+      const list=Store.data[key].synonyms;
+      const ns={id:Store.uid(),word1:"",word2:"",note:"",createdAt:Date.now()};
+      if(afterId){ const idx=list.findIndex(s=>s.id===afterId); if(idx>=0) list.splice(idx+1,0,ns); else list.push(ns); }
+      else list.push(ns);
+      Store.save(); this._rerenderSyn(ns.id,"word1");
+    },
+    _delSyn(id){
+      if(id==="NEW"){ window.__protoSynRow=null; this._rerenderSyn(); return; }
+      const l=Store.data[key].synonyms; const i=l.findIndex(s=>s.id===id); if(i>=0){ l.splice(i,1); Store.save(); this._rerenderSyn(); }
+    },
+    _errBadgesFor(et){
+      const ts=et?et.split(",").filter(Boolean):[];
+      if(!ts.length) return '<span class="err-chip-placeholder">点击选择</span>';
+      return ts.map(t=>{ const cl=ERR_COLORS[t]; return cl?`<span class="err-chip active" style="background:${cl.c};color:#fff;border-color:transparent">${t}</span>`:`<span class="err-chip active">${t}</span>`; }).join("");
+    },
+    _renderWrong(list){
+      const filtered=this._wrongFilter?list.filter(q=>(q.errorType?q.errorType.split(","):[]).includes(this._wrongFilter)):list;
+      const isL=key==="listening";
+      const renderRow=(q,isNew)=>{
+        const qStyle = isL
+          ? 'style="font-weight:400"'
+          : (q.question ? 'style="font-weight:600"' : '');
+        const aStyle = 'style="font-weight:600"';
+        const noteStyle = (!isL&&q&&q.note) ? 'style="font-weight:600"' : '';
+        let rowBody="";
+        const renderContent=s=>{ if(!s) return ""; const str=String(s); return /<[a-z][^>]*>/i.test(str)&&/&lt;|&gt;|&amp;/.test(str)===false ? str : esc(str).replace(/\n/g,"<br>"); };
+        if(isL){
+          rowBody = `
+            <td class="cell-q">
+              <div class="cell-editor" contenteditable="true" data-field="question" data-placeholder="例：C5-T2-S1 Q1" ${qStyle}>${renderContent(q.question)}</div>
+            </td>
+            <td>
+              <div class="cell-err-wrap" data-field="errorType">${this._errBadgesFor(q.errorType)}</div>
+            </td>
+            <td>
+              <div class="cell-editor" contenteditable="true" data-field="analysis" ${aStyle}>${renderContent(q.analysis||'')}</div>
+            </td>`;
+        } else {
+          rowBody = `
+            <td>
+              <div class="cell-err-wrap" data-field="errorType">${this._errBadgesFor(q.errorType)}</div>
+            </td>
+            <td class="cell-q">
+              <div class="cell-editor" contenteditable="true" data-field="question" ${qStyle}>${renderContent(q.question)}</div>
+            </td>
+            <td>
+              <div class="cell-editor" contenteditable="true" data-field="analysis" ${aStyle}>${renderContent(q.analysis||'')}</div>
+            </td>
+            <td>
+              <div class="cell-editor" contenteditable="true" data-field="note" ${noteStyle}>${renderContent(q.note||'')}</div>
+            </td>`;
+        }
+        return `<tr data-wrong-row="${isNew?'NEW':q.id}"${isNew?' class="is-new"':''}>${rowBody}
+          <td class="cell-actions">
+            ${isNew?'<button class="btn-icon" title="保存新行" data-act="save-new">💾</button>':`<button class="btn-icon" title="在下方插入一行" data-act="insert-below" data-insert-after="${q.id}">➕</button>`}
+            <button class="btn-icon" data-del-wrong="${isNew?'NEW':q.id}" title="删除">🗑️</button>
+          </td>
+        </tr>`;
+      };
+      const newProto = this._getProtoRow();
+      const thead = isL
+        ? '<table class="data-table"><thead><tr><th style="width:15%">卷子</th><th style="width:18%">类型</th><th>具体总结</th><th style="width:70px;text-align:right">操作</th></tr></thead><tbody>'
+        : '<table class="data-table"><thead><tr><th style="width:16%">类型</th><th style="width:27%">原文</th><th style="width:27%">题目</th><th>备注</th><th style="width:70px;text-align:right">操作</th></tr></thead><tbody>';
+      return thead
+        + filtered.map(q=>renderRow(q,false)).join("")
+        + renderRow(newProto, true)
+        + '</tbody></table>';
+    },
+    _rerenderWrong(preserveId, preserveField){
+      const panel=document.querySelector('[data-panel="wrong"]');
+      if(!panel) return;
+      const sy=window.scrollY;
+      panel.innerHTML=`<div class="wrong-toolbar"><div class="err-filter-grid">${this._renderFilterChips()}</div><button class="btn btn-outline btn-sm" data-act="batch-import-wrong" style="margin-left:auto">批量导入</button></div>${this._renderWrong(Store.data[key].wrongQuestions)}`;
+      window.scrollTo(0,sy);
+      const self=this;
+      panel.querySelectorAll(".cell-editor").forEach(el=>self._autoHeight(el));
+      if(preserveId){
+        const row=panel.querySelector(`[data-wrong-row="${preserveId}"]`);
+        if(row&&preserveField){
+          const el=row.querySelector(`[data-field="${preserveField}"]`);
+          if(el){ el.focus(); self._autoHeight(el); }
+        }
+      }
+    },
+    _autoHeight(el){
+      el.style.height='auto';
+      el.style.height=Math.max(24,el.scrollHeight)+'px';
+    },
+    _saveWrongRow(id, field, rawValue){
+      const list=Store.data[key].wrongQuestions;
+      let q, idx=-1, isNew=false;
+      if(id==="NEW"){
+        isNew=true;
+        q=this._getProtoRow();
+      } else {
+        idx=list.findIndex(x=>x.id===id);
+        if(idx<0) return null;
+        q=list[idx];
+      }
+      if(field==="errorType"){ q.errorType = rawValue||""; }
+      else if(field==="question"){ q.question=rawValue; }
+      else if(field==="analysis"){ q.analysis=rawValue; }
+      else if(field==="note"){ q.note=rawValue; }
+      if(isNew){
+        this._setProtoRow(q);
+        return {savedAsNew:false, wasEmpty:true};
+      }
+      // Auto-extract synonym pairs from 改写 errors (Listening only)
+      if(key==="listening"&&q.errorType&&q.errorType.split(",").includes("改写")&&q.analysis){
+        this._extractSynonyms(q.analysis, q.question);
+      }
+      // Auto-extract wrong words from 拼写 errors (Listening only)
+      if(key==="listening"&&q.errorType&&q.errorType.split(",").includes("拼写")&&q.analysis){
+        this._extractWrongWords(q.analysis);
+      }
+      Store.save();
+      return {savedAsNew:false, wasEmpty:false};
+    },
+    _extractSynonyms(html, source){
+      // Strip HTML tags to get plain text
+      const text=String(html).replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+      const srcText=source?String(source).replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").trim():"";
+      // Match patterns like "word1 = word2 translation" where word1/word2 are English
+      const re=/([A-Za-z][A-Za-z'\-]+(?:\s+[A-Za-z][A-Za-z'\-]+){0,2})\s*=\s*([A-Za-z][A-Za-z'\-]+(?:\s+[A-Za-z][A-Za-z'\-]+){0,2})/g;
+      const syns=Store.data[key].synonyms;
+      let added=0;
+      let m;
+      while((m=re.exec(text))!==null){
+        const w1=m[1].trim(), w2=m[2].trim();
+        // Avoid duplicates (either direction)
+        const dup=syns.find(s=>(s.word1.toLowerCase()===w1.toLowerCase()&&s.word2.toLowerCase()===w2.toLowerCase())||(s.word1.toLowerCase()===w2.toLowerCase()&&s.word2.toLowerCase()===w1.toLowerCase()));
+        if(!dup){ syns.push({id:Store.uid(),word1:w1,word2:w2,note:srcText||"自动提取",createdAt:Date.now()}); added++; }
+      }
+      if(added>0) toast(`已自动提取 ${added} 组同义替换`,"success");
+    },
+    _extractWrongWords(html){
+      const text=String(html).replace(/<[^>]+>/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+      // Extract the first English word before Chinese chars or parenthesis (e.g. "travel（写错trouble）" → "travel")
+      const m=text.match(/^([A-Za-z][A-Za-z'\-]*(?:\s+[A-Za-z][A-Za-z'\-]*){0,2})/);
+      if(!m) return;
+      const word=m[1].trim();
+      if(word.length<2) return;
+      const list=Store.data.listening.wrongWords;
+      if(list.find(w=>w.word.toLowerCase()===word.toLowerCase())) return;
+      list.push({id:Store.uid(),word:word,correctCount:0,createdAt:Date.now()});
+    },
+    _renderWrongWords(){
+      const list=Store.data.listening.wrongWords;
+      if(!list.length) return `<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">暂无错词。听力「拼写」类错题保存时会自动添加错词。</div></div>`;
+      const sort=this._wordSort||"alpha";
+      const sorted=list.slice().sort((a,b)=>{
+        if(sort==="alpha") return a.word.toLowerCase().localeCompare(b.word.toLowerCase());
+        if(sort==="count") return a.correctCount-b.correctCount;
+        return a.createdAt-b.createdAt;
+      });
+      const sortBtn=(val,label)=>{
+        const active=sort===val;
+        return `<span class="err-chip ${active?"active":""}" data-wsort="${val}" style="${active?"background:var(--primary);color:#fff;border-color:transparent":""}">${label}</span>`;
+      };
+      return `<div class="wrong-toolbar"><div class="err-filter-grid">
+        ${sortBtn("alpha","首字母排序")}${sortBtn("count","正确次数排序")}${sortBtn("time","加入顺序排序")}
+      </div><button class="btn btn-outline btn-sm" data-act="import-words" style="margin-left:auto">导入</button></div>
+      <table class="data-table"><thead><tr><th style="min-width:160px">错词</th><th style="min-width:200px">拼写练习（Tab 听发音）</th><th style="width:100px">正确次数</th><th style="width:60px;text-align:right">操作</th></tr></thead><tbody>
+      ${sorted.map(w=>`<tr data-wwid="${w.id}">
+        <td><span class="ww-word" style="font-weight:600;font-size:15px;opacity:1;transition:opacity .2s">${esc(w.word)}</span></td>
+        <td><input type="text" class="ww-input" data-wwid="${w.id}" data-word="${esc(w.word)}" style="width:100%;font-size:15px;padding:7px 12px;border:1px solid var(--border-2);border-radius:var(--radius-sm);background:var(--surface-2)" autocomplete="off" spellcheck="false" onfocus="this.closest('tr').querySelector('.ww-word').style.opacity='0'" onblur="if(!this.value.trim()){this.closest('tr').querySelector('.ww-word').style.opacity='1'}"></td>
+        <td><span class="badge ww-count" style="background:var(--emerald-light);color:var(--emerald)">${w.correctCount}</span></td>
+        <td style="text-align:right"><span class="btn-icon" data-ww-del="${w.id}" title="双击删除">🗑️</span></td>
+      </tr>`).join("")}
+      </tbody></table>`;
+    },
+    _importWrongWords(){
+      showModal("批量导入错词",`
+        <div class="field"><label>粘贴单词（每行一个）</label><textarea id="f-words" rows="12" style="font-size:14px;line-height:1.8" placeholder="February&#10;Wednesday&#10;Thursday&#10;August"></textarea></div>
+        <div style="font-size:12px;color:var(--text-3);line-height:1.8;padding:10px 14px;background:var(--surface-2);border-radius:4px">格式说明：每行一个单词，支持逗号/空格分隔自动拆分，重复单词自动跳过</div>
+      `,body=>{
+        const raw=body.querySelector("#f-words").value.trim();
+        if(!raw){ toast("请粘贴内容","error"); return; }
+        const words=raw.split(/[\n,，;；\t]+/).map(s=>s.trim()).filter(Boolean);
+        if(!words.length){ toast("未解析到单词","error"); return; }
+        const list=Store.data.listening.wrongWords;
+        const existing=new Set(list.map(w=>w.word.toLowerCase()));
+        let added=0;
+        words.forEach(word=>{
+          if(!existing.has(word.toLowerCase())){
+            list.push({id:Store.uid(),word,correctCount:0,createdAt:Date.now()});
+            existing.add(word.toLowerCase());
+            added++;
+          }
+        });
+        Store.save(); hideModal();
+        toast(added?`已导入 ${added} 个错词${added<words.length?`，跳过重复 ${words.length-added} 个`:""}`:"全部为重复单词，未导入","success");
+        this._rerenderWrongWords();
+      },{wide:true});
+    },
+    _rerenderWrongWords(){
+      const panel=this._root?.querySelector('[data-panel="words"]');
+      if(panel){ panel.innerHTML=this._renderWrongWords(); }
+    },
+    _delWrongWord(id){
+      const list=Store.data.listening.wrongWords;
+      const i=list.findIndex(w=>w.id===id);
+      if(i>=0){ list.splice(i,1); Store.save(); this._rerenderWrongWords(); }
+    },
+    _speakWord(word){
+      if("speechSynthesis" in window){
+        const u=new SpeechSynthesisUtterance(word); u.lang="en-US"; u.rate=0.8; speechSynthesis.speak(u);
+      }
+    },
+    _wwMoveNext(input){
+      const all=Array.from(this._root.querySelectorAll(".ww-input"));
+      const idx=all.indexOf(input);
+      if(idx>=0&&idx<all.length-1){
+        const next=all[idx+1];
+        next.focus();
+        this._speakWord(next.dataset.word);
+      }
+    },
+    _getProtoRow(){
+      const p = window.__protoWrongRow = window.__protoWrongRow || {errorType:"",question:"",analysis:"",note:""};
+      return p;
+    },
+    _setProtoRow(q){
+      window.__protoWrongRow = q;
+    },
+    _insertRowAfter(afterId){
+      const list=Store.data[key].wrongQuestions;
+      const newQ={id:Store.uid(),errorType:"",question:"",analysis:"",note:"",createdAt:Date.now()};
+      if(afterId){
+        const idx=list.findIndex(q=>q.id===afterId);
+        if(idx>=0) list.splice(idx+1,0,newQ);
+        else list.push(newQ);
+      } else { list.push(newQ); }
+      Store.save();
+      this._rerenderWrong(newQ.id,"question");
+    },
+    _delWrong(id){ const self=this; if(id==="NEW"){ window.__protoWrongRow=null; self._rerenderWrong(); return; } const l=Store.data[key].wrongQuestions; const i=l.findIndex(q=>q.id===id); if(i>=0){ l.splice(i,1); Store.save(); self._rerenderWrong(); } },
+    _batchImportWrong(){
+      const isL=key==="listening";
+      const errTypes=isL?LISTENING_ERRORS:READING_ERRORS;
+      const placeholder=isL
+        ?"C12-T7-S1\t1\t词音\ttravel（写错trouble）\nC12-T7-S1\t2\t定位\thistory，预判介词on\nC12-T7-S1\t4\t单复数\tteenagers"
+        :"同义词\tvoluntary work\tunpaid\t无偿劳动\n解释/描述型替换\tdry foods\tFoods low in moisture\t低水分食品";
+      const formatDesc=isL
+        ?"格式说明（每行一条，Tab 分隔）：<br>• 第1列：卷子（如 C12-T7-S1）<br>• 第2列：题号<br>• 第3列：错题类型（${ET}）<br>• 第4列：具体总结<br>• 从左到右依次是：卷子、题号、错题类型、具体总结"
+        :"格式说明（每行一条，Tab 分隔）：<br>• 第1列：错题类型（${ET}）<br>• 第2列：原文<br>• 第3列：题目<br>• 第4列：备注<br>• 从左到右依次是：错题类型、原文、题目、备注";
+      showModal("批量导入错题",`
+        <div class="field"><label>粘贴错题内容（从飞书表格复制，Tab 分隔）</label><textarea id="f-batch" rows="14" style="font-size:13px;line-height:1.7;font-family:monospace" placeholder="${esc(placeholder)}"></textarea></div>
+        <div style="font-size:12px;color:var(--text-3);line-height:1.8;padding:10px 14px;background:var(--surface-2);border-radius:8px">${formatDesc.replace("${ET}",errTypes.join(" / "))}</div>
+      `,body=>{
+        const raw=body.querySelector("#f-batch").value.trim();
+        if(!raw){ toast("请粘贴内容","error"); return; }
+        const lines=raw.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+        if(!lines.length){ toast("未解析到内容","error"); return; }
+        const list=Store.data[key].wrongQuestions;
+        let added=0, skipped=0;
+        // 解析错题类型：支持单选或多选（用 / 、 + ， 等分隔，最多2个）
+        const parseErrTypes=(raw)=>{
+          if(!raw) return null;
+          const tokens=raw.split(/[/、+，,]/).map(t=>t.trim()).filter(Boolean);
+          const valid=tokens.filter(t=>errTypes.includes(t));
+          if(!valid.length) return null;
+          return valid.slice(0,2).join(",");
+        };
+        lines.forEach(line=>{
+          const parts=line.split(/\t/).map(p=>p.trim());
+          if(parts.length<4){ skipped++; return; }
+          if(isL){
+            const [paper,qNum,errTypeRaw,analysis]=parts;
+            const errType=parseErrTypes(errTypeRaw);
+            if(!errType){ skipped++; return; }
+            const question=paper&&qNum?`${paper} Q${qNum}`:paper||"";
+            list.push({id:Store.uid(),question,errorType:errType,analysis:analysis||"",note:"",createdAt:Date.now()});
+            if(errType.split(",").includes("改写")&&analysis){ this._extractSynonyms(analysis, question); }
+            if(errType.split(",").includes("拼写")&&analysis){ this._extractWrongWords(analysis); }
+          } else {
+            const [errTypeRaw,question,analysis,note]=parts;
+            const errType=parseErrTypes(errTypeRaw);
+            if(!errType){ skipped++; return; }
+            list.push({id:Store.uid(),question:question||"",errorType:errType,analysis:analysis||"",note:note||"",createdAt:Date.now()});
+            // 同义词 → 自动加入同义替换
+            if(errType.split(",").includes("同义词")&&question&&analysis){
+              const syns=Store.data[key].synonyms;
+              const dup=syns.find(s=>(s.word1.toLowerCase()===question.toLowerCase()&&s.word2.toLowerCase()===analysis.toLowerCase())||(s.word1.toLowerCase()===analysis.toLowerCase()&&s.word2.toLowerCase()===question.toLowerCase()));
+              if(!dup){ syns.push({id:Store.uid(),word1:question,word2:analysis,note:note||"自动提取",createdAt:Date.now()}); }
+            }
+          }
+          added++;
+        });
+        Store.save(); hideModal();
+        toast(`已导入 ${added} 条错题${skipped?`（跳过 ${skipped} 条格式不符）`:""}`,"success");
+        this._rerenderWrong();
+      },{wide:true});
+    },
+  };
+}
+const Listening=createPracticeModule("listening","听力",LISTENING_ERRORS);
+const Reading=createPracticeModule("reading","阅读",READING_ERRORS);
+
+/* ============================================================ SPEAKING */
+const SPEAK_TAG_GROUPS=[
+  {name:"type",label:"题型",tags:["必考题","新题","保留题"]},
+  {name:"cat",label:"分类",tags:["事物类","事件类","人物类","地点类"]},
+];
+const Speaking={
+  _recorder:null,_recChunks:[],_recStream:null,_recordCtx:{tid:null,qid:null},
+  _filters:{type:"",cat:""},
+  _collapsed:new Set(),
+  _activeTab:"p1",
+  _scrollSpy:null,
+  _dragId:null,_dragPart:null,
+  _initState(){
+    if(!this._filters||this._filters.type instanceof Set) this._filters={type:"",cat:""};
+    if(typeof this._filters.type!=="string") this._filters.type="";
+    if(typeof this._filters.cat!=="string") this._filters.cat="";
+    if(!this._collapsed) this._collapsed=new Set();
+    if(!this._activeTab) this._activeTab="p1";
+  },
+  _normalizeTopics(s){
+    let changed=false;
+    [...s.part1.topics,...s.part23.topics].forEach(t=>{
+      if(!Array.isArray(t.tags)){ t.tags=[]; changed=true; }
+      if(t._cat&&!t.tags.includes(t._cat)){ t.tags.push(t._cat); changed=true; }
+      // 单选约束：每组最多保留一个标签
+      for(const g of SPEAK_TAG_GROUPS){
+        const inG=t.tags.filter(tg=>g.tags.includes(tg));
+        if(inG.length>1){ t.tags=t.tags.filter(tg=>tg!==inG[0]); changed=true; }
+      }
+    });
+    if(changed) Store.save();
+  },
+  _topicMatchesFilters(t){
+    const tags=t.tags||[];
+    for(const g of SPEAK_TAG_GROUPS){
+      const sel=this._filters[g.name];
+      if(!sel) continue;
+      if(!tags.includes(sel)) return false;
+    }
+    return true;
+  },
+  render(){
+    const s=Store.data.speaking;
+    this._normalizeTopics(s);
+    return `<h1 class="page-title">口语练习</h1>
+      <div class="tabs">
+        <button class="tab ${this._activeTab==="p1"?"active":""}" data-tab="p1">Part 1 (${s.part1.topics.reduce((a,t)=>a+t.questions.length,0)})</button>
+        <button class="tab ${this._activeTab==="p23"?"active":""}" data-tab="p23">Part 2 & 3 (${s.part23.topics.length})</button>
+      </div>
+      <div class="speak-layout">${this._renderLayoutInner()}</div>`;
+  },
+  _renderLayoutInner(){
+    const s=Store.data.speaking;
+    const p1V=s.part1.topics.filter(t=>this._topicMatchesFilters(t));
+    const p23V=s.part23.topics.filter(t=>this._topicMatchesFilters(t));
+    const countBar=(vis,all)=>vis.length<all.length?`<span style="font-size:12px;color:var(--text-3)">显示 ${vis.length}/${all.length} 个话题</span>`:"";
+    return `<aside class="speak-nav" id="speak-nav">${this._renderNav()}</aside>
+      <div class="speak-main">
+        ${this._renderFilters()}
+        <div class="tab-panel ${this._activeTab==="p23"?"hidden":""}" data-panel="p1">
+          <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="add-topic-p1">+ 添加话题</button><button class="btn btn-outline btn-sm" data-act="batch-import-p1">批量导入</button>${countBar(p1V,s.part1.topics)}</div>
+          ${this._renderP1(p1V)}
+        </div>
+        <div class="tab-panel ${this._activeTab==="p1"?"hidden":""}" data-panel="p23">
+          <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="add-topic-p23">+ 添加话题</button>${countBar(p23V,s.part23.topics)}</div>
+          ${this._renderP23(p23V)}
+        </div>
+      </div>`;
+  },
+  _renderNav(){
+    const tab=this._activeTab;
+    const all=tab==="p1"?Store.data.speaking.part1.topics:Store.data.speaking.part23.topics;
+    const topics=all.filter(t=>this._topicMatchesFilters(t));
+    const label=tab==="p1"?"Part 1":"Part 2 & 3";
+    const collapseBtn=`<button class="btn btn-outline btn-xs" data-act="collapse-all" title="折叠/展开所有话题" style="font-size:11px;padding:3px 8px;width:100%;justify-content:center;margin-bottom:8px">⊟ 全部折叠</button>`;
+    if(!topics.length) return `<div class="speak-nav-title">${label}</div>${collapseBtn}<div style="font-size:12px;color:var(--text-3);padding:6px 8px">无匹配话题</div>`;
+    return `<div class="speak-nav-title">${label} · ${topics.length}</div>${collapseBtn}`+topics.map(t=>
+      `<button class="speak-nav-item" data-jump-topic="${t.id}" title="${esc(t.name)}">${esc(t.name)}</button>`
+    ).join("");
+  },
+  _renderFilters(){
+    return `<div class="speak-filters">`+SPEAK_TAG_GROUPS.map(g=>`
+      <div class="filter-group"><span class="filter-label">${g.label}</span>`+
+      g.tags.map(tag=>{
+        const active=this._filters[g.name]===tag;
+        return `<button class="filter-chip ${active?"active":""}" data-filter-group="${g.name}" data-filter-tag="${tag}">${tag}</button>`;
+      }).join("")+
+      (this._filters[g.name]?`<span class="filter-clear" data-filter-clear="${g.name}">清除</span>`:"")+
+      `</div>`).join("")+`</div>`;
+  },
+  _renderTopicTags(t){
+    const tags=t.tags||[];
+    if(!tags.length) return "";
+    return `<span class="topic-tags">`+tags.map(tg=>{
+      const g=SPEAK_TAG_GROUPS.find(g=>g.tags.includes(tg));
+      const cls=g&&g.name==="type"?"g-type":"g-cat";
+      return `<span class="topic-tag-badge ${cls}">${esc(tg)}</span>`;
+    }).join("")+`</span>`;
+  },
+  _renderTagEditor(tags){
+    tags=tags||[];
+    return `<div class="field"><label>话题标签（每组最多选一个）</label><div class="tag-editor">`+
+      SPEAK_TAG_GROUPS.map(g=>`<div class="tag-editor-group"><span class="tag-editor-label">${g.label}</span>`+
+        g.tags.map(tg=>`<button type="button" class="tag-check ${tags.includes(tg)?"active":""}" data-tag="${tg}" data-group="${g.name}">${tg}</button>`).join("")+
+      `</div>`).join("")+`</div></div>`;
+  },
+  _collectTags(body){ return [...body.querySelectorAll(".tag-check.active")].map(i=>i.dataset.tag); },
+  _bindTagEditor(root){
+    root.querySelectorAll(".tag-check").forEach(c=>{
+      c.addEventListener("click",()=>{
+        const g=c.dataset.group;
+        if(c.classList.contains("active")){ c.classList.remove("active"); }
+        else{ root.querySelectorAll(`.tag-check[data-group="${g}"]`).forEach(x=>x.classList.remove("active")); c.classList.add("active"); }
+      });
+    });
+  },
+  mount(root){
+    this._initState();
+    initTabs(root);
+    this._bindTabs(root);
+    this._bindAll(root);
+    this._initScrollSpy(root);
+    // 窗口尺寸变化时重新定位悬浮预览（边缘检测）
+    const self=this;
+    if(!this._onResize){
+      this._onResize=()=>{
+        const c=document.getElementById("content");
+        if(!c||c.dataset.page!=="speaking") return;
+        self._positionTopicPreviews(c);
+      };
+      window.addEventListener("resize", this._onResize);
+    }
+  },
+  _bindTabs(root){
+    root.querySelectorAll(".tab").forEach(tab=>{
+      tab.addEventListener("click",()=>{
+        this._activeTab=tab.dataset.tab;
+        this._updateNav(root);
+      });
+    });
+  },
+  _updateNav(root){
+    const el=root.querySelector("#speak-nav");
+    if(el){ el.innerHTML=this._renderNav(); this._bindNav(root); }
+  },
+  _bindNav(root){
+    root.querySelectorAll("[data-jump-topic]").forEach(b=>{
+      b.addEventListener("click",()=>{
+        const id=b.dataset.jumpTopic;
+        const card=root.querySelector(`[data-drag-card="${id}"]`);
+        if(!card) return;
+        card.scrollIntoView({behavior:"auto",block:"start"});
+        root.querySelectorAll(".speak-nav-item").forEach(n=>n.classList.remove("active"));
+        b.classList.add("active");
+        card.classList.remove("flash"); void card.offsetWidth; card.classList.add("flash");
+        card.addEventListener("animationend",()=>card.classList.remove("flash"),{once:true});
+      });
+    });
+  },
+  _bindFilters(root){
+    root.querySelectorAll("[data-filter-tag]").forEach(c=>{
+      c.addEventListener("click",()=>{
+        const g=c.dataset.filterGroup,tag=c.dataset.filterTag;
+        this._filters[g]=(this._filters[g]===tag)?"":tag;
+        this._rerender(root);
+      });
+    });
+    root.querySelectorAll("[data-filter-clear]").forEach(c=>{
+      c.addEventListener("click",()=>{
+        this._filters[c.dataset.filterClear]="";
+        this._rerender(root);
+      });
+    });
+  },
+  _bindDrag(root){
+    root.querySelectorAll("[data-drag-handle]").forEach(h=>{
+      const card=h.closest(".topic-card");
+      h.addEventListener("mousedown",e=>{ e.stopPropagation(); card.setAttribute("draggable","true"); });
+      h.addEventListener("mouseup",()=>card.removeAttribute("draggable"));
+      h.addEventListener("click",e=>e.stopPropagation());
+    });
+    root.querySelectorAll("[data-drag-card]").forEach(card=>{
+      card.addEventListener("dragstart",e=>this._dragStart(e,card));
+      card.addEventListener("dragover",e=>this._dragOver(e,card));
+      card.addEventListener("dragleave",e=>this._dragLeave(e,card));
+      card.addEventListener("drop",e=>this._drop(e,card,root));
+      card.addEventListener("dragend",e=>this._dragEnd(e,card,root));
+    });
+  },
+  _dragStart(e,card){ this._dragId=card.dataset.dragCard; this._dragPart=card.dataset.dragPart; card.classList.add("dragging"); e.dataTransfer.effectAllowed="move"; try{e.dataTransfer.setData("text/plain",this._dragId);}catch(_){} },
+  _dragOver(e,card){ if(card.dataset.dragPart!==this._dragPart||!this._dragId) return; e.preventDefault(); const r=card.getBoundingClientRect(); const before=(e.clientY-r.top)<r.height/2; card.classList.toggle("drop-before",before); card.classList.toggle("drop-after",!before); e.dataTransfer.dropEffect="move"; },
+  _dragLeave(e,card){ card.classList.remove("drop-before","drop-after"); },
+  _drop(e,card,root){
+    e.preventDefault(); card.classList.remove("drop-before","drop-after");
+    if(!this._dragId||card.dataset.dragPart!==this._dragPart) return;
+    const r=card.getBoundingClientRect(); const before=(e.clientY-r.top)<r.height/2;
+    const part=this._dragPart;
+    const arr=part==="p1"?Store.data.speaking.part1.topics:Store.data.speaking.part23.topics;
+    const fromIdx=arr.findIndex(t=>t.id===this._dragId);
+    let toIdx=arr.findIndex(t=>t.id===card.dataset.dragCard);
+    if(fromIdx<0||toIdx<0||fromIdx===toIdx) return;
+    const [moved]=arr.splice(fromIdx,1);
+    if(fromIdx<toIdx) toIdx--;
+    if(!before) toIdx++;
+    arr.splice(toIdx,0,moved);
+    Store.save();
+    this._dragId=null; this._dragPart=null;
+    this._rerender(root);
+  },
+  _dragEnd(e,card,root){
+    card.classList.remove("dragging"); card.removeAttribute("draggable");
+    root.querySelectorAll(".topic-card").forEach(c=>c.classList.remove("drop-before","drop-after"));
+    this._dragId=null; this._dragPart=null;
+  },
+  _initScrollSpy(root){
+    if(this._scrollSpy){ this._scrollSpy.disconnect(); this._scrollSpy=null; }
+    const cards=root.querySelectorAll("[data-drag-card]");
+    if(!cards.length) return;
+    this._scrollSpy=new IntersectionObserver(entries=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting){
+          const id=en.target.dataset.dragCard;
+          root.querySelectorAll("[data-jump-topic]").forEach(n=>n.classList.toggle("active",n.dataset.jumpTopic===id));
+        }
+      });
+    },{rootMargin:"-90px 0px -70% 0px",threshold:0});
+    cards.forEach(c=>this._scrollSpy.observe(c));
+  },
+  _rerender(root){
+    const layout=root.querySelector(".speak-layout");
+    if(!layout){ Router.go("speaking",true); return; }
+    const y=window.scrollY;
+    const navScroll=root.querySelector("#speak-nav")?.scrollTop||0;
+    layout.innerHTML=this._renderLayoutInner();
+    if(this._scrollSpy){ this._scrollSpy.disconnect(); this._scrollSpy=null; }
+    this._bindAll(root);
+    this._initScrollSpy(root);
+    window.scrollTo(0,y);
+    const nav=root.querySelector("#speak-nav"); if(nav) nav.scrollTop=navScroll;
+  },
+  _toggleCollapseAll(root,btn){
+    const panel=root.querySelector(`.tab-panel[data-panel="${this._activeTab}"]`);
+    const cards=panel?panel.querySelectorAll("[data-drag-card]"):[];
+    if(!cards.length) return;
+    const allCollapsed=[...cards].every(c=>this._collapsed.has(c.dataset.dragCard));
+    cards.forEach(c=>{
+      const id=c.dataset.dragCard;
+      const body=c.querySelector(".topic-body");
+      const chev=c.querySelector(".topic-chevron");
+      if(allCollapsed){ this._collapsed.delete(id); body.classList.remove("hidden"); chev.classList.add("open"); }
+      else { this._collapsed.add(id); body.classList.add("hidden"); chev.classList.remove("open"); }
+    });
+    // 更新所有「全部折叠」按钮文案（导航栏有1个，若在tab切换后重新渲染也会重置）
+    const label=allCollapsed?"⊟ 全部折叠":"⊞ 全部展开";
+    root.querySelectorAll('[data-act="collapse-all"]').forEach(b=>{ b.textContent=label; b.title=allCollapsed?"折叠/展开所有话题":"折叠/展开所有话题"; });
+  },
+  _bindAll(root){
+    const a1=root.querySelector('[data-act="add-topic-p1"]'); if(a1) a1.addEventListener("click",()=>this._editTopicP1(null));
+    const bi1=root.querySelector('[data-act="batch-import-p1"]'); if(bi1) bi1.addEventListener("click",()=>this._batchImportP1());
+    const a23=root.querySelector('[data-act="add-topic-p23"]'); if(a23) a23.addEventListener("click",()=>this._editTopicP23(null));
+    root.querySelectorAll('[data-act="collapse-all"]').forEach(b=>b.addEventListener("click",()=>this._toggleCollapseAll(root,b)));
+    this._bindNav(root);
+    this._bindFilters(root);
+    // P1 topic toggles
+    const toggle=(h,partKey)=>{ const id=h.dataset.topicId; const card=h.closest(".topic-card"); const body=card.querySelector(".topic-body"); const chev=h.querySelector(".topic-chevron"); if(this._collapsed.has(id)){ this._collapsed.delete(id); body.classList.remove("hidden"); chev.classList.add("open"); } else { this._collapsed.add(id); body.classList.add("hidden"); chev.classList.remove("open"); } };
+    root.querySelectorAll("[data-toggle-p1-topic]").forEach(h=>h.addEventListener("click",()=>toggle(h,"p1")));
+    root.querySelectorAll("[data-add-q-p1]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); this._editQ_P1(b.dataset.topicId,null); }));
+    root.querySelectorAll("[data-edit-q-p1]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); this._editQ_P1(b.dataset.topicId,b.dataset.editQP1); }));
+    root.querySelectorAll("[data-del-q-p1]").forEach(b=>b.addEventListener("dblclick",e=>{ e.stopPropagation(); this._delQ_P1(b.dataset.topicId,b.dataset.delQP1); }));
+    root.querySelectorAll("[data-edit-topic-p1]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); this._editTopicP1(b.dataset.editTopicP1); }));
+    root.querySelectorAll("[data-del-topic-p1]").forEach(b=>b.addEventListener("dblclick",e=>{ e.stopPropagation(); this._delTopicP1(b.dataset.delTopicP1); }));
+    // P23 topic toggles
+    root.querySelectorAll("[data-toggle-p23-topic]").forEach(h=>h.addEventListener("click",()=>toggle(h,"p23")));
+    root.querySelectorAll("[data-edit-p2]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); this._editP2(b.dataset.editP2); }));
+    root.querySelectorAll("[data-add-q-p3]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); this._editQ_P3(b.dataset.topicId,null); }));
+    root.querySelectorAll("[data-edit-q-p3]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); this._editQ_P3(b.dataset.topicId,b.dataset.editQP3); }));
+    root.querySelectorAll("[data-del-q-p3]").forEach(b=>b.addEventListener("dblclick",e=>{ e.stopPropagation(); this._delQ_P3(b.dataset.topicId,b.dataset.delQP3); }));
+    root.querySelectorAll("[data-edit-topic-p23]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); this._editTopicP23(b.dataset.editTopicP23); }));
+    root.querySelectorAll("[data-del-topic-p23]").forEach(b=>b.addEventListener("dblclick",e=>{ e.stopPropagation(); this._delTopicP23(b.dataset.delTopicP23); }));
+    // common: speak, audio, collect
+    root.querySelectorAll("[data-speak]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); Translator.pronounce(b.dataset.speak); }));
+    root.querySelectorAll("[data-upload]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); const inp=root.querySelector(`input[data-upload-input="${b.dataset.upload}"]`); if(inp) inp.click(); }));
+    root.querySelectorAll("[data-upload-input]").forEach(inp=>inp.addEventListener("change",e=>this._uploadAudio(inp.dataset.uploadInput,e)));
+    root.querySelectorAll("[data-record]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); this._toggleRecord(b.dataset.record,b.dataset.id); }));
+    root.querySelectorAll("[data-del-audio]").forEach(b=>b.addEventListener("click",async e=>{ e.stopPropagation(); const tid=b.dataset.delAudio; const qid=b.dataset.id; await this._delAudio(tid,qid); }));
+    root.querySelectorAll("[data-collect-s]").forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); collectSentence(b.dataset.collectS,"","口语"); }));
+    this._bindDrag(root);
+    this._loadAudios(root);
+    this._positionTopicPreviews(root);
+  },
+  // 计算每个 topic-preivew 相对 topic-card 的位置，并进行边缘检测
+  _positionTopicPreviews(root){
+    const cards=root.querySelectorAll(".topic-card");
+    cards.forEach(card=>{
+      const head=card.querySelector(":scope > .topic-head");
+      const pv=card.querySelector(":scope > .topic-preview");
+      if(!head||!pv) return;
+      const headBottom = head.offsetTop + head.offsetHeight;
+      const headTop = head.offsetTop;
+      pv.removeAttribute("data-edge");
+      // 先临时显示以便测量（不影响布局），临时解除 max-height 限制避免测量偏差
+      const saved=[pv.style.cssText];
+      pv.style.setProperty("visibility","hidden","");
+      pv.style.setProperty("opacity","1","");
+      pv.style.setProperty("pointer-events","none","");
+      pv.style.setProperty("transform","none","");
+      pv.style.setProperty("max-height","none","");
+      // 默认：贴 card 左侧，贴 head 下方
+      pv.style.left = "0px";
+      pv.style.right = "auto";
+      pv.style.top = headBottom + "px";
+      pv.style.bottom = "auto";
+      const rectL=pv.getBoundingClientRect();
+      const vw=window.innerWidth||1280, vh=window.innerHeight||800;
+      const flipRight = (rectL.right) > vw - 16;
+      const flipBottom = (rectL.bottom) > vh - 16;
+      const edges=[];
+      if(flipRight) edges.push("right");
+      if(flipBottom) edges.push("bottom");
+      if(edges.length) pv.setAttribute("data-edge", edges.join(" "));
+      // 应用最终定位（显式写 auto，避免被样式表覆盖）
+      if(flipBottom){
+        // 放在 head 上方：bottom = （card 顶部到 head 顶部距离） - 2px（小间隙）
+        pv.style.top = "auto";
+        pv.style.bottom = (card.offsetHeight - headTop + 2) + "px";
+        // 初始位置从下方(向上飘入)改为从上方(向下飘入) —— 翻转方向
+        pv.style.setProperty("transform","translateY(4px)","");
+      } else {
+        pv.style.top = headBottom + "px";
+        pv.style.bottom = "auto";
+        pv.style.setProperty("transform","translateY(-4px)","");
+      }
+      if(flipRight){
+        pv.style.left = "auto";
+        pv.style.right = "0px";
+      } else {
+        pv.style.left = "0px";
+        pv.style.right = "auto";
+      }
+      // 恢复：去掉内联的 visibility/opacity/pointer/maxHeight；保留 transform/定位
+      pv.style.removeProperty("visibility");
+      pv.style.removeProperty("opacity");
+      pv.style.removeProperty("pointer-events");
+      pv.style.removeProperty("max-height");
+      if(pv.style.cssText===";") pv.style.cssText=""; // 清理
+    });
+  },
+  async _loadAudios(root){
+    const allQs=[...Store.data.speaking.part1.topics.flatMap(t=>t.questions), ...Store.data.speaking.part23.topics.flatMap(t=>[{...t.part2,id:t.id,audioId:t.part2.audioId},...t.part3])];
+    for(const q of allQs){ if(q.audioId){ try{ const blob=await AudioStore.get(q.audioId); if(blob){ const url=URL.createObjectURL(blob); const el=root.querySelector(`audio[data-audio="${q.audioId}"]`); if(el) el.src=url; } }catch(e){} } }
+  },
+  // ---- P1 render ----
+  _topicPreviewHTML(t,part){
+    const lines=[];
+    if(t.note) lines.push(`<div class="tp-note">${esc(t.note)}</div>`);
+    let qs=[];
+    if(part==="p1") qs=t.questions;
+    else qs=[...(t.part2?.question?[{question:t.part2.question,_label:"Part 2"}]:[]), ...t.part3.map(q=>({question:q.question,_label:"Part3"}))];
+    if(qs.length){
+      lines.push(`<div class="tp-sep">${part==="p1"?"题目预览":"问题预览"}</div>`);
+      qs.forEach((q,i)=>{
+        const label=q._label?`<span class="tp-label">${q._label}</span>`:`<span class="tp-num">${i+1}.</span>`;
+        lines.push(`<div class="tp-q">${label}<span class="tp-qt">${esc(q.question||"")}</span></div>`);
+      });
+    }
+    if(!lines.length) return "";
+    return `<div class="tp-title">${esc(t.name)}</div>${lines.join("")}`;
+  },
+  _renderP1(topics){
+    if(!topics.length) return `<div class="empty-state"><div class="empty-state-icon">🗣️</div><div class="empty-state-text">没有匹配的话题</div></div>`;
+    return topics.map(t=>{
+      const collapsed=this._collapsed.has(t.id);
+      const preview=this._topicPreviewHTML(t,"p1");
+      return `<div class="topic-card" data-drag-card="${t.id}" data-drag-part="p1">
+      <div class="topic-head" data-toggle-p1-topic data-topic-id="${t.id}">
+        <span class="topic-drag" data-drag-handle title="拖动排序">⠿</span>
+        <span class="topic-chevron ${collapsed?"":"open"}">▶</span>
+        <span class="topic-name">${esc(t.name)}</span>
+        ${this._renderTopicTags(t)}
+        <span class="topic-count">${t.questions.length} 道题</span>
+        <div class="topic-actions"><button class="btn-icon" data-edit-topic-p1="${t.id}" title="编辑话题">✏️</button><button class="btn-icon" data-del-topic-p1="${t.id}" title="删除话题">🗑️</button></div>
+      </div>
+      ${preview?`<div class="topic-preview">${preview}</div>`:""}
+      <div class="topic-body ${collapsed?"hidden":""}">
+        <div style="margin:16px 0"><button class="btn btn-outline btn-sm" data-add-q-p1="${t.id}" data-topic-id="${t.id}">+ 添加题目</button></div>
+        ${t.questions.length?t.questions.map((q,i)=>this._renderQ(q,t.id,"p1",i+1)).join(""):`<div class="empty-state" style="padding:24px"><div class="empty-state-text">暂无题目</div></div>`}
+      </div></div>`;
+    }).join("");
+  },
+  // ---- P23 render ----
+  _renderP23(topics){
+    if(!topics.length) return `<div class="empty-state"><div class="empty-state-icon">🗣️</div><div class="empty-state-text">没有匹配的话题</div></div>`;
+    return topics.map(t=>{
+      const collapsed=this._collapsed.has(t.id);
+      const preview=this._topicPreviewHTML(t,"p23");
+      return `<div class="topic-card" data-drag-card="${t.id}" data-drag-part="p23">
+      <div class="topic-head" data-toggle-p23-topic data-topic-id="${t.id}">
+        <span class="topic-drag" data-drag-handle title="拖动排序">⠿</span>
+        <span class="topic-chevron ${collapsed?"":"open"}">▶</span>
+        <span class="topic-name">${esc(t.name)}</span>
+        ${this._renderTopicTags(t)}
+        <span class="topic-count">Part3: ${t.part3.length} 问</span>
+        <div class="topic-actions"><button class="btn-icon" data-edit-topic-p23="${t.id}" title="编辑话题">✏️</button><button class="btn-icon" data-del-topic-p23="${t.id}" title="删除话题">🗑️</button></div>
+      </div>
+      ${preview?`<div class="topic-preview">${preview}</div>`:""}
+      <div class="topic-body ${collapsed?"hidden":""}">
+        <div style="margin-top:16px"><span class="part-label part2-label">Part 2 · 独白卡</span></div>
+        ${this._renderQ({...t.part2,id:t.id},t.id,"p2")}
+        <div style="margin-top:24px;display:flex;align-items:center;gap:10px"><span class="part-label part3-label">Part 3 · 追问</span><button class="btn btn-outline btn-sm" data-add-q-p3="${t.id}" data-topic-id="${t.id}">+ 添加追问</button></div>
+        ${t.part3.length?t.part3.map((q,i)=>this._renderQ(q,t.id,"p3",i+1)).join(""):`<div class="empty-state" style="padding:20px"><div class="empty-state-text">暂无追问</div></div>`}
+      </div></div>`;
+    }).join("");
+  },
+  _renderQ(q,tid,part,num){
+    const isP2=part==="p2";
+    const numTag=num?`<span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;margin-right:8px;font-size:12px;font-weight:600;color:var(--text-2);background:var(--surface-2);border-radius:3px;vertical-align:2px">${num}</span>`:"";
+    return `<div class="entry" style="margin-top:12px">
+      <div class="entry-head"><div class="entry-title ${q.note?"note-tip":""}" ${q.note?`data-note="${esc(q.note)}"`:""}>${numTag}${esc(q.question||"（未填写题目）")}</div>
+        <span class="entry-meta">${fmtDate(q.createdAt)}</span></div>
+      ${q.answer?`<div class="speak-answer" style="margin-top:8px">${esc(q.answer)}</div>`:""}
+      ${q.audioId?`<div class="audio-player"><audio controls data-audio="${q.audioId}"></audio><button class="btn btn-ghost btn-sm" data-del-audio="${tid}" data-id="${q.id}">移除</button></div>`:""}
+      <input type="file" accept="audio/*" class="hidden" data-upload-input="${tid}_${q.id}">
+      <div class="entry-actions">
+        ${q.question?`<button class="btn btn-ghost btn-sm" data-speak="${esc(q.question)}">🔊 朗读</button>`:""}
+        <button class="btn btn-ghost btn-sm" data-upload="${tid}_${q.id}">📁 上传录音</button>
+        <button class="btn btn-ghost btn-sm" data-record="${tid}" data-id="${q.id}">🎤 ${q.audioId?"重录":"录音"}</button>
+        ${isP2?`<button class="btn btn-outline btn-sm" data-edit-p2="${tid}">✏️ 编辑</button>`:`<button class="btn btn-outline btn-sm" data-edit-q-${part==="p1"?"p1":"p3"}="${q.id}" data-topic-id="${tid}">✏️ 编辑</button>`}
+        ${isP2?"":`<button class="btn btn-ghost btn-sm" data-del-q-${part==="p1"?"p1":"p3"}="${q.id}" data-topic-id="${tid}">🗑️</button>`}
+      </div></div>`;
+  },
+  // ---- P1 topic edit ----
+  _editTopicP1(id){
+    const topics=Store.data.speaking.part1.topics; const t=id?topics.find(x=>x.id===id):null;
+    const tags=t?(t.tags||[]):[];
+    showModal(id?"编辑话题":"添加话题",`<div class="field"><label>话题名称</label><input id="f-name" value="${t?esc(t.name):""}" placeholder="如：Hometown / Work / Hobbies"></div>${this._renderTagEditor(tags)}<div class="field"><label>话题备注（可选）</label><textarea id="f-note" rows="2" placeholder="悬浮话题卡时会显示，用于记关键词要点，例如：internet company｜ads & short videos｜close｜10min commute">${t?esc(t.note||""):""}</textarea></div>`,body=>{
+      const name=body.querySelector("#f-name").value.trim(); if(!name){ toast("请填写话题名称","error"); return; }
+      const newTags=this._collectTags(body);
+      const note=body.querySelector("#f-note").value.trim();
+      if(t){ t.name=name; t.tags=newTags; t.note=note; } else topics.push({id:Store.uid(),name,tags:newTags,questions:[],note});
+      Store.save(); hideModal(); Router.go("speaking",true);
+    });
+    this._bindTagEditor(document.getElementById("modal-root"));
+  },
+  _delTopicP1(id){ const ts=Store.data.speaking.part1.topics; const i=ts.findIndex(t=>t.id===id); if(i>=0){ ts[i].questions.forEach(q=>{ if(q.audioId) AudioStore.delete(q.audioId); }); ts.splice(i,1); Store.save(); Router.go("speaking",true); } },
+  _editQ_P1(tid,id){
+    const topic=Store.data.speaking.part1.topics.find(t=>t.id===tid); if(!topic) return;
+    const q=id?topic.questions.find(x=>x.id===id):null;
+    if(q){
+      // 编辑模式：单题表单
+      showModal(`Part 1 · 编辑题目`,`
+        <div class="field"><label>题目</label><textarea id="f-topic" rows="2" placeholder="如：Do you like reading?">${esc(q.question)}</textarea></div>
+        <div class="field"><label>我的专属答案</label><textarea id="f-answer" rows="6" placeholder="写下你的个人答案…">${esc(q.answer||"")}</textarea></div>
+        <div class="field"><label>备注（可选）</label><textarea id="f-note" rows="2">${esc(q.note||"")}</textarea></div>
+      `,body=>{
+        const question=body.querySelector("#f-topic").value.trim(); if(!question){ toast("请填写题目","error"); return; }
+        const answer=body.querySelector("#f-answer").value.trim(),note=body.querySelector("#f-note").value.trim();
+        Object.assign(q,{question,answer,note});
+        Store.save(); hideModal(); Router.go("speaking",true);
+      },{wide:true});
+      return;
+    }
+    // 添加模式：批量导入表单
+    showModal(`Part 1 · 批量添加题目`,`
+      <div class="field"><label>粘贴题目（支持多题）</label><textarea id="f-batch" rows="14" style="font-size:13px;line-height:1.7" placeholder="1. Where do you live now&#10;I live in an older apartment building...&#10;&#10;2. How long have you lived there?&#10;I've been living there for about two years...&#10;备注：xxxxx"></textarea></div>
+      <div style="font-size:12px;color:var(--text-3);line-height:1.8;padding:10px 14px;background:var(--surface-2);border-radius:4px">格式说明：<br>• 每题以 <code style="background:var(--primary-light);padding:1px 5px;border-radius:3px">数字.</code> 开头，第一行为题目，其后各行为答案<br>• 答案末尾可用 <code style="background:var(--primary-light);padding:1px 5px;border-radius:3px">备注：xxx</code> 添加备注（可选）<br>• 题与题之间空一行</div>
+    `,body=>{
+      const raw=body.querySelector("#f-batch").value.trim();
+      if(!raw){ toast("请粘贴内容","error"); return; }
+      const blocks=("\n"+raw).split(/\n\s*\d+[.、)]\s+/).slice(1).map(s=>s.trim()).filter(Boolean);
+      if(!blocks.length){ toast("未解析到题目，请检查格式（需以 1. 2. 编号开头）","error"); return; }
+      const parsed=blocks.map(b=>{
+        const lines=b.split(/\r?\n/);
+        const question=lines[0].trim();
+        let note="",answerLines=[];
+        lines.slice(1).forEach(l=>{
+          const nm=l.match(/^\s*备注\s*[:：]\s*(.*)$/);
+          if(nm){ note=nm[1].trim(); } else { answerLines.push(l); }
+        });
+        return {question,answer:answerLines.join("\n").trim(),note};
+      }).filter(p=>p.question);
+      if(!parsed.length){ toast("未解析到有效题目","error"); return; }
+      parsed.forEach(p=>{ topic.questions.push({id:Store.uid(),question:p.question,answer:p.answer,note:p.note,audioId:"",createdAt:Date.now()}); });
+      Store.save(); hideModal();
+      toast(`已添加 ${parsed.length} 道题到「${topic.name}」`,"success");
+      Router.go("speaking",true);
+    },{wide:true});
+  },
+  _delQ_P1(tid,id){ const t=Store.data.speaking.part1.topics.find(t=>t.id===tid); if(!t) return; const i=t.questions.findIndex(q=>q.id===id); if(i>=0){ if(t.questions[i].audioId) AudioStore.delete(t.questions[i].audioId); t.questions.splice(i,1); Store.save(); Router.go("speaking",true); } },
+  _batchImportP1(){
+    showModal("批量导入 Part 1 题目",`
+      <div class="field"><label>粘贴题目内容</label><textarea id="f-batch" rows="14" style="font-size:13px;line-height:1.7" placeholder="topic-clothing&#10;1. What kind of clothes do you like to wear?/ Do you prefer to wear comfortable and casual clothes?&#10;I prefer wearing comfortable and casual clothes because they allow me to move around easily...&#10;&#10;2. Do you wear different styles of clothes on weekdays and weekends?&#10;Not really. I usually wear comfortable and casual clothes..."></textarea></div>
+      <div style="font-size:12px;color:var(--text-3);line-height:1.8;padding:10px 14px;background:var(--surface-2);border-radius:8px">格式说明：<br>• 第一行 <code style="background:var(--primary-light);color:var(--primary);padding:1px 5px;border-radius:3px">topic-话题名</code>（话题不存在会自动新建）<br>• 每题以 <code style="background:var(--primary-light);color:var(--primary);padding:1px 5px;border-radius:3px">数字.</code> 开头，下一行起为答案<br>• 题目中可用 <code style="background:var(--primary-light);color:var(--primary);padding:1px 5px;border-radius:3px">/</code> 分隔多个问法<br>• 题与题之间空一行</div>
+    `,body=>{
+      const raw=body.querySelector("#f-batch").value.trim();
+      if(!raw){ toast("请粘贴内容","error"); return; }
+      const lines=raw.split(/\r?\n/);
+      let idx=0; while(idx<lines.length && !lines[idx].trim()) idx++;
+      const firstLine=lines[idx].trim();
+      const m=firstLine.match(/^topic-(.+)$/i);
+      if(!m){ toast("第一行需为 topic-话题名","error"); return; }
+      const topicName=m[1].trim();
+      const rest=lines.slice(idx+1).join("\n");
+      const blocks=("\n"+rest).split(/\n\s*\d+\.\s+/).slice(1).map(s=>s.trim()).filter(Boolean);
+      if(!blocks.length){ toast("未解析到题目，请检查格式","error"); return; }
+      const parsed=blocks.map(b=>{
+        const ps=b.split(/\r?\n/);
+        return {question:ps[0].trim(), answer:ps.slice(1).join("\n").trim()};
+      }).filter(p=>p.question);
+      if(!parsed.length){ toast("未解析到有效题目","error"); return; }
+      const topics=Store.data.speaking.part1.topics;
+      let topic=topics.find(t=>t.name.toLowerCase()===topicName.toLowerCase());
+      let created=false;
+      if(!topic){ topic={id:Store.uid(),name:topicName,tags:[],questions:[]}; topics.push(topic); created=true; }
+      parsed.forEach(p=>{ topic.questions.push({id:Store.uid(),question:p.question,answer:p.answer,note:"",audioId:"",createdAt:Date.now()}); });
+      Store.save(); hideModal();
+      toast(`已导入 ${parsed.length} 道题到「${topicName}」${created?"（新话题）":""}`,"success");
+      Router.go("speaking",true);
+    },{wide:true});
+  },
+  // ---- P23 topic edit ----
+  _editTopicP23(id){
+    const topics=Store.data.speaking.part23.topics; const t=id?topics.find(x=>x.id===id):null;
+    const tags=t?(t.tags||[]):[];
+    showModal(id?"编辑话题":"添加话题",`
+      <div class="field"><label>话题名称</label><input id="f-name" value="${t?esc(t.name):""}" placeholder="如：Describe a place you'd like to visit"></div>
+      ${this._renderTagEditor(tags)}
+      <div class="field"><label>话题备注（可选）</label><textarea id="f-tnote" rows="2" placeholder="悬浮话题卡时会显示，用于记关键词要点">${t?esc(t.note||""):""}</textarea></div>
+      <div class="field"><label>Part 2 题目（Cue Card）</label><textarea id="f-p2q" rows="3" placeholder="Describe... You should say...">${t?esc(t.part2.question||""):""}</textarea></div>
+      <div class="field"><label>Part 2 我的答案</label><textarea id="f-p2a" rows="6" placeholder="写下你的个人答案…">${t?esc(t.part2.answer||""):""}</textarea></div>
+      <div class="field"><label>Part 2 备注（可选）</label><textarea id="f-note" rows="2">${t?esc(t.part2.note||""):""}</textarea></div>
+    `,body=>{
+      const name=body.querySelector("#f-name").value.trim(); if(!name){ toast("请填写话题名称","error"); return; }
+      const newTags=this._collectTags(body);
+      const tnote=body.querySelector("#f-tnote").value.trim();
+      const p2q=body.querySelector("#f-p2q").value.trim(),p2a=body.querySelector("#f-p2a").value.trim(),note=body.querySelector("#f-note").value.trim();
+      if(t){ t.name=name; t.tags=newTags; t.note=tnote; t.part2.question=p2q; t.part2.answer=p2a; t.part2.note=note; }
+      else topics.push({id:Store.uid(),name,tags:newTags,note:tnote,part2:{question:p2q,answer:p2a,audioId:"",note},part3:[],createdAt:Date.now()});
+      Store.save(); hideModal(); Router.go("speaking",true);
+    },{wide:true});
+    this._bindTagEditor(document.getElementById("modal-root"));
+  },
+  _editP2(tid){
+    const t=Store.data.speaking.part23.topics.find(x=>x.id===tid); if(!t) return;
+    showModal(`编辑 Part 2 · ${esc(t.name)}`,`
+      <div class="field"><label>Part 2 题目</label><textarea id="f-p2q" rows="3">${esc(t.part2.question||"")}</textarea></div>
+      <div class="field"><label>我的答案</label><textarea id="f-p2a" rows="8">${esc(t.part2.answer||"")}</textarea></div>
+      <div class="field"><label>备注</label><textarea id="f-note" rows="2">${esc(t.part2.note||"")}</textarea></div>
+    `,body=>{
+      t.part2.question=body.querySelector("#f-p2q").value.trim();
+      t.part2.answer=body.querySelector("#f-p2a").value.trim();
+      t.part2.note=body.querySelector("#f-note").value.trim();
+      Store.save(); hideModal(); Router.go("speaking",true);
+    },{wide:true});
+  },
+  _editQ_P3(tid,id){
+    const t=Store.data.speaking.part23.topics.find(x=>x.id===tid); if(!t) return;
+    const q=id?t.part3.find(x=>x.id===id):null;
+    showModal(`Part 3 · ${id?"编辑":"添加"}追问`,`
+      <div class="field"><label>追问题目</label><textarea id="f-q" rows="2" placeholder="如：Why do people like traveling?">${q?esc(q.question):""}</textarea></div>
+      <div class="field"><label>我的答案</label><textarea id="f-a" rows="6">${q?esc(q.answer||""):""}</textarea></div>
+      <div class="field"><label>备注</label><textarea id="f-note" rows="2">${q?esc(q.note||""):""}</textarea></div>
+    `,body=>{
+      const question=body.querySelector("#f-q").value.trim(); if(!question){ toast("请填写题目","error"); return; }
+      const answer=body.querySelector("#f-a").value.trim(),note=body.querySelector("#f-note").value.trim();
+      if(q) Object.assign(q,{question,answer,note}); else t.part3.push({id:Store.uid(),question,answer,note,audioId:"",createdAt:Date.now()});
+      Store.save(); hideModal(); Router.go("speaking",true);
+    },{wide:true});
+  },
+  _delQ_P3(tid,id){ const t=Store.data.speaking.part23.topics.find(x=>x.id===tid); if(!t) return; const i=t.part3.findIndex(q=>q.id===id); if(i>=0){ if(t.part3[i].audioId) AudioStore.delete(t.part3[i].audioId); t.part3.splice(i,1); Store.save(); Router.go("speaking",true); } },
+  _delTopicP23(id){ const ts=Store.data.speaking.part23.topics; const i=ts.findIndex(t=>t.id===id); if(i>=0){ const t=ts[i]; if(t.part2.audioId) AudioStore.delete(t.part2.audioId); t.part3.forEach(q=>{ if(q.audioId) AudioStore.delete(q.audioId); }); ts.splice(i,1); Store.save(); Router.go("speaking",true); } },
+  // ---- Audio ----
+  async _uploadAudio(key,e){
+    const file=e.target.files[0]; if(!file) return; const [tid,qid]=key.split("_");
+    const q=this._findQ(tid,qid); if(!q) return;
+    const aid=Store.uid();
+    try{ await AudioStore.save(aid,file); if(q.audioId) await AudioStore.delete(q.audioId); q.audioId=aid; Store.save(); toast("录音上传成功","success"); Router.go("speaking",true); }
+    catch(err){ toast("录音保存失败","error"); }
+  },
+  async _delAudio(tid,qid){
+    const q=this._findQ(tid,qid); if(!q||!q.audioId) return;
+    await AudioStore.delete(q.audioId); q.audioId=""; Store.save(); Router.go("speaking",true);
+  },
+  _findQ(tid,qid){
+    // search P1
+    for(const t of Store.data.speaking.part1.topics){ const q=t.questions.find(x=>x.id===qid); if(q) return q; }
+    // search P23
+    for(const t of Store.data.speaking.part23.topics){
+      if(t.id===qid) return t.part2; // p2 uses topic id as q id
+      const q=t.part3.find(x=>x.id===qid); if(q) return q;
+    }
+    return null;
+  },
+  async _toggleRecord(tid,qid){
+    const btn=document.querySelector(`[data-record="${tid}"][data-id="${qid}"]`);
+    if(this._recorder&&this._recorder.state==="recording"){ this._recorder.stop(); if(btn) btn.textContent="🎤 录音"; return; }
+    try{
+      if(!this._recStream){
+        this._recStream=await navigator.mediaDevices.getUserMedia({audio:true});
+        // 页面关闭/离开时再统一释放麦克风，避免每次录音都要重新授权
+        addEventListener("pagehide",()=>{ if(this._recStream) this._recStream.getTracks().forEach(t=>t.stop()); },{once:true});
+      }
+      this._recordCtx={tid,qid}; this._recChunks=[]; this._recorder=new MediaRecorder(this._recStream);
+      const q=this._findQ(tid,qid);
+      this._recorder.ondataavailable=e=>{ if(e.data.size>0) this._recChunks.push(e.data); };
+      this._recorder.onstop=async ()=>{
+        const blob=new Blob(this._recChunks,{type:"audio/webm"}); const aid=Store.uid();
+        try{ await AudioStore.save(aid,blob); if(q.audioId) await AudioStore.delete(q.audioId); q.audioId=aid; Store.save(); toast("录音完成","success"); Router.go("speaking",true); }
+        catch(err){ toast("录音保存失败","error"); }
+        finally{ this._recordCtx={tid:null,qid:null}; }
+      };
+      this._recorder.start(); if(btn) btn.innerHTML='<span class="recording-indicator"><span class="recording-dot"></span>停止</span>';
+    }catch(e){ toast("无法访问麦克风，请检查浏览器权限设置后重试","error"); }
+  },
+  unmount(){
+    if(this._scrollSpy){ this._scrollSpy.disconnect(); this._scrollSpy=null; }
+    if(this._onResize){ window.removeEventListener("resize",this._onResize); this._onResize=null; }
+  }
+};
+
+/* ============================================================ WRITING */
+const Writing={
+  render(){
+    const w=Store.data.writing;
+    return `<h1 class="page-title">写作练习</h1>
+      <div class="tabs">
+        <button class="tab active" data-tab="t2">大作文 (${w.task2.length})</button>
+        <button class="tab" data-tab="t1">小作文 (${w.task1.length})</button>
+      </div>
+      <div class="tab-panel" data-panel="t2"><div style="margin-bottom:16px"><button class="btn btn-primary btn-sm" data-add="task2">+ 新建大作文</button></div>${this._renderList(w.task2,"task2")}</div>
+      <div class="tab-panel hidden" data-panel="t1"><div style="margin-bottom:16px"><button class="btn btn-primary btn-sm" data-add="task1">+ 新建小作文</button></div>${this._renderList(w.task1,"task1")}</div>`;
+  },
+  mount(root){
+    initTabs(root);
+    root.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>this._edit(b.dataset.add,null)));
+    root.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>this._edit(b.dataset.type,b.dataset.edit)));
+    root.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("dblclick",()=>this._del(b.dataset.type,b.dataset.del)));
+    root.querySelectorAll("[data-collect-s]").forEach(b=>b.addEventListener("click",()=>collectSentence(b.dataset.collectS,"","写作")));
+  },
+  _renderList(list,type){
+    if(!list.length) return `<div class="empty-state"><div class="empty-state-icon">✍️</div><div class="empty-state-text">还没有作文，点击上方按钮新建</div></div>`;
+    return list.map(e=>`<div class="entry"><div class="entry-head">
+      <div><span class="entry-title note-tip" ${e.note?`data-note="${esc(e.note)}"`:""}>${esc(e.title)}</span></div>
+      <span class="entry-meta">${fmtDate(e.createdAt)} · ${e.content?e.content.length+"字":""}</span></div>
+      ${e.content?`<div class="write-content" style="margin-top:8px">${esc(e.content).slice(0,300)}${e.content.length>300?"…":""}</div>`:""}
+      <div class="entry-actions">
+        <button class="btn btn-outline btn-sm" data-edit="${e.id}" data-type="${type}">✏️ 编辑</button>
+        ${e.content?`<button class="btn btn-ghost btn-sm" data-collect-s="${esc(e.content.slice(0,200))}">⭐ 收藏好句</button>`:""}
+        <button class="btn btn-ghost btn-sm" data-del="${e.id}" data-type="${type}">🗑️</button>
+      </div></div>`).join("");
+  },
+  _edit(type,id){
+    const list=Store.data.writing[type]; const item=id?list.find(e=>e.id===id):null;
+    const label=type==="task1"?"小作文（Task 1 · 书信）":"大作文（Task 2 · 议论文）";
+    showModal(`${id?"编辑":"新建"}${label}`,`
+      <div class="field"><label>标题</label><input id="f-title" value="${item?esc(item.title):""}" placeholder="${type==="task1"?"如：Task 1 - 投诉信":"如：Task 2 - 教育类话题"}"></div>
+      <div class="field"><label>作文内容</label><textarea id="f-content" class="write-content-edit" placeholder="写下你的作文…">${item?esc(item.content||""):""}</textarea></div>
+      <div class="field"><label>备注（可选，悬停显示）</label><textarea id="f-note" rows="2" placeholder="如：注意论证逻辑、高级词汇…">${item?esc(item.note||""):""}</textarea></div>
+    `,body=>{
+      const title=body.querySelector("#f-title").value.trim(); if(!title){ toast("请填写标题","error"); return; }
+      const content=body.querySelector("#f-content").value,note=body.querySelector("#f-note").value.trim();
+      if(item) Object.assign(item,{title,content,note}); else list.push({id:Store.uid(),title,content,note,createdAt:Date.now()});
+      Store.save(); hideModal(); Router.go("writing",true);
+    },{wide:true});
+  },
+  _del(type,id){ const l=Store.data.writing[type]; const i=l.findIndex(e=>e.id===id); if(i>=0){ l.splice(i,1); Store.save(); Router.go("writing",true); } }
+};
+
+/* ============================================================ VOCABULARY */
+const Vocabulary={
+  _root:null,
+  render(){
+    const v=Store.data.vocabulary;
+    return `<h1 class="page-title">生词本 / 收藏库</h1>
+      <div class="tabs"><button class="tab active" data-tab="words">生词 (${v.words.length})</button><button class="tab" data-tab="sentences">高频句子 (${v.sentences.length})</button></div>
+      <div class="tab-panel" data-panel="words"><div class="search-wrap"><input id="search-w" class="search-input" placeholder="搜索生词…"></div><div id="words-list">${this._renderWords(v.words)}</div></div>
+      <div class="tab-panel hidden" data-panel="sentences"><div class="search-wrap"><input id="search-s" class="search-input" placeholder="搜索句子…"></div><div id="sentences-list">${this._renderSentences(v.sentences)}</div></div>`;
+  },
+  mount(root){
+    initTabs(root);
+    this._root=root;
+    const self=this;
+    const sw=root.querySelector("#search-w"); if(sw) sw.addEventListener("input",()=>{ root.querySelector("#words-list").innerHTML=self._renderWords(Store.data.vocabulary.words,sw.value); self._initHeights(root,'#words-list'); });
+    const ss=root.querySelector("#search-s"); if(ss) ss.addEventListener("input",()=>{ root.querySelector("#sentences-list").innerHTML=self._renderSentences(Store.data.vocabulary.sentences,ss.value); self._initHeights(root,'#sentences-list'); });
+    self._addHandlers(root,self);
+  },
+  _addHandlers(root,self){
+    this._blurHandler=function(e){
+      const ta=e.target;
+      if(!ta.classList||!ta.classList.contains("cell-editor")) return;
+      const value=ta.innerHTML, field=ta.dataset.field, type=ta.dataset.type, rid=ta.dataset.rid;
+      if(rid==="NEW"){
+        if(type==="word"){ const p=self._getProto("w"); p[field]=value; }
+        else { const p=self._getProto("s"); p[field]=value; }
+        self._autoHeight(ta); return;
+      }
+      const list=type==="word"?Store.data.vocabulary.words:Store.data.vocabulary.sentences;
+      const item=list.find(x=>x.id===rid);
+      if(item){ if(field==="note"){item.note=value;} else if(field==="translation"){item.translation=value;} else if(field==="word"){item.word=value;} else if(field==="sentence"){item.sentence=value;} Store.save(); }
+      self._autoHeight(ta);
+    };
+    this._keydownHandler=function(e){
+      const ta=e.target;
+      if(!ta.classList||!ta.classList.contains("cell-editor")) return;
+      if(e.key==="Enter"&&!e.shiftKey){
+        e.preventDefault(); ta.blur();
+        const pool=Array.from(root.querySelectorAll(ta.dataset.type==="word"?"[data-type='word'].cell-editor":"[data-type='sent'].cell-editor"));
+        const idx=pool.indexOf(ta);
+        if(idx>=0&&idx<pool.length-1){ const nx=pool[idx+1]; nx.focus(); self._autoHeight(nx); }
+        return;
+      }
+    };
+    this._clickHandler=function(e){
+      const speak=e.target.closest("[data-w-speak],[data-s-speak]");
+      if(speak){
+        if(speak.dataset.wSpeak){ const item=Store.data.vocabulary.words.find(w=>w.id===speak.dataset.wSpeak); if(item) Translator.pronounce(item.word,{audioUrl:item.audioUrl}); }
+        else { const item=Store.data.vocabulary.sentences.find(s=>s.id===speak.dataset.sSpeak); if(item) Translator.pronounce(item.sentence); }
+        return;
+      }
+      const insW=e.target.closest('[data-act="insert-w"]'); if(insW){ self._insertAfter("word",insW.dataset.insertAfter); return; }
+      const insS=e.target.closest('[data-act="insert-s"]'); if(insS){ self._insertAfter("sent",insS.dataset.insertAfter); return; }
+      const saveW=e.target.closest('[data-act="save-new-w"]'); if(saveW){ self._saveNew("word"); return; }
+      const saveS=e.target.closest('[data-act="save-new-s"]'); if(saveS){ self._saveNew("sent"); return; }
+    };
+    this._dblclickHandler=function(e){
+      const d=e.target.closest("[data-w-del]"); if(d){ self._del("word",d.dataset.wDel); return; }
+      const d2=e.target.closest("[data-s-del]"); if(d2){ self._del("sent",d2.dataset.sDel); return; }
+    };
+    root.addEventListener("blur",this._blurHandler,true);
+    root.addEventListener("keydown",this._keydownHandler,true);
+    root.addEventListener("click",this._clickHandler);
+    root.addEventListener("dblclick",this._dblclickHandler);
+    this._initHeights(root,'#words-list');
+    this._initHeights(root,'#sentences-list');
+  },
+  unmount(){
+    const root=this._root; if(!root) return;
+    if(this._blurHandler) root.removeEventListener("blur",this._blurHandler,true);
+    if(this._keydownHandler) root.removeEventListener("keydown",this._keydownHandler,true);
+    if(this._clickHandler) root.removeEventListener("click",this._clickHandler);
+    if(this._dblclickHandler) root.removeEventListener("dblclick",this._dblclickHandler);
+    this._root=null;
+  },
+  _initHeights(root,sel){ const c=root.querySelector(sel); if(!c) return; c.querySelectorAll(".cell-editor").forEach(el=>this._autoHeight(el)); },
+  _autoHeight(el){ el.style.height='auto'; el.style.height=Math.max(24,el.scrollHeight)+'px'; },
+  _getProto(t){ const k=t==="word"?"__protoVW":"__protoVS"; return window[k]=window[k]||(t==="word"?{word:"",translation:"",note:""}:{sentence:"",translation:"",note:""}); },
+  _clearProto(t){ if(t==="word") window.__protoVW=null; else window.__protoVS=null; },
+  _rerender(panelSel,preserveId,preserveField){
+    const root=this._root; if(!root) return;
+    const sy=window.scrollY; const c=root.querySelector(panelSel); if(!c) return;
+    if(panelSel==="#words-list") c.innerHTML=this._renderWords(Store.data.vocabulary.words);
+    else c.innerHTML=this._renderSentences(Store.data.vocabulary.sentences);
+    window.scrollTo(0,sy);
+    c.querySelectorAll(".cell-editor").forEach(el=>this._autoHeight(el));
+    if(preserveId){ const row=c.querySelector(`[data-vrow="${preserveId}"]`); if(row&&preserveField){ const el=row.querySelector(`[data-field="${preserveField}"]`); if(el){ el.focus(); this._autoHeight(el); } } }
+  },
+  _insertAfter(type,afterId){
+    const list=type==="word"?Store.data.vocabulary.words:Store.data.vocabulary.sentences;
+    const ns=type==="word"?{id:Store.uid(),word:"",translation:"",phonetic:"",note:"",source:"",audioUrl:"",createdAt:Date.now()}:{id:Store.uid(),sentence:"",translation:"",note:"",source:"",createdAt:Date.now()};
+    if(afterId){ const idx=list.findIndex(x=>x.id===afterId); if(idx>=0) list.splice(idx+1,0,ns); else list.push(ns); }
+    else list.push(ns);
+    Store.save();
+    this._rerender(type==="word"?"#words-list":"#sentences-list",ns.id,type==="word"?"word":"sentence");
+  },
+  _saveNew(type){
+    const p=this._getProto(type);
+    const strip=s=>(s||"").replace(/<[^>]+>/g,"").trim();
+    const main=strip(type==="word"?p.word:p.sentence);
+    if(!main){ toast("请填写内容","error"); return; }
+    const list=type==="word"?Store.data.vocabulary.words:Store.data.vocabulary.sentences;
+    const ns=type==="word"?{id:Store.uid(),word:p.word,translation:p.translation||"",phonetic:"",note:p.note||"",source:"手动添加",audioUrl:"",createdAt:Date.now()}:{id:Store.uid(),sentence:p.sentence,translation:p.translation||"",note:p.note||"",source:"手动添加",createdAt:Date.now()};
+    list.push(ns); Store.save(); this._clearProto(type);
+    toast("已添加","success");
+    this._rerender(type==="word"?"#words-list":"#sentences-list");
+  },
+  _del(type,id){
+    if(id==="NEW"){ this._clearProto(type); this._rerender(type==="word"?"#words-list":"#sentences-list"); return; }
+    const list=type==="word"?Store.data.vocabulary.words:Store.data.vocabulary.sentences;
+    const i=list.findIndex(x=>x.id===id); if(i>=0){ list.splice(i,1); Store.save(); this._rerender(type==="word"?"#words-list":"#sentences-list"); }
+  },
+  _renderWords(list,search){
+    let items=list; if(search){ const s=search.toLowerCase(); items=list.filter(w=>w.word.toLowerCase().includes(s)||(w.translation||"").includes(s)); }
+    const rc=s=>{ if(!s) return ""; const str=String(s); return /<[a-z][^>]*>/i.test(str)&&/&lt;|&gt;|&amp;/.test(str)===false ? str : esc(str).replace(/\n/g,"<br>"); };
+    const renderRow=(w,isNew)=>{
+      const rid=isNew?"NEW":w.id;
+      return `<tr data-vrow="${rid}"${isNew?' class="is-new"':''}>
+        <td class="cell-word"><div class="cell-editor" contenteditable="true" data-type="word" data-rid="${rid}" data-field="word">${rc(w.word)}</div>${w.phonetic&&!isNew?` <span class="vocab-phonetic">/${esc(w.phonetic)}/</span>`:""}</td>
+        <td class="cell-trans"><div class="cell-editor" contenteditable="true" data-type="word" data-rid="${rid}" data-field="translation">${rc(w.translation||"")}</div></td>
+        <td class="cell-trans"><div class="cell-editor" contenteditable="true" data-type="word" data-rid="${rid}" data-field="note">${rc(w.note||"")}</div></td>
+        <td class="cell-source">${isNew?"":(w.source?`<span class="tag-sm">${esc(w.source)}</span>`:"")+" "+fmtDate(w.createdAt)}</td>
+        <td class="cell-actions">
+          ${isNew?'<button class="btn-icon" title="保存新行" data-act="save-new-w">💾</button>':`<button class="btn-icon" title="在下方插入一行" data-act="insert-w" data-insert-after="${w.id}">➕</button>`}
+          <button class="btn-icon" data-w-speak="${rid}" title="发音">🔊</button>
+          <button class="btn-icon" data-w-del="${rid}" title="双击删除">🗑️</button>
+        </td>
+      </tr>`;
+    };
+    if(!items.length) return `<table class="data-table"><thead><tr><th>词汇</th><th>释义</th><th>备注</th><th>来源</th><th style="text-align:right">操作</th></tr></thead><tbody>${renderRow(this._getProto("word"),true)}</tbody></table>`;
+    return `<table class="data-table"><thead><tr><th>词汇</th><th>释义</th><th>备注</th><th>来源</th><th style="text-align:right">操作</th></tr></thead><tbody>`+
+      items.slice().reverse().map(w=>renderRow(w,false)).join("")+renderRow(this._getProto("word"),true)+`</tbody></table>`;
+  },
+  _renderSentences(list,search){
+    let items=list; if(search){ const s=search.toLowerCase(); items=list.filter(x=>x.sentence.toLowerCase().includes(s)||(x.translation||"").includes(s)); }
+    const rc=s=>{ if(!s) return ""; const str=String(s); return /<[a-z][^>]*>/i.test(str)&&/&lt;|&gt;|&amp;/.test(str)===false ? str : esc(str).replace(/\n/g,"<br>"); };
+    const renderRow=(s,isNew)=>{
+      const rid=isNew?"NEW":s.id;
+      return `<tr data-vrow="${rid}"${isNew?' class="is-new"':''}>
+        <td class="cell-sentence" style="min-width:320px"><div class="cell-editor" contenteditable="true" data-type="sent" data-rid="${rid}" data-field="sentence">${rc(s.sentence)}</div></td>
+        <td class="cell-trans"><div class="cell-editor" contenteditable="true" data-type="sent" data-rid="${rid}" data-field="translation">${rc(s.translation||"")}</div></td>
+        <td class="cell-trans"><div class="cell-editor" contenteditable="true" data-type="sent" data-rid="${rid}" data-field="note">${rc(s.note||"")}</div></td>
+        <td class="cell-source">${isNew?"":(s.source?`<span class="tag-sm">${esc(s.source)}</span>`:"")+" "+fmtDate(s.createdAt)}</td>
+        <td class="cell-actions">
+          ${isNew?'<button class="btn-icon" title="保存新行" data-act="save-new-s">💾</button>':`<button class="btn-icon" title="在下方插入一行" data-act="insert-s" data-insert-after="${s.id}">➕</button>`}
+          <button class="btn-icon" data-s-speak="${rid}" title="朗读">🔊</button>
+          <button class="btn-icon" data-s-del="${rid}" title="双击删除">🗑️</button>
+        </td>
+      </tr>`;
+    };
+    if(!items.length) return `<table class="data-table"><thead><tr><th style="min-width:320px">句子/短语</th><th>释义</th><th>备注</th><th>来源</th><th style="text-align:right">操作</th></tr></thead><tbody>${renderRow(this._getProto("sent"),true)}</tbody></table>`;
+    return `<table class="data-table"><thead><tr><th style="min-width:320px">句子/短语</th><th>释义</th><th>备注</th><th>来源</th><th style="text-align:right">操作</th></tr></thead><tbody>`+
+      items.slice().reverse().map(s=>renderRow(s,false)).join("")+renderRow(this._getProto("sent"),true)+`</tbody></table>`;
+  }
+};
+
+/* ============================================================ FLOAT TRANSLATE */
+const FloatTranslate={
+  expanded:false,
+  init(){
+    const c=document.getElementById("float-translate");
+    c.innerHTML=`<button class="ft-toggle" id="ft-toggle" title="快速翻译">译</button>
+      <div class="ft-panel hidden" id="ft-panel"><div class="ft-panel-head"><span>快速翻译</span><button class="modal-close" id="ft-close">&times;</button></div>
+      <div class="ft-panel-body"><textarea id="ft-input" placeholder="输入要翻译的英文或中文…"></textarea>
+      <div class="ft-result" id="ft-result">翻译结果将显示在这里</div>
+      <div class="ft-actions"><button class="btn btn-primary btn-sm" id="ft-go">翻译</button><button class="btn btn-outline btn-sm" id="ft-speak">🔊 朗读</button><button class="btn btn-outline btn-sm" id="ft-collect">⭐ 收藏</button></div></div></div>`;
+    document.getElementById("ft-toggle").addEventListener("click",()=>this.toggle());
+    document.getElementById("ft-close").addEventListener("click",()=>this.toggle(false));
+    document.getElementById("ft-go").addEventListener("click",()=>this.translate());
+    document.getElementById("ft-speak").addEventListener("click",()=>{ const t=document.getElementById("ft-input").value.trim(); if(t) Translator.pronounce(t); });
+    document.getElementById("ft-collect").addEventListener("click",()=>this.collect());
+    document.getElementById("ft-input").addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); this.translate(); } });
+  },
+  toggle(force){ this.expanded=force!==undefined?force:!this.expanded; document.getElementById("ft-panel").classList.toggle("hidden",!this.expanded); if(this.expanded) document.getElementById("ft-input").focus(); },
+  async translate(){
+    const text=document.getElementById("ft-input").value.trim(); if(!text) return;
+    const res=document.getElementById("ft-result"); res.textContent="翻译中…";
+    const r=await Translator.lookup(text);
+    if(r&&r.translation){ res.textContent=r.translation; this._lastResult=r; } else res.textContent="翻译失败，请检查网络连接";
+  },
+  collect(){
+    if(!this._lastResult){ toast("请先翻译","info"); return; } const r=this._lastResult;
+    if(r.isWord) collectWord(r.word||r.text,r.translation,r.phonetic,"翻译工具"); else collectSentence(r.text,r.translation,"翻译工具");
+  }
+};
+
+/* ============================================================ REGISTRY & INIT */
+const MODULES={dashboard:Dashboard,listening:Listening,reading:Reading,speaking:Speaking,writing:Writing,vocabulary:Vocabulary};
+document.addEventListener("DOMContentLoaded",async()=>{
+  Store.load(); await AudioStore.init();
+  const nav=document.getElementById("nav");
+  nav.innerHTML=NAV.map(n=>`<button class="nav-item" data-route="${n.key}">${n.label}</button>`).join("");
+  nav.querySelectorAll(".nav-item").forEach(el=>el.addEventListener("click",()=>Router.go(el.dataset.route)));
+  SelectionPopup.init(); FloatTranslate.init();
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ hideModal(); SelectionPopup.hide(); FloatTranslate.toggle(false); } });
+  // 回到顶部浮窗
+  const btt=document.getElementById("back-to-top");
+  btt.addEventListener("click",()=>window.scrollTo(0,0));
+  window.addEventListener("scroll",()=>{ btt.classList.toggle("show",window.scrollY>400); },{passive:true});
+  const last=localStorage.getItem("__lastRoute");
+  Router.go(last&&MODULES[last]?last:"dashboard");
+});
+</script>
+</body>
+</html>
