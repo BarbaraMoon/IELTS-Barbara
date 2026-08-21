@@ -2225,7 +2225,7 @@ const Speaking={
         try{ source.disconnect(); processor.disconnect(); silent.disconnect(); }catch(_){}
         if(this._recStream){ this._recStream.getTracks().forEach(t=>t.stop()); this._recStream=null; }
         this._recording=false; this._stopRecording=null;
-        const blob=encodeWAV(chunks,sampleRate,16000);
+        const blob=encodeWAV(chunks,sampleRate);
         this._saveRecording(blob,tid,qid);
         try{ ctx.close(); }catch(_){}
       };
