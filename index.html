@@ -874,30 +874,22 @@ const Dashboard={
     root.querySelector("#btn-import").addEventListener("click",()=>root.querySelector("#import-file").click());
     root.querySelector("#import-file").addEventListener("change",e=>Dashboard.import(e));
   },
+  // 首页数据管理：仅导出/导入文本数据，不含口语音频（口语音频由口语页单独管理）
   async export(){
-    await AudioStore.init();
-    const ids=new Set();
-    const walk=q=>{ if(q&&q.audioId) ids.add(q.audioId); };
-    Store.data.speaking.part1.topics.forEach(t=>t.questions.forEach(walk));
-    Store.data.speaking.part23.topics.forEach(t=>{ walk(t.part2); t.part3.forEach(walk); });
-    const audio={};
-    for(const id of ids){ try{ const b=await AudioStore.get(id); if(b) audio[id]=await blobToDataURL(b); }catch(_){} }
-    const payload=Object.assign({},Store.data,{_audio:audio});
-    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const blob=new Blob([JSON.stringify(Store.data,null,2)],{type:"application/json"});
     const url=URL.createObjectURL(blob); const a=document.createElement("a");
     a.href=url; a.download=`ielts-barbara-${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
-    toast(`数据已导出（含 ${Object.keys(audio).length} 段录音）`,"success");
+    toast("数据已导出（仅文本，不含口语音频）","success");
   },
   async import(e){
     const file=e.target.files[0]; if(!file) return; const reader=new FileReader();
     reader.onload=async ()=>{
       try{
         const parsed=JSON.parse(reader.result);
-        const audio=parsed._audio||{}; delete parsed._audio;
-        await AudioStore.init();
-        for(const id in audio){ try{ await AudioStore.save(id,dataURLToBlob(audio[id])); }catch(_){} }
+        // 文本导入：忽略旧的 _audio 字段，口语音频请到口语页用「导入🔉」单独导入
+        delete parsed._audio;
         Store.data=Store._merge(Store.defaults(),parsed); Store.save();
-        toast("数据导入成功","success"); Router.go("dashboard");
+        toast("数据导入成功（仅文本，口语音频请到口语页导入）","success"); Router.go("dashboard");
       }catch(err){ toast("导入失败：文件格式错误","error"); }
     };
     reader.readAsText(file);
@@ -1667,11 +1659,11 @@ const Speaking={
       <div class="speak-main">
         ${this._renderFilters()}
         <div class="tab-panel ${this._activeTab==="p23"?"hidden":""}" data-panel="p1">
-          <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="add-topic-p1">+ 添加话题</button><button class="btn btn-outline btn-sm" data-act="batch-import-p1">批量导入</button>${countBar(p1V,s.part1.topics)}</div>
+          <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="add-topic-p1">+ 添加话题</button><button class="btn btn-outline btn-sm" data-act="batch-import-p1">批量导入</button><button class="btn btn-outline btn-sm" data-act="export-audio">导出🔉</button><button class="btn btn-outline btn-sm" data-act="import-audio">导入🔉</button>${countBar(p1V,s.part1.topics)}</div>
           ${this._renderP1(p1V)}
         </div>
         <div class="tab-panel ${this._activeTab==="p1"?"hidden":""}" data-panel="p23">
-          <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="add-topic-p23">+ 添加话题</button>${countBar(p23V,s.part23.topics)}</div>
+          <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="add-topic-p23">+ 添加话题</button><button class="btn btn-outline btn-sm" data-act="export-audio">导出🔉</button><button class="btn btn-outline btn-sm" data-act="import-audio">导入🔉</button>${countBar(p23V,s.part23.topics)}</div>
           ${this._renderP23(p23V)}
         </div>
       </div>`;
@@ -1867,6 +1859,9 @@ const Speaking={
     const a1=root.querySelector('[data-act="add-topic-p1"]'); if(a1) a1.addEventListener("click",()=>this._editTopicP1(null));
     const bi1=root.querySelector('[data-act="batch-import-p1"]'); if(bi1) bi1.addEventListener("click",()=>this._batchImportP1());
     const a23=root.querySelector('[data-act="add-topic-p23"]'); if(a23) a23.addEventListener("click",()=>this._editTopicP23(null));
+    // 口语音频导出/导入（仅音频，与首页文本数据分开存储）
+    const ea=root.querySelector('[data-act="export-audio"]'); if(ea) ea.addEventListener("click",()=>this.exportAudio());
+    const iaBtn=root.querySelector('[data-act="import-audio"]'); if(iaBtn) iaBtn.addEventListener("click",()=>this.importAudio());
     root.querySelectorAll('[data-act="collapse-all"]').forEach(b=>b.addEventListener("click",()=>this._toggleCollapseAll(root,b)));
     this._bindNav(root);
     this._bindFilters(root);
@@ -1953,6 +1948,43 @@ const Speaking={
       pv.style.removeProperty("max-height");
       if(pv.style.cssText===";") pv.style.cssText=""; // 清理
     });
+  },
+  async exportAudio(){
+    await AudioStore.init();
+    const ids=new Set();
+    const walk=q=>{ if(q&&q.audioId) ids.add(q.audioId); };
+    Store.data.speaking.part1.topics.forEach(t=>t.questions.forEach(walk));
+    Store.data.speaking.part23.topics.forEach(t=>{ walk(t.part2); t.part3.forEach(walk); });
+    const audio={};
+    for(const id of ids){ try{ const b=await AudioStore.get(id); if(b) audio[id]=await blobToDataURL(b); }catch(_){} }
+    if(!Object.keys(audio).length){ toast("当前没有可导出的口语音频","info"); return; }
+    const payload={_type:"ielts-speaking-audio",version:1,exportedAt:new Date().toISOString(),audio};
+    const blob=new Blob([JSON.stringify(payload)],{type:"application/json"});
+    const url=URL.createObjectURL(blob); const a=document.createElement("a");
+    a.href=url; a.download=`IELTS Speaking Audio_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(url);
+    toast(`口语音频已导出（${Object.keys(audio).length} 段）`,"success");
+  },
+  importAudio(){
+    const inp=document.createElement("input");
+    inp.type="file"; inp.accept="application/json,.json";
+    inp.addEventListener("change",e=>this._doImportAudio(e));
+    inp.click();
+  },
+  async _doImportAudio(e){
+    const file=e.target.files&&e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=async ()=>{
+      try{
+        const parsed=JSON.parse(reader.result);
+        if(parsed._type!=="ielts-speaking-audio"||!parsed.audio){ toast("文件格式不正确：不是口语音频备份","error"); return; }
+        await AudioStore.init();
+        let n=0;
+        for(const id in parsed.audio){ try{ await AudioStore.save(id,dataURLToBlob(parsed.audio[id])); n++; }catch(_){} }
+        toast(`口语音频导入成功：${n} 段（若题目文本已存在即可播放）`,"success");
+        Router.go("speaking");
+      }catch(err){ toast("导入失败：文件格式错误","error"); }
+    };
+    reader.readAsText(file);
   },
   async _loadAudios(root){
     const allQs=[...Store.data.speaking.part1.topics.flatMap(t=>t.questions), ...Store.data.speaking.part23.topics.flatMap(t=>[{...t.part2,id:t.id,audioId:t.part2.audioId},...t.part3])];
