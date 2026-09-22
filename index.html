@@ -2297,6 +2297,9 @@ Describe a person in your life who really like taking photos
               const t=lines[i].trim();
               if(!t){ i++; continue; }
               if(isP2Hdr(t)) break;
+              // 若下一非空行是 Describe，说明当前行其实是下一个话题名（如 "1. 高楼"），不能当追问
+              let nk=i+1; while(nk<lines.length && !lines[nk].trim()) nk++;
+              if(nk<lines.length && isDesc(lines[nk])) break;
               const qm=t.match(/^(\d+)[.、)]\s+(.*)$/);
               if(!qm){ i++; continue; }
               p3.push(qm[2].trim()); i++;
@@ -2329,6 +2332,9 @@ Describe a person in your life who really like taking photos
               const t=lines[j].trim();
               if(!t) continue;
               if(isP2Hdr(t)||isDesc(lines[j])) break;
+              // 若下一非空行是 Describe，说明当前行其实是下一个话题名（如 "1. 高楼"），不能当追问
+              let nk=j+1; while(nk<lines.length && !lines[nk].trim()) nk++;
+              if(nk<lines.length && isDesc(lines[nk])) break;
               const qm=t.match(/^(\d+)[.、)]\s+(.*)$/);
               if(qm) p3.push(qm[2].trim());
             }
