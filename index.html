@@ -2233,101 +2233,142 @@ const Speaking={
   },
   // ---- Part 2 & 3 批量导入 ----
   _batchImportP23(){
+    const tagBtns=speakTagOptions().map(tg=>`<button type="button" class="tag-check" data-tag="${esc(tg)}" data-group="importTag">${esc(tg)}</button>`).join("");
     showModal("批量导入 Part 2 & 3 话题",`
-      <div class="field"><label>粘贴内容</label><textarea id="f-batch" rows="18" style="font-size:13px;line-height:1.7" placeholder="part2: 特别节日的食物
-Describe a kind of food that you like to eat on special occasions.
-- What it is
-- What occasion it was
-- How this food is prepared
-- And explain why you like to eat this food on special occasions.
-Part 3
-1. What kinds of food are popular in your country? （快餐｜做饭耗时 + 时间效率）
-2. What are the differences between what people eat now and in the past?（甜食｜压力大放松+即使满足）
-3. Why do people eat special foods on certain festivals or special occasions?（情绪价值+人际关系）
-part2: 不喜欢的短途旅行
-Describe a short trip you often take but do not like
-- Where you go
-- When you go there
-- Why you go there
-- And explain why you do not like the trip"></textarea></div>
+      <div class="field"><label>粘贴内容</label><textarea id="f-batch" rows="18" style="font-size:13px;line-height:1.7" placeholder="1. 童年好友
+Describe a friend from childhood who you remember very well.
+Who the friend is
+How you met him/her
+What you used to do together
+And explain why you remember this childhood friend so well.
+
+喜欢拍照的人
+Describe a person in your life who really like taking photos
+* Who he/she is
+* When and where does he/she take photos"></textarea></div>
+      <div class="field"><label>统一打标签（可选，本次导入的话题都会打上）</label><div class="tag-editor"><div class="tag-editor-group">${tagBtns}</div></div></div>
       <div style="font-size:12px;color:var(--text-3);line-height:1.8;padding:10px 14px;background:var(--surface-2);border-radius:8px">
-        格式说明：
+        识别规则：
         <ul style="margin-top:6px;padding-left:18px">
-          <li><code style="background:var(--primary-light);color:var(--primary);padding:1px 5px;border-radius:3px">part2: 话题名</code> 开启一个新话题（话题名后可加 <code>//</code> 注释，解析时会忽略）<br>话题不存在会自动新建，已存在则在其基础上追加 Part 3</li>
-          <li>紧跟 part2 行的若干行为 Part 2 题目（首行 Describe... 会加粗显示），<code>- </code> 开头的行作为答题要点</li>
-          <li><code>Part 3</code> 行后是追问，每条以 <code>数字.</code> 开头</li>
-          <li>追问末尾 <code>（...）</code> 中内容会作为该题备注</li>
-          <li>题与题之间空一行，可一次粘贴多个 topic</li>
+          <li>以 <code style="background:var(--primary-light);color:var(--primary);padding:1px 5px;border-radius:3px">Describe...</code> 行为锚点，它<b>上面那一行</b>就是话题名（自动去掉 <code>1.</code> 这类编号，没编号也认）</li>
+          <li>也支持显式 <code style="background:var(--primary-light);color:var(--primary);padding:1px 5px;border-radius:3px">part2: 话题名</code> 写法（话题名后可加 <code>//</code> 注释）</li>
+          <li>首行 <code>Describe...</code> 会加粗显示，其后每个要点单独成行；要点前缀 <code>*</code>/<code>•</code> 会自动统一成 <code>-</code></li>
+          <li><code>Part 3</code> 行后是追问，每条以 <code>数字.</code> 开头；末尾 <code>（...）</code> 作为该题备注</li>
+          <li>话题不存在自动新建，已存在则在其基础上追加；可一次粘贴多个 topic</li>
         </ul>
       </div>
     `,body=>{
       const raw=body.querySelector("#f-batch").value;
       if(!raw.trim()){ toast("请粘贴内容","error"); return; }
+      const pickedTags=[...body.querySelectorAll('.tag-check.active[data-group="importTag"]')].map(i=>i.dataset.tag);
       const topics=Store.data.speaking.part23.topics;
       const lines=raw.split(/\r?\n/);
-      let i=0;
-      let addedTopics=0, mergedTopics=0, addedP3=0;
-      while(i<lines.length){
-        // 跳过空行
-        while(i<lines.length && !lines[i].trim()) i++;
-        if(i>=lines.length) break;
-        const line=lines[i];
-        const pm=line.match(/^part2\s*[:：]\s*(.+)$/i);
-        if(!pm){ i++; continue; }
-        // 提取话题名：去掉尾部 // 注释
-        let nameRaw=pm[1].trim().split(/\/\//)[0].trim();
-        if(!nameRaw){ i++; continue; }
-        i++;
-        // 收集 Part 2 题目行：直到下一个 part2: 或 Part 3
-        const p2Lines=[];
+      const isP2Hdr=l=>/^part2\s*[:：]/i.test(l.trim());
+      const isP3Hdr=l=>/^part\s*3\s*$/i.test(l.trim());
+      const isDesc=l=>/^\s*(describe|talk about)\b/i.test(l);
+      // 话题名：去掉 "1." 这类编号、去掉 -/* 前缀、去掉 // 注释
+      const stripName=s=>s.trim().replace(/^\s*\d+\s*[.、)]\s*/,"").replace(/^\s*[-*•]\s*/,"").split(/\/\//)[0].trim();
+      const hasExplicit=lines.some(isP2Hdr);
+
+      // 统一解析成 [{name, p2, p3:[]}]
+      const blocks=[];
+      if(hasExplicit){
+        // ---- 显式模式：part2: 话题名 ----
+        let i=0;
         while(i<lines.length){
-          const trimmed=lines[i].trim();
-          if(/^part2\s*[:：]/i.test(trimmed)) break;
-          if(/^part\s*3\s*$/i.test(trimmed)) break;
-          p2Lines.push(lines[i]);
+          while(i<lines.length && !lines[i].trim()) i++;
+          if(i>=lines.length) break;
+          const pm=lines[i].match(/^part2\s*[:：]\s*(.+)$/i);
+          if(!pm){ i++; continue; }
+          const name=pm[1].trim().split(/\/\//)[0].trim();
+          if(!name){ i++; continue; }
           i++;
+          const card=[];
+          while(i<lines.length){
+            const t=lines[i].trim();
+            if(isP2Hdr(t)||isP3Hdr(t)) break;
+            card.push(lines[i]); i++;
+          }
+          const p2=card.map(l=>l.split(/\/\/.*$/)[0]).filter(l=>l.trim()).join("\n").trim();
+          const p3=[];
+          if(isP3Hdr(lines[i]||"")){
+            i++;
+            while(i<lines.length){
+              const t=lines[i].trim();
+              if(!t){ i++; continue; }
+              if(isP2Hdr(t)) break;
+              const qm=t.match(/^(\d+)[.、)]\s+(.*)$/);
+              if(!qm){ i++; continue; }
+              p3.push(qm[2].trim()); i++;
+            }
+          }
+          blocks.push({name,p2,p3});
         }
-        const p2Clean=p2Lines.map(l=>l.split(/\/\/.*$/)[0]).filter(l=>l.trim());
-        const p2Question=p2Clean.join("\n").trim();
-        // 找到或新建话题
-        let topic=topics.find(t=>t.name.toLowerCase()===nameRaw.toLowerCase());
-        let isNew=false;
+      } else {
+        // ---- 宽松模式：以 Describe 行为锚点，它上面一行是话题名 ----
+        const descIdx=[];
+        lines.forEach((l,k)=>{ if(isDesc(l)) descIdx.push(k); });
+        if(!descIdx.length){ toast("未识别到话题：请确保每个话题都有一行以 Describe 开头","error"); return; }
+        descIdx.forEach(d=>{
+          let ni=d-1; while(ni>=0 && !lines[ni].trim()) ni--;
+          if(ni<0) return;
+          const name=stripName(lines[ni]);
+          if(!name) return;
+          // 卡片内容：一直取到「下一行是 Describe」为止（那一行就是下一个话题名）
+          const card=[]; let j=d;
+          for(;j<lines.length;j++){
+            const t=lines[j].trim();
+            if(isP2Hdr(t)||isP3Hdr(t)) break;
+            if(j+1<lines.length && isDesc(lines[j+1])) break;
+            card.push(lines[j]);
+          }
+          const p3=[];
+          if(isP3Hdr(lines[j]||"")){
+            j++;
+            for(;j<lines.length;j++){
+              const t=lines[j].trim();
+              if(!t) continue;
+              if(isP2Hdr(t)||isDesc(lines[j])) break;
+              const qm=t.match(/^(\d+)[.、)]\s+(.*)$/);
+              if(qm) p3.push(qm[2].trim());
+            }
+          }
+          blocks.push({name,p2:card.join("\n").trim(),p3});
+        });
+      }
+      if(!blocks.length){ toast("未识别到有效内容，请检查格式","error"); return; }
+
+      let addedTopics=0, mergedTopics=0, addedP3=0;
+      blocks.forEach(b=>{
+        if(!b.name) return;
+        // 要点前缀 * / • 统一成 -
+        const p2q=(b.p2||"").split(/\r?\n/).map(l=>l.replace(/^(\s*)[*•]\s+/,"$1- ")).join("\n").trim();
+        let topic=topics.find(t=>t.name.toLowerCase()===b.name.toLowerCase());
         if(!topic){
-          topic={id:Store.uid(),name:nameRaw,tags:[],note:"",part2:{question:"",answer:"",audioId:"",note:""},part3:[],createdAt:Date.now()};
+          topic={id:Store.uid(),name:b.name,tags:[],note:"",part2:{question:"",answer:"",audioId:"",note:""},part3:[],createdAt:Date.now()};
           topics.push(topic);
           addedTopics++;
-          isNew=true;
         } else {
           mergedTopics++;
         }
-        if(p2Question) topic.part2.question=p2Question;
-        // 跳过 Part 3 标题行
-        if(i<lines.length && /^part\s*3\s*$/i.test(lines[i].trim())) i++;
-        // 收集 Part 3 追问
-        while(i<lines.length){
-          const trimmed=lines[i].trim();
-          if(!trimmed){ i++; continue; }
-          if(/^part2\s*[:：]/i.test(trimmed)) break;
-          const qm=trimmed.match(/^(\d+)[.、)]\s+(.*)$/);
-          if(!qm){ i++; continue; }
-          let qText=qm[2].trim();
-          let note="";
-          const noteMatch=qText.match(/[（(]([^）)]*)[）)]\s*$/);
-          if(noteMatch){
-            note=noteMatch[1].trim();
-            qText=qText.slice(0,noteMatch.index).trim();
-          }
-          topic.part3.push({id:Store.uid(),question:qText,answer:"",note:note,audioId:"",createdAt:Date.now()});
+        if(pickedTags.length) topic.tags=pickedTags.slice();
+        if(p2q) topic.part2.question=p2q;
+        (b.p3||[]).forEach(qText=>{
+          let note="",q=qText;
+          const nm=q.match(/[（(]([^）)]*)[）)]\s*$/);
+          if(nm){ note=nm[1].trim(); q=q.slice(0,nm.index).trim(); }
+          if(!q) return;
+          topic.part3.push({id:Store.uid(),question:q,answer:"",note:note,audioId:"",createdAt:Date.now()});
           addedP3++;
-          i++;
-        }
-      }
+        });
+      });
       if(!addedTopics && !mergedTopics && !addedP3){ toast("未识别到有效内容，请检查格式","error"); return; }
       Store.save();
       hideModal();
-      toast(`导入完成：新增 ${addedTopics} 个话题、${mergedTopics} 个已合并、追加 ${addedP3} 个追问`,"success");
+      toast(`导入完成：新增 ${addedTopics} 个话题、${mergedTopics} 个已合并、追加 ${addedP3} 个追问${pickedTags.length?`，统一打上「${pickedTags[0]}」`:""}`,"success");
       Router.go("speaking",true);
     },{wide:true});
+    this._bindTagEditor(document.getElementById("modal-root"));
   },
   // ---- P23 topic edit ----
   _editTopicP23(id){
