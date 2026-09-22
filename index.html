@@ -1600,45 +1600,50 @@ function blobToDataURL(blob){ return new Promise((res,rej)=>{ const r=new FileRe
 function dataURLToBlob(dataURL){ const idx=dataURL.indexOf(","); const mime=(dataURL.slice(5,idx).match(/[^;]+/)||["audio/wav"])[0]; const bin=atob(dataURL.slice(idx+1)); const arr=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return new Blob([arr],{type:mime}); }
 
 /* ============================================================ SPEAKING */
-const SPEAK_TAG_GROUPS=[
-  {name:"type",label:"题型",tags:["必考题","新题","保留题"]},
-  {name:"cat",label:"分类",tags:["事物类","事件类","人物类","地点类"]},
-];
+// 口语筛选：单一分类组（持久化在 Store.data.speaking.tagOptions），可编辑/新增/删除
+const DEFAULT_SPEAK_TAGS=["Ling","中秋回家走亲戚","清迈徒步","其他"];
+const SPEAK_TAG_GROUP={name:"tag",label:"分类"};
+function speakTagOptions(){
+  if(!Array.isArray(Store.data.speaking.tagOptions)||!Store.data.speaking.tagOptions.length){
+    Store.data.speaking.tagOptions=DEFAULT_SPEAK_TAGS.slice();
+    Store.save();
+  }
+  return Store.data.speaking.tagOptions;
+}
 const Speaking={
   _recording:false,_recStream:null,_recordCtx:{tid:null,qid:null},
-  _filters:{type:"",cat:""},
+  _filters:{tag:""},
   _collapsed:new Set(),
   _activeTab:"p1",
   _scrollSpy:null,
   _dragId:null,_dragPart:null,
   _initState(){
-    if(!this._filters||this._filters.type instanceof Set) this._filters={type:"",cat:""};
-    if(typeof this._filters.type!=="string") this._filters.type="";
-    if(typeof this._filters.cat!=="string") this._filters.cat="";
+    if(!this._filters||typeof this._filters.tag!=="string") this._filters={tag:""};
+    if(typeof this._filters.tag!=="string") this._filters.tag="";
     if(!this._collapsed) this._collapsed=new Set();
     if(!this._activeTab) this._activeTab="p1";
   },
   _normalizeTopics(s){
     let changed=false;
+    const opts=speakTagOptions();
     [...s.part1.topics,...s.part23.topics].forEach(t=>{
       if(!Array.isArray(t.tags)){ t.tags=[]; changed=true; }
       if(t._cat&&!t.tags.includes(t._cat)){ t.tags.push(t._cat); changed=true; }
-      // 单选约束：每组最多保留一个标签
-      for(const g of SPEAK_TAG_GROUPS){
-        const inG=t.tags.filter(tg=>g.tags.includes(tg));
-        if(inG.length>1){ t.tags=t.tags.filter(tg=>tg!==inG[0]); changed=true; }
+      // 单选约束：当前分类选项中最多保留一个标签
+      const inG=t.tags.filter(tg=>opts.includes(tg));
+      if(inG.length>1){
+        const keep=inG[0];
+        t.tags=t.tags.filter(tg=>!opts.includes(tg));
+        t.tags.push(keep);
+        changed=true;
       }
     });
     if(changed) Store.save();
   },
   _topicMatchesFilters(t){
-    const tags=t.tags||[];
-    for(const g of SPEAK_TAG_GROUPS){
-      const sel=this._filters[g.name];
-      if(!sel) continue;
-      if(!tags.includes(sel)) return false;
-    }
-    return true;
+    const sel=this._filters.tag;
+    if(!sel) return true;
+    return (t.tags||[]).includes(sel);
   },
   render(){
     const s=Store.data.speaking;
@@ -1663,7 +1668,7 @@ const Speaking={
           ${this._renderP1(p1V)}
         </div>
         <div class="tab-panel ${this._activeTab==="p1"?"hidden":""}" data-panel="p23">
-          <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="add-topic-p23">+ 添加话题</button><button class="btn btn-outline btn-sm" data-act="export-audio">导出🔉</button><button class="btn btn-outline btn-sm" data-act="import-audio">导入🔉</button>${countBar(p23V,s.part23.topics)}</div>
+          <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-act="add-topic-p23">+ 添加话题</button><button class="btn btn-outline btn-sm" data-act="batch-import-p23">批量导入</button><button class="btn btn-outline btn-sm" data-act="export-audio">导出🔉</button><button class="btn btn-outline btn-sm" data-act="import-audio">导入🔉</button>${countBar(p23V,s.part23.topics)}</div>
           ${this._renderP23(p23V)}
         </div>
       </div>`;
@@ -1680,30 +1685,34 @@ const Speaking={
     ).join("");
   },
   _renderFilters(){
-    return `<div class="speak-filters">`+SPEAK_TAG_GROUPS.map(g=>`
-      <div class="filter-group"><span class="filter-label">${g.label}</span>`+
-      g.tags.map(tag=>{
-        const active=this._filters[g.name]===tag;
-        return `<button class="filter-chip ${active?"active":""}" data-filter-group="${g.name}" data-filter-tag="${tag}">${tag}</button>`;
+    const opts=speakTagOptions();
+    const sel=this._filters.tag;
+    return `<div class="speak-filters"><div class="filter-group">
+      <span class="filter-label">${SPEAK_TAG_GROUP.label}</span>`+
+      opts.map(tag=>{
+        const active=sel===tag;
+        return `<button class="filter-chip ${active?"active":""}" data-filter-group="${SPEAK_TAG_GROUP.name}" data-filter-tag="${esc(tag)}">${esc(tag)}</button>`;
       }).join("")+
-      (this._filters[g.name]?`<span class="filter-clear" data-filter-clear="${g.name}">清除</span>`:"")+
-      `</div>`).join("")+`</div>`;
+      (sel?`<span class="filter-clear" data-filter-clear="${SPEAK_TAG_GROUP.name}">清除</span>`:"")+
+      `<button type="button" class="btn btn-ghost btn-xs" data-act="manage-tags" title="管理分类选项（重命名/新增/删除）" style="margin-left:auto;font-size:11px;padding:3px 10px">⚙️ 管理标签</button>
+    </div></div>`;
   },
   _renderTopicTags(t){
     const tags=t.tags||[];
     if(!tags.length) return "";
+    const opts=speakTagOptions();
     return `<span class="topic-tags">`+tags.map(tg=>{
-      const g=SPEAK_TAG_GROUPS.find(g=>g.tags.includes(tg));
-      const cls=g&&g.name==="type"?"g-type":"g-cat";
+      const cls=opts.includes(tg)?"g-type":"g-cat";
       return `<span class="topic-tag-badge ${cls}">${esc(tg)}</span>`;
     }).join("")+`</span>`;
   },
   _renderTagEditor(tags){
     tags=tags||[];
-    return `<div class="field"><label>话题标签（每组最多选一个）</label><div class="tag-editor">`+
-      SPEAK_TAG_GROUPS.map(g=>`<div class="tag-editor-group"><span class="tag-editor-label">${g.label}</span>`+
-        g.tags.map(tg=>`<button type="button" class="tag-check ${tags.includes(tg)?"active":""}" data-tag="${tg}" data-group="${g.name}">${tg}</button>`).join("")+
-      `</div>`).join("")+`</div></div>`;
+    const opts=speakTagOptions();
+    return `<div class="field"><label>话题标签（单选）</label><div class="tag-editor">
+      <div class="tag-editor-group"><span class="tag-editor-label">${SPEAK_TAG_GROUP.label}</span>`+
+      opts.map(tg=>`<button type="button" class="tag-check ${tags.includes(tg)?"active":""}" data-tag="${esc(tg)}" data-group="${SPEAK_TAG_GROUP.name}">${esc(tg)}</button>`).join("")+
+      `</div></div></div>`;
   },
   _collectTags(body){ return [...body.querySelectorAll(".tag-check.active")].map(i=>i.dataset.tag); },
   _bindTagEditor(root){
@@ -1859,6 +1868,8 @@ const Speaking={
     const a1=root.querySelector('[data-act="add-topic-p1"]'); if(a1) a1.addEventListener("click",()=>this._editTopicP1(null));
     const bi1=root.querySelector('[data-act="batch-import-p1"]'); if(bi1) bi1.addEventListener("click",()=>this._batchImportP1());
     const a23=root.querySelector('[data-act="add-topic-p23"]'); if(a23) a23.addEventListener("click",()=>this._editTopicP23(null));
+    const bi23=root.querySelector('[data-act="batch-import-p23"]'); if(bi23) bi23.addEventListener("click",()=>this._batchImportP23());
+    const mt=root.querySelector('[data-act="manage-tags"]'); if(mt) mt.addEventListener("click",()=>this._manageTags());
     // 口语音频导出/导入（仅音频，与首页文本数据分开存储）
     const ea=root.querySelector('[data-act="export-audio"]'); if(ea) ea.addEventListener("click",()=>this.exportAudio());
     const iaBtn=root.querySelector('[data-act="import-audio"]'); if(iaBtn) iaBtn.addEventListener("click",()=>this.importAudio());
@@ -2055,14 +2066,24 @@ const Speaking={
   _renderQ(q,tid,part,num){
     const isP2=part==="p2";
     const numTag=num?`<span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;margin-right:8px;font-size:12px;font-weight:600;color:var(--text-2);background:var(--surface-2);border-radius:3px;vertical-align:2px">${num}</span>`:"";
+    // Part 2 多行格式：首行加粗显示，后续 - 各项单独成段
+    let questionHTML;
+    if(isP2 && q.question && q.question.includes("\n")){
+      const lines=q.question.split("\n");
+      questionHTML=`<strong style="font-weight:700;display:block;margin-bottom:4px">${esc(lines[0])}</strong>`+lines.slice(1).map(l=>esc(l)).join("<br>");
+    } else {
+      questionHTML=esc(q.question||"（未填写题目）");
+    }
+    // 朗读按钮：去掉换行符，避免 TTS 念出奇怪停顿
+    const speakText=(q.question||"").replace(/\n/g," ");
     return `<div class="entry" style="margin-top:12px">
-      <div class="entry-head"><div class="entry-title ${q.note?"note-tip":""}" ${q.note?`data-note="${esc(q.note)}"`:""}>${numTag}${esc(q.question||"（未填写题目）")}</div>
+      <div class="entry-head"><div class="entry-title ${q.note?"note-tip":""}" ${q.note?`data-note="${esc(q.note)}"`:""}>${numTag}${questionHTML}</div>
         <span class="entry-meta">${fmtDate(q.createdAt)}</span></div>
       ${q.answer?`<div class="speak-answer" style="margin-top:8px">${esc(q.answer)}</div>`:""}
       ${q.audioId?`<div class="audio-player"><audio controls data-audio="${q.audioId}"></audio><button class="btn btn-ghost btn-sm" data-del-audio="${tid}" data-id="${q.id}">移除</button></div>`:""}
       <input type="file" accept="audio/*" class="hidden" data-upload-input="${tid}_${q.id}">
       <div class="entry-actions">
-        ${q.question?`<button class="btn btn-ghost btn-sm" data-speak="${esc(q.question)}">🔊 朗读</button>`:""}
+        ${q.question?`<button class="btn btn-ghost btn-sm" data-speak="${esc(speakText)}">🔊 朗读</button>`:""}
         <button class="btn btn-ghost btn-sm" data-upload="${tid}_${q.id}">📁 上传录音</button>
         <button class="btn btn-ghost btn-sm" data-record="${tid}" data-id="${q.id}">🎤 ${q.audioId?"重录":"录音"}</button>
         ${isP2?`<button class="btn btn-outline btn-sm" data-edit-p2="${tid}">✏️ 编辑</button>`:`<button class="btn btn-outline btn-sm" data-edit-q-${part==="p1"?"p1":"p3"}="${q.id}" data-topic-id="${tid}">✏️ 编辑</button>`}
@@ -2158,6 +2179,104 @@ const Speaking={
       Router.go("speaking",true);
     },{wide:true});
   },
+  // ---- Part 2 & 3 批量导入 ----
+  _batchImportP23(){
+    showModal("批量导入 Part 2 & 3 话题",`
+      <div class="field"><label>粘贴内容</label><textarea id="f-batch" rows="18" style="font-size:13px;line-height:1.7" placeholder="part2: 特别节日的食物
+Describe a kind of food that you like to eat on special occasions.
+- What it is
+- What occasion it was
+- How this food is prepared
+- And explain why you like to eat this food on special occasions.
+Part 3
+1. What kinds of food are popular in your country? （快餐｜做饭耗时 + 时间效率）
+2. What are the differences between what people eat now and in the past?（甜食｜压力大放松+即使满足）
+3. Why do people eat special foods on certain festivals or special occasions?（情绪价值+人际关系）
+part2: 不喜欢的短途旅行
+Describe a short trip you often take but do not like
+- Where you go
+- When you go there
+- Why you go there
+- And explain why you do not like the trip"></textarea></div>
+      <div style="font-size:12px;color:var(--text-3);line-height:1.8;padding:10px 14px;background:var(--surface-2);border-radius:8px">
+        格式说明：
+        <ul style="margin-top:6px;padding-left:18px">
+          <li><code style="background:var(--primary-light);color:var(--primary);padding:1px 5px;border-radius:3px">part2: 话题名</code> 开启一个新话题（话题名后可加 <code>//</code> 注释，解析时会忽略）<br>话题不存在会自动新建，已存在则在其基础上追加 Part 3</li>
+          <li>紧跟 part2 行的若干行为 Part 2 题目（首行 Describe... 会加粗显示），<code>- </code> 开头的行作为答题要点</li>
+          <li><code>Part 3</code> 行后是追问，每条以 <code>数字.</code> 开头</li>
+          <li>追问末尾 <code>（...）</code> 中内容会作为该题备注</li>
+          <li>题与题之间空一行，可一次粘贴多个 topic</li>
+        </ul>
+      </div>
+    `,body=>{
+      const raw=body.querySelector("#f-batch").value;
+      if(!raw.trim()){ toast("请粘贴内容","error"); return; }
+      const topics=Store.data.speaking.part23.topics;
+      const lines=raw.split(/\r?\n/);
+      let i=0;
+      let addedTopics=0, mergedTopics=0, addedP3=0;
+      while(i<lines.length){
+        // 跳过空行
+        while(i<lines.length && !lines[i].trim()) i++;
+        if(i>=lines.length) break;
+        const line=lines[i];
+        const pm=line.match(/^part2\s*[:：]\s*(.+)$/i);
+        if(!pm){ i++; continue; }
+        // 提取话题名：去掉尾部 // 注释
+        let nameRaw=pm[1].trim().split(/\/\//)[0].trim();
+        if(!nameRaw){ i++; continue; }
+        i++;
+        // 收集 Part 2 题目行：直到下一个 part2: 或 Part 3
+        const p2Lines=[];
+        while(i<lines.length){
+          const trimmed=lines[i].trim();
+          if(/^part2\s*[:：]/i.test(trimmed)) break;
+          if(/^part\s*3\s*$/i.test(trimmed)) break;
+          p2Lines.push(lines[i]);
+          i++;
+        }
+        const p2Clean=p2Lines.map(l=>l.split(/\/\/.*$/)[0]).filter(l=>l.trim());
+        const p2Question=p2Clean.join("\n").trim();
+        // 找到或新建话题
+        let topic=topics.find(t=>t.name.toLowerCase()===nameRaw.toLowerCase());
+        let isNew=false;
+        if(!topic){
+          topic={id:Store.uid(),name:nameRaw,tags:[],note:"",part2:{question:"",answer:"",audioId:"",note:""},part3:[],createdAt:Date.now()};
+          topics.push(topic);
+          addedTopics++;
+          isNew=true;
+        } else {
+          mergedTopics++;
+        }
+        if(p2Question) topic.part2.question=p2Question;
+        // 跳过 Part 3 标题行
+        if(i<lines.length && /^part\s*3\s*$/i.test(lines[i].trim())) i++;
+        // 收集 Part 3 追问
+        while(i<lines.length){
+          const trimmed=lines[i].trim();
+          if(!trimmed){ i++; continue; }
+          if(/^part2\s*[:：]/i.test(trimmed)) break;
+          const qm=trimmed.match(/^(\d+)[.、)]\s+(.*)$/);
+          if(!qm){ i++; continue; }
+          let qText=qm[2].trim();
+          let note="";
+          const noteMatch=qText.match(/[（(]([^）)]*)[）)]\s*$/);
+          if(noteMatch){
+            note=noteMatch[1].trim();
+            qText=qText.slice(0,noteMatch.index).trim();
+          }
+          topic.part3.push({id:Store.uid(),question:qText,answer:"",note:note,audioId:"",createdAt:Date.now()});
+          addedP3++;
+          i++;
+        }
+      }
+      if(!addedTopics && !mergedTopics && !addedP3){ toast("未识别到有效内容，请检查格式","error"); return; }
+      Store.save();
+      hideModal();
+      toast(`导入完成：新增 ${addedTopics} 个话题、${mergedTopics} 个已合并、追加 ${addedP3} 个追问`,"success");
+      Router.go("speaking",true);
+    },{wide:true});
+  },
   // ---- P23 topic edit ----
   _editTopicP23(id){
     const topics=Store.data.speaking.part23.topics; const t=id?topics.find(x=>x.id===id):null;
@@ -2183,7 +2302,7 @@ const Speaking={
   _editP2(tid){
     const t=Store.data.speaking.part23.topics.find(x=>x.id===tid); if(!t) return;
     showModal(`编辑 Part 2 · ${esc(t.name)}`,`
-      <div class="field"><label>Part 2 题目</label><textarea id="f-p2q" rows="3">${esc(t.part2.question||"")}</textarea></div>
+      <div class="field"><label>Part 2 题目（首行加粗显示；<code>-</code> 开头的行作为答题要点，每行单独成段）</label><textarea id="f-p2q" rows="6" placeholder="Describe a ...&#10;- 第一点&#10;- 第二点&#10;- And explain ...">${esc(t.part2.question||"")}</textarea></div>
       <div class="field"><label>我的答案</label><textarea id="f-p2a" rows="8">${esc(t.part2.answer||"")}</textarea></div>
       <div class="field"><label>备注</label><textarea id="f-note" rows="2">${esc(t.part2.note||"")}</textarea></div>
     `,body=>{
@@ -2192,6 +2311,79 @@ const Speaking={
       t.part2.note=body.querySelector("#f-note").value.trim();
       Store.save(); hideModal(); Router.go("speaking",true);
     },{wide:true});
+  },
+  // ---- 分类标签管理（重命名/新增/删除） ----
+  _manageTags(){
+    const opts=speakTagOptions();
+    const optsHtml=opts.map((tg,i)=>`
+      <div class="tag-mgr-row" style="display:flex;gap:8px;align-items:center">
+        <input type="text" data-tag-idx="${i}" value="${esc(tg)}" placeholder="标签名" style="flex:1;padding:6px 10px;border:1px solid var(--border-2);border-radius:4px;font-size:14px">
+        <button type="button" class="btn btn-ghost btn-sm" data-tag-del="${i}" title="删除该行">🗑️</button>
+      </div>`).join("");
+    showModal("管理分类标签",`
+      <div class="field"><label>分类标签（用于话题筛选与打标）</label>
+        <div id="tag-mgr-list" style="display:flex;flex-direction:column;gap:8px">${optsHtml}</div>
+        <button type="button" class="btn btn-outline btn-sm" id="tag-add" style="margin-top:10px">+ 添加标签</button>
+      </div>
+      <div style="font-size:12px;color:var(--text-3);line-height:1.8;padding:10px 14px;background:var(--surface-2);border-radius:4px;margin-top:12px">
+        提示：可以直接修改输入框重命名标签；点击 🗑️ 删除；点击「+ 添加标签」新增。<br>
+        重命名会自动同步到所有已使用该标签的话题；删除后引用了该标签的话题会自动移除该标签。
+      </div>
+    `,body=>{
+      const inputs=body.querySelectorAll('input[data-tag-idx]');
+      // 收集最终值（按输入顺序），去空、去重
+      const finalVals=[];
+      const seen=new Set();
+      inputs.forEach(inp=>{
+        const v=inp.value.trim();
+        if(v && !seen.has(v)){ seen.add(v); finalVals.push(v); }
+      });
+      if(!finalVals.length){ toast("至少保留一个标签","error"); return; }
+      // 构建重命名映射：旧值 → 新值（仅在同一索引位置、值改变、且旧值不再出现于最终值时）
+      const finalSet=new Set(finalVals);
+      const renameMap={};
+      inputs.forEach(inp=>{
+        const idx=parseInt(inp.dataset.tagIdx);
+        const oldVal=opts[idx];
+        const newVal=inp.value.trim();
+        if(oldVal && newVal && oldVal!==newVal && !finalSet.has(oldVal)){
+          renameMap[oldVal]=newVal;
+        }
+      });
+      // 同步到话题：重命名 → 替换；旧标签不在 final 也不在 renameMap → 删除
+      const allTopics=[...Store.data.speaking.part1.topics,...Store.data.speaking.part23.topics];
+      for(const tp of allTopics){
+        const next=[];
+        for(const tg of tp.tags){
+          if(renameMap[tg]!==undefined) next.push(renameMap[tg]);
+          else if(finalSet.has(tg)) next.push(tg);
+          // 其他（被删除的旧标签）：跳过
+        }
+        tp.tags=next;
+      }
+      Store.data.speaking.tagOptions=finalVals;
+      // 当前筛选若已失效，清除
+      if(this._filters.tag && !finalSet.has(this._filters.tag)) this._filters.tag="";
+      Store.save();
+      hideModal();
+      toast("标签已更新","success");
+      Router.go("speaking",true);
+    },{wide:true});
+    const modal=document.getElementById("modal-root");
+    modal.querySelector("#tag-add").addEventListener("click",()=>{
+      const list=modal.querySelector("#tag-mgr-list");
+      const i=list.children.length;
+      const div=document.createElement("div");
+      div.className="tag-mgr-row";
+      div.style.cssText="display:flex;gap:8px;align-items:center";
+      div.innerHTML=`<input type="text" data-tag-idx="${i}" value="" placeholder="新标签名" style="flex:1;padding:6px 10px;border:1px solid var(--border-2);border-radius:4px;font-size:14px"><button type="button" class="btn btn-ghost btn-sm" data-tag-del="${i}" title="删除该行">🗑️</button>`;
+      list.appendChild(div);
+      div.querySelector("[data-tag-del]").addEventListener("click",()=>div.remove());
+      div.querySelector("input").focus();
+    });
+    modal.querySelectorAll("[data-tag-del]").forEach(b=>{
+      b.addEventListener("click",()=>b.closest(".tag-mgr-row").remove());
+    });
   },
   _editQ_P3(tid,id){
     const t=Store.data.speaking.part23.topics.find(x=>x.id===tid); if(!t) return;
