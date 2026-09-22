@@ -2110,7 +2110,7 @@ const Speaking={
       <div class="topic-body ${collapsed?"hidden":""}">
         <div style="margin-top:16px"><span class="part-label part2-label">Part 2 · 独白卡</span></div>
         ${this._renderQ({...t.part2,id:t.id},t.id,"p2")}
-        <div style="margin-top:24px;display:flex;align-items:center;gap:10px"><span class="part-label part3-label">Part 3 · 追问</span><button class="btn btn-outline btn-sm" data-add-q-p3="${t.id}" data-topic-id="${t.id}">+ 添加追问</button></div>
+        <div style="margin-top:24px;display:flex;align-items:center;gap:10px"><span class="part-label part3-label">Part 3 · 追问</span><button class="btn btn-outline btn-sm" data-add-q-p3="${t.id}" data-topic-id="${t.id}">+ 批量添加追问</button></div>
         ${t.part3.length?t.part3.map((q,i)=>this._renderQ(q,t.id,"p3",i+1)).join(""):`<div class="empty-state" style="padding:20px"><div class="empty-state-text">暂无追问</div></div>`}
       </div></div>`;
     }).join("");
@@ -2487,15 +2487,55 @@ Describe a person in your life who really like taking photos
   _editQ_P3(tid,id){
     const t=Store.data.speaking.part23.topics.find(x=>x.id===tid); if(!t) return;
     const q=id?t.part3.find(x=>x.id===id):null;
-    showModal(`Part 3 · ${id?"编辑":"添加"}追问`,`
-      <div class="field"><label>追问题目</label><textarea id="f-q" rows="2" placeholder="如：Why do people like traveling?">${q?esc(q.question):""}</textarea></div>
-      <div class="field"><label>我的答案</label><textarea id="f-a" rows="6">${q?esc(q.answer||""):""}</textarea></div>
-      <div class="field"><label>备注</label><textarea id="f-note" rows="2">${q?esc(q.note||""):""}</textarea></div>
+    if(q){
+      // 编辑模式：单题表单
+      showModal(`Part 3 · 编辑追问`,`
+        <div class="field"><label>追问题目</label><textarea id="f-q" rows="2" placeholder="如：Why do people like traveling?">${esc(q.question)}</textarea></div>
+        <div class="field"><label>我的答案</label><textarea id="f-a" rows="6">${esc(q.answer||"")}</textarea></div>
+        <div class="field"><label>备注</label><textarea id="f-note" rows="2">${esc(q.note||"")}</textarea></div>
+      `,body=>{
+        const question=body.querySelector("#f-q").value.trim(); if(!question){ toast("请填写题目","error"); return; }
+        const answer=body.querySelector("#f-a").value.trim(),note=body.querySelector("#f-note").value.trim();
+        Object.assign(q,{question,answer,note});
+        Store.save(); hideModal(); Router.go("speaking",true);
+      },{wide:true});
+      return;
+    }
+    // 添加模式：批量导入表单（一次可粘贴多题，只贴一题也可以）
+    showModal(`Part 3 · 批量添加追问`,`
+      <div class="field"><label>粘贴追问（支持多题，题之间空一行）</label><textarea id="f-batch" rows="14" style="font-size:13px;line-height:1.7" placeholder="1. Why do people get up early?&#10;Because they need to commute...&#10;&#10;2. Why do many people dislike getting up early?&#10;Most people feel...&#10;备注：可选题目提示"></textarea></div>
+      <div style="font-size:12px;color:var(--text-3);line-height:1.8;padding:10px 14px;background:var(--surface-2);border-radius:4px">
+        格式说明：<br>
+        • 每题以 <code style="background:var(--primary-light);padding:1px 5px;border-radius:3px">数字.</code> 开头，第一行为题目，其后各行为答案<br>
+        • 也可以不写编号：用<b>空行</b>分隔，每块首行为题目、其余为答案<br>
+        • 可用 <code style="background:var(--primary-light);padding:1px 5px;border-radius:3px">备注：xxx</code> 加备注（可选）<br>
+        • 题目末尾的 <code style="background:var(--primary-light);padding:1px 5px;border-radius:3px">（...）</code> 也会自动识别为备注
+      </div>
     `,body=>{
-      const question=body.querySelector("#f-q").value.trim(); if(!question){ toast("请填写题目","error"); return; }
-      const answer=body.querySelector("#f-a").value.trim(),note=body.querySelector("#f-note").value.trim();
-      if(q) Object.assign(q,{question,answer,note}); else t.part3.push({id:Store.uid(),question,answer,note,audioId:"",createdAt:Date.now()});
-      Store.save(); hideModal(); Router.go("speaking",true);
+      const raw=body.querySelector("#f-batch").value.trim();
+      if(!raw){ toast("请粘贴内容","error"); return; }
+      // 优先按「数字.」分块；没有编号则按空行分块（每块首行题目、其余答案）
+      let blocks=("\n"+raw).split(/\n\s*\d+[.、)]\s+/).slice(1).map(s=>s.trim()).filter(Boolean);
+      if(!blocks.length) blocks=raw.split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+      const parsed=blocks.map(b=>{
+        const lines=b.split(/\r?\n/);
+        let question=lines[0].trim();
+        let note="";
+        const answerLines=[];
+        // 题目末尾 （...） → 备注
+        const pm=question.match(/[（(]([^）)]*)[）)]\s*$/);
+        if(pm){ note=pm[1].trim(); question=question.slice(0,pm.index).trim(); }
+        lines.slice(1).forEach(l=>{
+          const nm=l.match(/^\s*备注\s*[:：]\s*(.*)$/);
+          if(nm){ note=nm[1].trim(); } else { answerLines.push(l); }
+        });
+        return {question,answer:answerLines.join("\n").trim(),note};
+      }).filter(p=>p.question);
+      if(!parsed.length){ toast("未解析到有效题目","error"); return; }
+      parsed.forEach(p=>{ t.part3.push({id:Store.uid(),question:p.question,answer:p.answer,note:p.note,audioId:"",createdAt:Date.now()}); });
+      Store.save(); hideModal();
+      toast(`已添加 ${parsed.length} 条追问到「${t.name}」`,"success");
+      Router.go("speaking",true);
     },{wide:true});
   },
   _delQ_P3(tid,id){ const t=Store.data.speaking.part23.topics.find(x=>x.id===tid); if(!t) return; const i=t.part3.findIndex(q=>q.id===id); if(i>=0){ if(t.part3[i].audioId) AudioStore.delete(t.part3[i].audioId); t.part3.splice(i,1); Store.save(); Router.go("speaking",true); } },
