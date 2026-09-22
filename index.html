@@ -1613,6 +1613,7 @@ function speakTagOptions(){
 const Speaking={
   _recording:false,_recStream:null,_recordCtx:{tid:null,qid:null},
   _filters:{tag:""},
+  _audioUrls:null, // audioId -> objectURL，重渲染/卸载时释放，避免泄漏
   _collapsed:new Set(),
   _activeTab:"p1",
   _scrollSpy:null,
@@ -1673,12 +1674,20 @@ const Speaking={
         </div>
       </div>`;
   },
+  // 「全部折叠/全部展开」按钮文案：按当前 tab 的折叠状态动态计算
+  _collapseLabelForTab(){
+    const tab=this._activeTab;
+    const all=tab==="p1"?Store.data.speaking.part1.topics:Store.data.speaking.part23.topics;
+    const topics=all.filter(t=>this._topicMatchesFilters(t));
+    const allCollapsed=topics.length>0 && topics.every(t=>this._collapsed.has(t.id));
+    return allCollapsed?"⊞ 全部展开":"⊟ 全部折叠";
+  },
   _renderNav(){
     const tab=this._activeTab;
     const all=tab==="p1"?Store.data.speaking.part1.topics:Store.data.speaking.part23.topics;
     const topics=all.filter(t=>this._topicMatchesFilters(t));
     const label=tab==="p1"?"Part 1":"Part 2 & 3";
-    const collapseBtn=`<button class="btn btn-outline btn-xs" data-act="collapse-all" title="折叠/展开所有话题" style="font-size:11px;padding:3px 8px;width:100%;justify-content:center;margin-bottom:8px">⊟ 全部折叠</button>`;
+    const collapseBtn=`<button class="btn btn-outline btn-xs" data-act="collapse-all" title="折叠/展开所有话题" style="font-size:11px;padding:3px 8px;width:100%;justify-content:center;margin-bottom:8px">${this._collapseLabelForTab()}</button>`;
     if(!topics.length) return `<div class="speak-nav-title">${label}</div>${collapseBtn}<div style="font-size:12px;color:var(--text-3);padding:6px 8px">无匹配话题</div>`;
     return `<div class="speak-nav-title">${label} · ${topics.length}</div>${collapseBtn}`+topics.map(t=>
       `<button class="speak-nav-item" data-jump-topic="${t.id}" title="${esc(t.name)}">${esc(t.name)}</button>`
@@ -1726,7 +1735,8 @@ const Speaking={
   },
   mount(root){
     this._initState();
-    initTabs(root);
+    // 不再调用通用 initTabs：_bindTabs 统一处理「切面板 + 更新导航 + 重定位预览」，
+    // 避免同一 .tab 被绑两套 click，也避免切 tab 后预览定位失效
     this._bindTabs(root);
     this._bindAll(root);
     this._initScrollSpy(root);
@@ -1744,8 +1754,15 @@ const Speaking={
   _bindTabs(root){
     root.querySelectorAll(".tab").forEach(tab=>{
       tab.addEventListener("click",()=>{
-        this._activeTab=tab.dataset.tab;
+        const target=tab.dataset.tab;
+        if(this._activeTab===target) return;
+        this._activeTab=target;
+        root.querySelectorAll(".tab").forEach(t=>t.classList.remove("active")); tab.classList.add("active");
+        root.querySelectorAll(".tab-panel").forEach(p=>p.classList.add("hidden"));
+        const panel=root.querySelector(`[data-panel="${target}"]`); if(panel) panel.classList.remove("hidden");
         this._updateNav(root);
+        // 新显示的面板此前是 display:none，预览的测量值无效，必须重新定位
+        this._positionTopicPreviews(root);
       });
     });
   },
@@ -1765,6 +1782,14 @@ const Speaking={
         card.classList.remove("flash"); void card.offsetWidth; card.classList.add("flash");
         card.addEventListener("animationend",()=>card.classList.remove("flash"),{once:true});
       });
+    });
+    // 「全部折叠」按钮也渲染在导航栏里，切 tab 重渲染导航栏后必须一并重新绑定，
+    // 否则新按钮没有监听器 —— 这正是「切一次 tab 后按钮失效」的根因
+    this._bindCollapseAll(root);
+  },
+  _bindCollapseAll(root){
+    root.querySelectorAll('[data-act="collapse-all"]').forEach(b=>{
+      b.addEventListener("click",()=>this._toggleCollapseAll(root,b));
     });
   },
   _bindFilters(root){
@@ -1873,8 +1898,7 @@ const Speaking={
     // 口语音频导出/导入（仅音频，与首页文本数据分开存储）
     const ea=root.querySelector('[data-act="export-audio"]'); if(ea) ea.addEventListener("click",()=>this.exportAudio());
     const iaBtn=root.querySelector('[data-act="import-audio"]'); if(iaBtn) iaBtn.addEventListener("click",()=>this.importAudio());
-    root.querySelectorAll('[data-act="collapse-all"]').forEach(b=>b.addEventListener("click",()=>this._toggleCollapseAll(root,b)));
-    this._bindNav(root);
+    this._bindNav(root); // 内含 collapse-all 的绑定，避免重复绑定
     this._bindFilters(root);
     // P1 topic toggles
     const toggle=(h,partKey)=>{ const id=h.dataset.topicId; const card=h.closest(".topic-card"); const body=card.querySelector(".topic-body"); const chev=h.querySelector(".topic-chevron"); if(this._collapsed.has(id)){ this._collapsed.delete(id); body.classList.remove("hidden"); chev.classList.add("open"); } else { this._collapsed.add(id); body.classList.add("hidden"); chev.classList.remove("open"); } };
@@ -1904,60 +1928,68 @@ const Speaking={
     this._positionTopicPreviews(root);
   },
   // 计算每个 topic-preivew 相对 topic-card 的位置，并进行边缘检测
+  // 悬浮预览定位。原实现是「写样式 → getBoundingClientRect → 再写样式」的循环，
+  // 每张卡片都会触发一次强制同步布局（布局抖动），卡片多时明显卡顿。
+  // 改为：阶段1 批量读 → 阶段2 批量写测量态 → 阶段3 批量读几何 → 阶段4 批量写最终值，
+  // 全程只触发 2 次强制布局；并跳过隐藏面板（display:none，测量值全为 0，算了也白算）。
   _positionTopicPreviews(root){
-    const cards=root.querySelectorAll(".topic-card");
-    cards.forEach(card=>{
+    const vw=window.innerWidth||1280, vh=window.innerHeight||800;
+    // 阶段1：批量读取头部几何（纯读，不触发逐次重排）
+    const items=[];
+    root.querySelectorAll(".topic-card").forEach(card=>{
+      const panel=card.closest(".tab-panel");
+      if(panel && panel.classList.contains("hidden")) return; // 跳隐藏面板
       const head=card.querySelector(":scope > .topic-head");
       const pv=card.querySelector(":scope > .topic-preview");
       if(!head||!pv) return;
-      const headBottom = head.offsetTop + head.offsetHeight;
-      const headTop = head.offsetTop;
+      const headTop=head.offsetTop;
+      items.push({card,head,pv,headTop,headBottom:headTop+head.offsetHeight});
+    });
+    if(!items.length) return;
+    // 阶段2：批量写入「测量态」样式（临时显示以便测量，解除 max-height 限制）
+    items.forEach(it=>{
+      const pv=it.pv;
       pv.removeAttribute("data-edge");
-      // 先临时显示以便测量（不影响布局），临时解除 max-height 限制避免测量偏差
-      const saved=[pv.style.cssText];
       pv.style.setProperty("visibility","hidden","");
       pv.style.setProperty("opacity","1","");
       pv.style.setProperty("pointer-events","none","");
       pv.style.setProperty("transform","none","");
       pv.style.setProperty("max-height","none","");
-      // 默认：贴 card 左侧，贴 head 下方
-      pv.style.left = "0px";
-      pv.style.right = "auto";
-      pv.style.top = headBottom + "px";
-      pv.style.bottom = "auto";
-      const rectL=pv.getBoundingClientRect();
-      const vw=window.innerWidth||1280, vh=window.innerHeight||800;
-      const flipRight = (rectL.right) > vw - 16;
-      const flipBottom = (rectL.bottom) > vh - 16;
+      pv.style.left="0px"; pv.style.right="auto";
+      pv.style.top=it.headBottom+"px"; pv.style.bottom="auto";
+    });
+    // 阶段3：批量读取几何（此处仅触发一次强制布局）
+    items.forEach(it=>{
+      const rect=it.pv.getBoundingClientRect();
+      it.flipRight=rect.right>vw-16;
+      it.flipBottom=rect.bottom>vh-16;
+      it.cardHeight=it.card.offsetHeight;
+    });
+    // 阶段4：批量写入最终定位
+    items.forEach(it=>{
+      const pv=it.pv;
       const edges=[];
-      if(flipRight) edges.push("right");
-      if(flipBottom) edges.push("bottom");
-      if(edges.length) pv.setAttribute("data-edge", edges.join(" "));
-      // 应用最终定位（显式写 auto，避免被样式表覆盖）
-      if(flipBottom){
-        // 放在 head 上方：bottom = （card 顶部到 head 顶部距离） - 2px（小间隙）
-        pv.style.top = "auto";
-        pv.style.bottom = (card.offsetHeight - headTop + 2) + "px";
-        // 初始位置从下方(向上飘入)改为从上方(向下飘入) —— 翻转方向
-        pv.style.setProperty("transform","translateY(4px)","");
+      if(it.flipRight) edges.push("right");
+      if(it.flipBottom) edges.push("bottom");
+      if(edges.length) pv.setAttribute("data-edge",edges.join(" "));
+      if(it.flipBottom){
+        // 放在 head 上方：bottom =（card 顶部到 head 顶部距离）- 2px 小间隙
+        pv.style.top="auto";
+        pv.style.bottom=(it.cardHeight-it.headTop+2)+"px";
+        pv.style.setProperty("transform","translateY(4px)",""); // 改从上方飘入
       } else {
-        pv.style.top = headBottom + "px";
-        pv.style.bottom = "auto";
+        pv.style.top=it.headBottom+"px";
+        pv.style.bottom="auto";
         pv.style.setProperty("transform","translateY(-4px)","");
       }
-      if(flipRight){
-        pv.style.left = "auto";
-        pv.style.right = "0px";
-      } else {
-        pv.style.left = "0px";
-        pv.style.right = "auto";
-      }
+      if(it.flipRight){ pv.style.left="auto"; pv.style.right="0px"; }
+      else { pv.style.left="0px"; pv.style.right="auto"; }
       // 恢复：去掉内联的 visibility/opacity/pointer/maxHeight；保留 transform/定位
       pv.style.removeProperty("visibility");
       pv.style.removeProperty("opacity");
       pv.style.removeProperty("pointer-events");
       pv.style.removeProperty("max-height");
-      if(pv.style.cssText===";") pv.style.cssText=""; // 清理
+      if(pv.style.cssText===";") pv.style.cssText="";
     });
   },
   async exportAudio(){
@@ -1999,7 +2031,27 @@ const Speaking={
   },
   async _loadAudios(root){
     const allQs=[...Store.data.speaking.part1.topics.flatMap(t=>t.questions), ...Store.data.speaking.part23.topics.flatMap(t=>[{...t.part2,id:t.id,audioId:t.part2.audioId},...t.part3])];
-    for(const q of allQs){ if(q.audioId){ try{ const blob=await AudioStore.get(q.audioId); if(blob){ const url=URL.createObjectURL(blob); const el=root.querySelector(`audio[data-audio="${q.audioId}"]`); if(el){ el.src=url; try{ el.load(); }catch(_){} } } }catch(e){} } }
+    // 先释放上一轮创建的 objectURL：否则每次重渲染都泄漏一批，内存越滚越大导致卡顿
+    this._revokeAudioUrls();
+    for(const q of allQs){
+      if(!q.audioId) continue;
+      // 元素不在当前 DOM（例如被筛选掉）时直接跳过，省一次 IndexedDB 读取与解码
+      const el=root.querySelector(`audio[data-audio="${q.audioId}"]`);
+      if(!el) continue;
+      try{
+        const blob=await AudioStore.get(q.audioId);
+        if(!blob) continue;
+        const url=URL.createObjectURL(blob);
+        this._audioUrls.set(q.audioId,url);
+        el.src=url;
+        try{ el.load(); }catch(_){}
+      }catch(e){}
+    }
+  },
+  _revokeAudioUrls(){
+    if(!this._audioUrls){ this._audioUrls=new Map(); return; }
+    for(const u of this._audioUrls.values()){ try{ URL.revokeObjectURL(u); }catch(_){} }
+    this._audioUrls.clear();
   },
   // ---- P1 render ----
   _topicPreviewHTML(t,part){
@@ -2470,6 +2522,7 @@ Describe a short trip you often take but do not like
   unmount(){
     if(this._scrollSpy){ this._scrollSpy.disconnect(); this._scrollSpy=null; }
     if(this._onResize){ window.removeEventListener("resize",this._onResize); this._onResize=null; }
+    this._revokeAudioUrls(); // 离开页面时释放所有音频 objectURL
   }
 };
 
