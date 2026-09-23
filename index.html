@@ -1600,49 +1600,75 @@ function blobToDataURL(blob){ return new Promise((res,rej)=>{ const r=new FileRe
 function dataURLToBlob(dataURL){ const idx=dataURL.indexOf(","); const mime=(dataURL.slice(5,idx).match(/[^;]+/)||["audio/wav"])[0]; const bin=atob(dataURL.slice(idx+1)); const arr=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return new Blob([arr],{type:mime}); }
 
 /* ============================================================ SPEAKING */
-// 口语筛选：单一分类组（持久化在 Store.data.speaking.tagOptions），可编辑/新增/删除
-const DEFAULT_SPEAK_TAGS=["Ling","中秋回家走亲戚","清迈徒步","其他"];
-const SPEAK_TAG_GROUP={name:"tag",label:"分类"};
-function speakTagOptions(){
-  if(!Array.isArray(Store.data.speaking.tagOptions)||!Store.data.speaking.tagOptions.length){
-    Store.data.speaking.tagOptions=DEFAULT_SPEAK_TAGS.slice();
+// 口语筛选：Part 1 与 Part 2&3 各自独立的单组标签，互不影响
+//   Part 1  → 「题型」：必考题 / 新题 / 保留题
+//   Part 2&3 → 「分类」：Ling / 中秋回家走亲戚 / 清迈徒步 / 其他
+// 两组都可通过筛选行的「⚙️ 管理标签」重命名/新增/删除。
+const DEFAULT_P1_TAGS=["必考题","新题","保留题"];
+const DEFAULT_P23_TAGS=["Ling","中秋回家走亲戚","清迈徒步","其他"];
+const SPEAK_TAG_LABEL={p1:"题型",p23:"分类"};
+function speakTagOptions(part){
+  const key=(part==="p1")?"part1":"part23";
+  const sp=Store.data.speaking[key];
+  // 迁移：旧版本把 P23 标签存在 speaking.tagOptions，搬过来避免丢失用户自定义
+  if(part==="p23" && !sp.tagOptions && Array.isArray(Store.data.speaking.tagOptions) && Store.data.speaking.tagOptions.length){
+    sp.tagOptions=Store.data.speaking.tagOptions.slice();
     Store.save();
   }
-  return Store.data.speaking.tagOptions;
+  if(!Array.isArray(sp.tagOptions)||!sp.tagOptions.length){
+    sp.tagOptions=(part==="p1"?DEFAULT_P1_TAGS:DEFAULT_P23_TAGS).slice();
+    Store.save();
+  }
+  return sp.tagOptions;
 }
 const Speaking={
   _recording:false,_recStream:null,_recordCtx:{tid:null,qid:null},
-  _filters:{tag:""},
+  _filters:{p1:"",p23:""}, // 两个 part 各自独立的筛选值
   _audioUrls:null, // audioId -> objectURL，重渲染/卸载时释放，避免泄漏
   _collapsed:new Set(),
   _activeTab:"p1",
   _scrollSpy:null,
   _dragId:null,_dragPart:null,
   _initState(){
-    if(!this._filters||typeof this._filters.tag!=="string") this._filters={tag:""};
-    if(typeof this._filters.tag!=="string") this._filters.tag="";
+    if(!this._filters||typeof this._filters.p1!=="string"||typeof this._filters.p23!=="string") this._filters={p1:"",p23:""};
+    if(typeof this._filters.p1!=="string") this._filters.p1="";
+    if(typeof this._filters.p23!=="string") this._filters.p23="";
     if(!this._collapsed) this._collapsed=new Set();
     if(!this._activeTab) this._activeTab="p1";
   },
   _normalizeTopics(s){
     let changed=false;
-    const opts=speakTagOptions();
-    [...s.part1.topics,...s.part23.topics].forEach(t=>{
-      if(!Array.isArray(t.tags)){ t.tags=[]; changed=true; }
-      if(t._cat&&!t.tags.includes(t._cat)){ t.tags.push(t._cat); changed=true; }
-      // 单选约束：当前分类选项中最多保留一个标签
-      const inG=t.tags.filter(tg=>opts.includes(tg));
-      if(inG.length>1){
-        const keep=inG[0];
-        t.tags=t.tags.filter(tg=>!opts.includes(tg));
-        t.tags.push(keep);
-        changed=true;
-      }
-    });
+    // 两个 part 用各自的标签集合做单选约束，互不干扰
+    const fix=(topics,opts)=>{
+      topics.forEach(t=>{
+        if(!Array.isArray(t.tags)){ t.tags=[]; changed=true; }
+        if(t._cat&&!t.tags.includes(t._cat)){ t.tags.push(t._cat); changed=true; }
+        const inG=t.tags.filter(tg=>opts.includes(tg));
+        if(inG.length>1){
+          const keep=inG[0];
+          t.tags=t.tags.filter(tg=>!opts.includes(tg));
+          t.tags.push(keep);
+          changed=true;
+        }
+      });
+    };
+    // 一次性修复：之前 Part1 与 Part2&3 共用标签时，可能给 Part1 话题打上了
+    // 「Ling / 中秋回家走亲戚 / 清迈徒步」这类 Part2&3 的分类，这里清掉，只跑一次。
+    if(!s._p1TagSplitDone){
+      const p23only=["Ling","中秋回家走亲戚","清迈徒步"];
+      s.part1.topics.forEach(t=>{
+        if(!Array.isArray(t.tags)||!t.tags.length) return;
+        const kept=t.tags.filter(tg=>!p23only.includes(tg));
+        if(kept.length!==t.tags.length){ t.tags=kept; changed=true; }
+      });
+      s._p1TagSplitDone=true; changed=true;
+    }
+    fix(s.part1.topics,speakTagOptions("p1"));
+    fix(s.part23.topics,speakTagOptions("p23"));
     if(changed) Store.save();
   },
-  _topicMatchesFilters(t){
-    const sel=this._filters.tag;
+  _topicMatchesFilters(t,part){
+    const sel=this._filters[part];
     if(!sel) return true;
     return (t.tags||[]).includes(sel);
   },
@@ -1658,8 +1684,8 @@ const Speaking={
   },
   _renderLayoutInner(){
     const s=Store.data.speaking;
-    const p1V=s.part1.topics.filter(t=>this._topicMatchesFilters(t));
-    const p23V=s.part23.topics.filter(t=>this._topicMatchesFilters(t));
+    const p1V=s.part1.topics.filter(t=>this._topicMatchesFilters(t,"p1"));
+    const p23V=s.part23.topics.filter(t=>this._topicMatchesFilters(t,"p23"));
     const countBar=(vis,all)=>vis.length<all.length?`<span style="font-size:12px;color:var(--text-3)">显示 ${vis.length}/${all.length} 个话题</span>`:"";
     return `<aside class="speak-nav" id="speak-nav">${this._renderNav()}</aside>
       <div class="speak-main">
@@ -1678,14 +1704,14 @@ const Speaking={
   _collapseLabelForTab(){
     const tab=this._activeTab;
     const all=tab==="p1"?Store.data.speaking.part1.topics:Store.data.speaking.part23.topics;
-    const topics=all.filter(t=>this._topicMatchesFilters(t));
+    const topics=all.filter(t=>this._topicMatchesFilters(t,tab));
     const allCollapsed=topics.length>0 && topics.every(t=>this._collapsed.has(t.id));
     return allCollapsed?"⊞ 全部展开":"⊟ 全部折叠";
   },
   _renderNav(){
     const tab=this._activeTab;
     const all=tab==="p1"?Store.data.speaking.part1.topics:Store.data.speaking.part23.topics;
-    const topics=all.filter(t=>this._topicMatchesFilters(t));
+    const topics=all.filter(t=>this._topicMatchesFilters(t,tab));
     const label=tab==="p1"?"Part 1":"Part 2 & 3";
     const collapseBtn=`<button class="btn btn-outline btn-xs" data-act="collapse-all" title="折叠/展开所有话题" style="font-size:11px;padding:3px 8px;width:100%;justify-content:center;margin-bottom:8px">${this._collapseLabelForTab()}</button>`;
     if(!topics.length) return `<div class="speak-nav-title">${label}</div>${collapseBtn}<div style="font-size:12px;color:var(--text-3);padding:6px 8px">无匹配话题</div>`;
@@ -1694,33 +1720,35 @@ const Speaking={
     ).join("");
   },
   _renderFilters(){
-    const opts=speakTagOptions();
-    const sel=this._filters.tag;
+    // 筛选行跟随当前 tab：Part 1 显示「题型」，Part 2&3 显示「分类」
+    const part=this._activeTab;
+    const opts=speakTagOptions(part);
+    const sel=this._filters[part];
     return `<div class="speak-filters"><div class="filter-group">
-      <span class="filter-label">${SPEAK_TAG_GROUP.label}</span>`+
+      <span class="filter-label">${SPEAK_TAG_LABEL[part]}</span>`+
       opts.map(tag=>{
         const active=sel===tag;
-        return `<button class="filter-chip ${active?"active":""}" data-filter-group="${SPEAK_TAG_GROUP.name}" data-filter-tag="${esc(tag)}">${esc(tag)}</button>`;
+        return `<button class="filter-chip ${active?"active":""}" data-filter-group="${part}" data-filter-tag="${esc(tag)}">${esc(tag)}</button>`;
       }).join("")+
-      (sel?`<span class="filter-clear" data-filter-clear="${SPEAK_TAG_GROUP.name}">清除</span>`:"")+
-      `<button type="button" class="btn btn-ghost btn-xs" data-act="manage-tags" title="管理分类选项（重命名/新增/删除）" style="margin-left:auto;font-size:11px;padding:3px 10px">⚙️ 管理标签</button>
+      (sel?`<span class="filter-clear" data-filter-clear="${part}">清除</span>`:"")+
+      `<button type="button" class="btn btn-ghost btn-xs" data-act="manage-tags" title="管理${SPEAK_TAG_LABEL[part]}选项（重命名/新增/删除）" style="margin-left:auto;font-size:11px;padding:3px 10px">⚙️ 管理标签</button>
     </div></div>`;
   },
-  _renderTopicTags(t){
+  _renderTopicTags(t,part){
     const tags=t.tags||[];
     if(!tags.length) return "";
-    const opts=speakTagOptions();
+    const opts=speakTagOptions(part);
     return `<span class="topic-tags">`+tags.map(tg=>{
       const cls=opts.includes(tg)?"g-type":"g-cat";
       return `<span class="topic-tag-badge ${cls}">${esc(tg)}</span>`;
     }).join("")+`</span>`;
   },
-  _renderTagEditor(tags){
+  _renderTagEditor(tags,part){
     tags=tags||[];
-    const opts=speakTagOptions();
-    return `<div class="field"><label>话题标签（单选）</label><div class="tag-editor">
-      <div class="tag-editor-group"><span class="tag-editor-label">${SPEAK_TAG_GROUP.label}</span>`+
-      opts.map(tg=>`<button type="button" class="tag-check ${tags.includes(tg)?"active":""}" data-tag="${esc(tg)}" data-group="${SPEAK_TAG_GROUP.name}">${esc(tg)}</button>`).join("")+
+    const opts=speakTagOptions(part);
+    return `<div class="field"><label>话题标签（${SPEAK_TAG_LABEL[part]}·单选）</label><div class="tag-editor">
+      <div class="tag-editor-group"><span class="tag-editor-label">${SPEAK_TAG_LABEL[part]}</span>`+
+      opts.map(tg=>`<button type="button" class="tag-check ${tags.includes(tg)?"active":""}" data-tag="${esc(tg)}" data-group="${part}">${esc(tg)}</button>`).join("")+
       `</div></div></div>`;
   },
   _collectTags(body){ return [...body.querySelectorAll(".tag-check.active")].map(i=>i.dataset.tag); },
@@ -2080,7 +2108,7 @@ const Speaking={
         <span class="topic-drag" data-drag-handle title="拖动排序">⠿</span>
         <span class="topic-chevron ${collapsed?"":"open"}">▶</span>
         <span class="topic-name">${esc(t.name)}</span>
-        ${this._renderTopicTags(t)}
+        ${this._renderTopicTags(t,"p1")}
         <span class="topic-count">${t.questions.length} 道题</span>
         <div class="topic-actions"><button class="btn-icon" data-edit-topic-p1="${t.id}" title="编辑话题">✏️</button><button class="btn-icon" data-del-topic-p1="${t.id}" title="删除话题">🗑️</button></div>
       </div>
@@ -2102,7 +2130,7 @@ const Speaking={
         <span class="topic-drag" data-drag-handle title="拖动排序">⠿</span>
         <span class="topic-chevron ${collapsed?"":"open"}">▶</span>
         <span class="topic-name">${esc(t.name)}</span>
-        ${this._renderTopicTags(t)}
+        ${this._renderTopicTags(t,"p23")}
         <span class="topic-count">Part3: ${t.part3.length} 问</span>
         <div class="topic-actions"><button class="btn-icon" data-edit-topic-p23="${t.id}" title="编辑话题">✏️</button><button class="btn-icon" data-del-topic-p23="${t.id}" title="删除话题">🗑️</button></div>
       </div>
@@ -2146,7 +2174,7 @@ const Speaking={
   _editTopicP1(id){
     const topics=Store.data.speaking.part1.topics; const t=id?topics.find(x=>x.id===id):null;
     const tags=t?(t.tags||[]):[];
-    showModal(id?"编辑话题":"添加话题",`<div class="field"><label>话题名称</label><input id="f-name" value="${t?esc(t.name):""}" placeholder="如：Hometown / Work / Hobbies"></div>${this._renderTagEditor(tags)}<div class="field"><label>话题备注（可选）</label><textarea id="f-note" rows="2" placeholder="悬浮话题卡时会显示，用于记关键词要点，例如：internet company｜ads & short videos｜close｜10min commute">${t?esc(t.note||""):""}</textarea></div>`,body=>{
+    showModal(id?"编辑话题":"添加话题",`<div class="field"><label>话题名称</label><input id="f-name" value="${t?esc(t.name):""}" placeholder="如：Hometown / Work / Hobbies"></div>${this._renderTagEditor(tags,"p1")}<div class="field"><label>话题备注（可选）</label><textarea id="f-note" rows="2" placeholder="悬浮话题卡时会显示，用于记关键词要点，例如：internet company｜ads & short videos｜close｜10min commute">${t?esc(t.note||""):""}</textarea></div>`,body=>{
       const name=body.querySelector("#f-name").value.trim(); if(!name){ toast("请填写话题名称","error"); return; }
       const newTags=this._collectTags(body);
       const note=body.querySelector("#f-note").value.trim();
@@ -2233,7 +2261,7 @@ const Speaking={
   },
   // ---- Part 2 & 3 批量导入 ----
   _batchImportP23(){
-    const tagBtns=speakTagOptions().map(tg=>`<button type="button" class="tag-check" data-tag="${esc(tg)}" data-group="importTag">${esc(tg)}</button>`).join("");
+    const tagBtns=speakTagOptions("p23").map(tg=>`<button type="button" class="tag-check" data-tag="${esc(tg)}" data-group="importTag">${esc(tg)}</button>`).join("");
     showModal("批量导入 Part 2 & 3 话题",`
       <div class="field"><label>粘贴内容</label><textarea id="f-batch" rows="18" style="font-size:13px;line-height:1.7" placeholder="1. 童年好友
 Describe a friend from childhood who you remember very well.
@@ -2382,7 +2410,7 @@ Describe a person in your life who really like taking photos
     const tags=t?(t.tags||[]):[];
     showModal(id?"编辑话题":"添加话题",`
       <div class="field"><label>话题名称</label><input id="f-name" value="${t?esc(t.name):""}" placeholder="如：Describe a place you'd like to visit"></div>
-      ${this._renderTagEditor(tags)}
+      ${this._renderTagEditor(tags,"p23")}
       <div class="field"><label>话题备注（可选）</label><textarea id="f-tnote" rows="2" placeholder="悬浮话题卡时会显示，用于记关键词要点">${t?esc(t.note||""):""}</textarea></div>
       <div class="field"><label>Part 2 题目（Cue Card）</label><textarea id="f-p2q" rows="3" placeholder="Describe... You should say...">${t?esc(t.part2.question||""):""}</textarea></div>
       <div class="field"><label>Part 2 我的答案</label><textarea id="f-p2a" rows="6" placeholder="写下你的个人答案…">${t?esc(t.part2.answer||""):""}</textarea></div>
@@ -2411,22 +2439,27 @@ Describe a person in your life who really like taking photos
       Store.save(); hideModal(); Router.go("speaking",true);
     },{wide:true});
   },
-  // ---- 分类标签管理（重命名/新增/删除） ----
+  // ---- 标签管理（重命名/新增/删除），只作用于当前 tab 所属的 part ----
   _manageTags(){
-    const opts=speakTagOptions();
+    const part=this._activeTab;
+    const key=(part==="p1")?"part1":"part23";
+    const label=SPEAK_TAG_LABEL[part];
+    const scope=(part==="p1")?"Part 1":"Part 2 & 3";
+    const opts=speakTagOptions(part);
     const optsHtml=opts.map((tg,i)=>`
       <div class="tag-mgr-row" style="display:flex;gap:8px;align-items:center">
         <input type="text" data-tag-idx="${i}" value="${esc(tg)}" placeholder="标签名" style="flex:1;padding:6px 10px;border:1px solid var(--border-2);border-radius:4px;font-size:14px">
         <button type="button" class="btn btn-ghost btn-sm" data-tag-del="${i}" title="删除该行">🗑️</button>
       </div>`).join("");
-    showModal("管理分类标签",`
-      <div class="field"><label>分类标签（用于话题筛选与打标）</label>
+    showModal(`管理${label}标签`,`
+      <div class="field"><label>${label}标签（用于 ${scope} 话题筛选与打标）</label>
         <div id="tag-mgr-list" style="display:flex;flex-direction:column;gap:8px">${optsHtml}</div>
         <button type="button" class="btn btn-outline btn-sm" id="tag-add" style="margin-top:10px">+ 添加标签</button>
       </div>
       <div style="font-size:12px;color:var(--text-3);line-height:1.8;padding:10px 14px;background:var(--surface-2);border-radius:4px;margin-top:12px">
         提示：可以直接修改输入框重命名标签；点击 🗑️ 删除；点击「+ 添加标签」新增。<br>
-        重命名会自动同步到所有已使用该标签的话题；删除后引用了该标签的话题会自动移除该标签。
+        重命名会自动同步到所有已使用该标签的话题；删除后引用了该标签的话题会自动移除该标签。<br>
+        <b>这里只影响 ${scope}</b>，另一部分的标签不受影响。
       </div>
     `,body=>{
       const inputs=body.querySelectorAll('input[data-tag-idx]');
@@ -2450,7 +2483,8 @@ Describe a person in your life who really like taking photos
         }
       });
       // 同步到话题：重命名 → 替换；旧标签不在 final 也不在 renameMap → 删除
-      const allTopics=[...Store.data.speaking.part1.topics,...Store.data.speaking.part23.topics];
+      // 只处理当前 part 的话题，另一部分完全不动
+      const allTopics=Store.data.speaking[key].topics;
       for(const tp of allTopics){
         const next=[];
         for(const tg of tp.tags){
@@ -2460,9 +2494,9 @@ Describe a person in your life who really like taking photos
         }
         tp.tags=next;
       }
-      Store.data.speaking.tagOptions=finalVals;
+      Store.data.speaking[key].tagOptions=finalVals;
       // 当前筛选若已失效，清除
-      if(this._filters.tag && !finalSet.has(this._filters.tag)) this._filters.tag="";
+      if(this._filters[part] && !finalSet.has(this._filters[part])) this._filters[part]="";
       Store.save();
       hideModal();
       toast("标签已更新","success");
