@@ -1724,7 +1724,7 @@ const Speaking={
     const part=this._activeTab;
     const opts=speakTagOptions(part);
     const sel=this._filters[part];
-    return `<div class="speak-filters"><div class="filter-group">
+    return `<div class="speak-filters" id="speak-filters"><div class="filter-group">
       <span class="filter-label">${SPEAK_TAG_LABEL[part]}</span>`+
       opts.map(tag=>{
         const active=sel===tag;
@@ -1789,6 +1789,9 @@ const Speaking={
         root.querySelectorAll(".tab-panel").forEach(p=>p.classList.add("hidden"));
         const panel=root.querySelector(`[data-panel="${target}"]`); if(panel) panel.classList.remove("hidden");
         this._updateNav(root);
+        // 筛选行是按当前 tab 渲染的（P1 题型 / P23 分类），切 tab 必须换掉，
+        // 否则会一直停留在上一个 part 的标签组上
+        this._updateFilters(root);
         // 新显示的面板此前是 display:none，预览的测量值无效，必须重新定位
         this._positionTopicPreviews(root);
       });
@@ -1819,6 +1822,14 @@ const Speaking={
     root.querySelectorAll('[data-act="collapse-all"]').forEach(b=>{
       b.addEventListener("click",()=>this._toggleCollapseAll(root,b));
     });
+  },
+  _updateFilters(root){
+    const el=root.querySelector("#speak-filters");
+    if(!el) return;
+    el.outerHTML=this._renderFilters();
+    this._bindFilters(root);
+    const mt=root.querySelector('[data-act="manage-tags"]');
+    if(mt) mt.addEventListener("click",()=>this._manageTags());
   },
   _bindFilters(root){
     root.querySelectorAll("[data-filter-tag]").forEach(c=>{
